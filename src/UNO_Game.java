@@ -4,9 +4,34 @@ public class UNO_Game {
     private ArrayList<Player> players;
     private Player currentPlayer;
     private Deck deck;
+    private ArrayList<Card> drawPile;
+    private ArrayList<Card> playPile;
     private Direction direction;
     private boolean gameOver;
     private Card topCard;
+
+
+    public UNO_Game(){
+        deck = new Deck();
+        drawPile = new ArrayList<>();
+        playPile = new ArrayList<>();
+        players = new ArrayList<>();
+        gameOver = false;
+        distributeCards();
+
+    }
+    
+    private void distributeCards(){
+        for (Player player : players){
+            for (int i=0; i < 7; i++){
+                Card c = deck.getDeck().getLast();
+                player.drawCard(c);
+            }
+        }
+        drawPile = deck.getDeck(); //The remaining cards are the draw pile now
+    }
+
+    //Need to play the game now
 
 
     public boolean isValidPlay(Card card) {

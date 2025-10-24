@@ -5,7 +5,20 @@ public class Player {
     private List<Card> hand;
     private int score;
 
-    public void drawCardToHand(Card drawnCard) {
-
+    public Player(String name) {
+        this.name = name;
     }
+
+    public String getName() {
+        return name;
+    }
+
+    public void drawCard(Card drawnCard) {
+        hand.add(drawnCard);
+    }
+
+    public Card playCard(int cardNumber) {
+        return hand.get(cardNumber);
+    }
+
 }
