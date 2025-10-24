@@ -2,38 +2,62 @@ import java.util.*;
 
 public class UNO_Game {
     private ArrayList<Player> players;
-    private Player currentPlayer;
-    private Deck deck;
+    private Deck light_deck;
+    private Deck dark_deck;
     private ArrayList<Card> drawPile;
     private Stack<Card> playPile;
     private Direction direction;
     private boolean gameOver;
-    private Card topCard;
     private int numPlayers;
     private Scanner input = new Scanner(System.in);
 
-
-
-    public UNO_Game(){
-        deck = new Deck();
+    public UNO_Game() {
+        players = new ArrayList<>();
+        light_deck = new Deck();
+        dark_deck = new Deck();
         drawPile = new ArrayList<>();
         playPile = new Stack<>();
-        players = new ArrayList<>();
+        direction = Direction.CLOCKWISE;
         gameOver = false;
+
         numPlayers();
         playerNames();
-        distributeCards();
-        playGame();
+        gameLoop(); // main game loop
     }
 
-    public void numPlayers(){
+    private void gameLoop() {
+        boolean playAgain = true;
+
+        while (playAgain) {
+            resetDecks();
+            distributeCards();
+            playGame();
+
+            System.out.println("\n--- Round Over ---");
+            tallyScores();
+
+            System.out.print("Do you want to play again? (y/n): ");
+            String choice = input.nextLine().trim().toLowerCase(); //Defensive programming right here
+            playAgain = choice.equals("y");
+        }
+
+        System.out.println("\nThanks for playing UNO Flip!");
+    }
+
+    private void resetDecks() {
+        light_deck = new Deck();  // fresh shuffled decks
+        dark_deck = new Deck();
+        drawPile = new ArrayList<>();
+        playPile = new Stack<>();
+    }
+
+    public void numPlayers() {
         numPlayers = 0;
         while (true) {
             System.out.print("Enter the number of players (2-4): ");
             if (input.hasNextInt()) {
                 numPlayers = input.nextInt();
                 input.nextLine();
-
                 if (numPlayers >= 2 && numPlayers <= 4) {
                     System.out.println("You entered: " + numPlayers);
                     break;
@@ -47,85 +71,91 @@ public class UNO_Game {
         }
     }
 
-    public void playerNames(){
+    public void playerNames() {
         for (int i = 0; i < numPlayers; i++) {
             System.out.print("Enter a name for player " + (i + 1) + ": ");
             players.add(new Player(input.nextLine()));
         }
     }
 
-    public Card topCard(){
+    public Card topCard() {
         return playPile.peek();
     }
 
-    //Did something but needs work from here
-
     private void playGame() {
+        gameOver = false;
+
         while (!gameOver) {
             for (Player player : players) {
-                System.out.println(player.getName() + "'s turn");
-
-                System.out.println();
-
-                System.out.println("Top Card: ");
-
+                System.out.println("\n" + player.getName() + "'s turn");
+                System.out.println("Top Card:");
                 topCard().printCard();
-
                 System.out.println();
 
-                while (!validMove(player, player.takeTurn())) {
-                    player.takeTurn();
+                int chosenIndex;
+                while (true) {
+                    chosenIndex = player.takeTurn(input);
+                    Card chosenCard = player.playCard(chosenIndex);
+
+                    if (validMove(player, chosenIndex)) {
+                        playPile.push(chosenCard);
+                        System.out.println(player.getName() + " played:");
+                        chosenCard.printCard();
+
+                        // simulate removing that card from hand
+                        player.removeCard(chosenIndex);
+
+                        // if player ran out of cards — they win the round
+                        if (player.handSize() == 0) {
+                            System.out.println("\n" + player.getName() + " wins ");
+                            gameOver = true;
+                            break;
+                        }
+                        break;
+                    } else {
+                        System.out.println("Invalid move. Try again.");
+                    }
                 }
+
+                if (gameOver) break;
             }
         }
     }
 
     private boolean validMove(Player p, int i) {
-        return p.playCard(i).playableOnTop(topCard);
+        return p.playCard(i).playableOnTop(topCard());
     }
 
-    private void distributeCards(){
-        for (Player player : players){
-            for (int i=0; i < 7; i++){
-                Card c = deck.getDeck().removeLast();
+    private void distributeCards() {
+        for (Player player : players) {
+            player.clearHand();
+            for (int i = 0; i < 7; i++) {
+                Card c = light_deck.getLight_Deck()
+                        .remove(light_deck.getLight_Deck().size() - 1);
                 player.drawCard(c);
             }
         }
-        Card c = deck.getDeck().removeLast();
+
+        Card c = light_deck.getLight_Deck()
+                .remove(light_deck.getLight_Deck().size() - 1);
         playPile.add(c);
-        drawPile = deck.getDeck(); //The remaining cards are the draw pile now
+        drawPile = light_deck.getLight_Deck();
+    }
+
+    private void tallyScores() {
+        System.out.println("\n--- Scoreboard ---");
+        for (Player p : players) {
+            int handPoints = 0;
+            for (Card c : p.getHand()) {
+                handPoints += c.getValue().getPointValue();
+            }
+            p.addScore(handPoints);
+            System.out.println(p.getName() + " total score: " + p.getScore());
+        }
+        System.out.println("-------------------\n");
     }
 
     public static void main(String[] args) {
-        UNO_Game game = new UNO_Game();
+        new UNO_Game();
     }
-//    public boolean isValidPlay(Card card) {
-//        return card.playableOnTop(topCard);
-//    }
-//
-//    public void nextTurn() {
-//    }
-//
-//    public void handleSpecialCard(Card card) {
-//        switch(card.getValue()) {
-//            case SKIP -> nextTurn(); // Skip next player
-//
-//            case REVERSE ->
-//                    this.direction = (this.direction == Direction.CLOCKWISE)
-//                    ? Direction.COUNTERCLOCKWISE
-//                    : Direction.CLOCKWISE;
-//
-//            case DRAW_TWO -> {
-//                // Next player draws 2 cards
-//                //Player nextPlayer;
-//                //nextPlayer.drawCardToHand(deck.drawCard());
-//                //nextPlayer.drawCardToHand(deck.drawCard());
-//                //nextTurn(); // Skip their turn
-//            }
-//            case WILD_DRAW_FOUR -> {
-//                // Repeat Draw Two code but also change top card's color
-//                // Ensure the color can be chosen by player
-//            }
-//        }
-//    }
 }

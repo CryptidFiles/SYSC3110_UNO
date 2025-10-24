@@ -1,5 +1,12 @@
 public enum Color {
-    RED, BLUE, YELLOW, GREEN, WILD, ORANGE, TEAL, PURPLE, PINK;
+    //Light (0-3)
+    RED, BLUE, YELLOW, GREEN,
+
+    //Wild (4)
+    WILD,
+
+    //Dark (5-8)
+    ORANGE, TEAL, PURPLE, PINK;
 
 
     //Helper functions

@@ -2,10 +2,12 @@ import java.util.*;
 
 public class Deck {
 
-    private final ArrayList<Card> deck;
+    private ArrayList<Card> light_deck;
+    private ArrayList<Card> dark_deck;
 
     public Deck() {
-        deck = new ArrayList<>();
+        light_deck = new ArrayList<>();
+        dark_deck = new ArrayList<>();
         initializeDeck();
     }
 
@@ -17,8 +19,8 @@ public class Deck {
                 // Number cards
                 for (Color color : Color.values()) {
                     if (color.isLight()) {
-                        deck.add(new Card(color, type));
-                        deck.add(new Card(color, type));
+                        light_deck.add(new Card(color, type));
+                        light_deck.add(new Card(color, type));
                     }
                 }
             }
@@ -29,8 +31,8 @@ public class Deck {
 
                 for (Color color : Color.values()) {
                     if (color.isLight()) {
-                        deck.add(new Card(color, type));
-                        deck.add(new Card(color, type));
+                        light_deck.add(new Card(color, type));
+                        light_deck.add(new Card(color, type));
                     }
                 }
             }
@@ -38,7 +40,7 @@ public class Deck {
             // Light wild cards
             if (type == CardType.WILD || type == CardType.WILD_DRAW_TWO) {
                 for (int i = 0; i < 4; i++) {
-                    deck.add(new Card(null, type));
+                    light_deck.add(new Card(Color.WILD, type));
                 }
             }
 
@@ -46,8 +48,8 @@ public class Deck {
             if (type.isNumberCard()) {
                 for (Color color : Color.values()) {
                     if (color.isDark()) {
-                        deck.add(new Card(color, type));
-                        deck.add(new Card(color, type));
+                        dark_deck.add(new Card(color, type));
+                        dark_deck.add(new Card(color, type));
                     }
                 }
             }
@@ -58,8 +60,8 @@ public class Deck {
 
                 for (Color color : Color.values()) {
                     if (color.isDark()) {
-                        deck.add(new Card(color, type));
-                        deck.add(new Card(color, type));
+                        dark_deck.add(new Card(color, type));
+                        dark_deck.add(new Card(color, type));
                     }
                 }
             }
@@ -67,15 +69,20 @@ public class Deck {
             // Dark wild cards
             if (type == CardType.DARK_WILD || type == CardType.WILD_DRAW_COLOR) {
                 for (int i = 0; i < 4; i++) {
-                    deck.add(new Card(null, type));
+                    dark_deck.add(new Card(Color.WILD, type));
                 }
             }
         }
 
-        Collections.shuffle(deck);
+        Collections.shuffle(light_deck);
+        Collections.shuffle(dark_deck);
     }
 
-    public ArrayList<Card> getDeck() {
-        return deck;
+    public ArrayList<Card> getLight_Deck() {
+        return light_deck;
+    }
+
+    public ArrayList<Card> getDark_Deck() {
+        return dark_deck;
     }
 }
