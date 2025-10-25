@@ -19,4 +19,8 @@ public class Card {
     public CardType getValue() {
         return value;
     }
+
+    public void printCard(){
+        System.out.println(this.color + " " + this.value);
+    }
 }
