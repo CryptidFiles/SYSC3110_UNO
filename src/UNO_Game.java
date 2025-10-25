@@ -2,19 +2,18 @@ import java.util.*;
 
 public class UNO_Game {
     private ArrayList<Player> players;
-    private Deck light_deck;
-    private Deck dark_deck;
+    private Deck playDeck;
     private ArrayList<Card> drawPile;
     private Stack<Card> playPile;
     private Direction direction;
     private boolean gameOver;
+    private Player winningPlayer;
     private int numPlayers;
     private Scanner input = new Scanner(System.in);
 
     public UNO_Game() {
         players = new ArrayList<>();
-        light_deck = new Deck();
-        dark_deck = new Deck();
+        playDeck = new Deck();
         drawPile = new ArrayList<>();
         playPile = new Stack<>();
         direction = Direction.CLOCKWISE;
@@ -34,7 +33,7 @@ public class UNO_Game {
             playGame();
 
             System.out.println("\n--- Round Over ---");
-            tallyScores();
+            tallyScores(winningPlayer);
 
             System.out.print("Do you want to play again? (y/n): ");
             String choice = input.nextLine().trim().toLowerCase(); //Defensive programming right here
@@ -45,10 +44,31 @@ public class UNO_Game {
     }
 
     private void resetDecks() {
-        light_deck = new Deck();  // fresh shuffled decks
-        dark_deck = new Deck();
+        playDeck = new Deck();  // fresh shuffled decks
         drawPile = new ArrayList<>();
         playPile = new Stack<>();
+    }
+
+    private void distributeCards() {
+        for (Player player : players) {
+            player.clearHand();
+            for (int i = 0; i < 7; i++) {
+                Card c = playDeck.drawCard();
+                player.drawCard(c);
+            }
+        }
+
+        // Set up first card
+        Card firstCard = playDeck.drawCard();
+        if (firstCard != null) {
+            playPile.push(firstCard);
+        }
+
+        while (true) {
+            Card card = playDeck.drawCard();
+            if (card == null) break;
+            drawPile.add(card);
+        }
     }
 
     public void numPlayers() {
@@ -89,7 +109,7 @@ public class UNO_Game {
         while (!gameOver) {
             for (Player player : players) {
                 System.out.println("\n" + player.getName() + "'s turn");
-                System.out.println("Top Card:");
+                System.out.print("Top Card:\t");
                 topCard().printCard();
                 System.out.println();
 
@@ -100,8 +120,9 @@ public class UNO_Game {
 
                     if (validMove(player, chosenIndex)) {
                         playPile.push(chosenCard);
-                        System.out.println(player.getName() + " played:");
+                        System.out.print(player.getName() + " played:  ");
                         chosenCard.printCard();
+                        chosenCard.action(this, player);
 
                         // simulate removing that card from hand
                         player.removeCard(chosenIndex);
@@ -109,6 +130,7 @@ public class UNO_Game {
                         // if player ran out of cards — they win the round
                         if (player.handSize() == 0) {
                             System.out.println("\n" + player.getName() + " wins ");
+                            winningPlayer = player;
                             gameOver = true;
                             break;
                         }
@@ -127,36 +149,32 @@ public class UNO_Game {
         return p.playCard(i).playableOnTop(topCard());
     }
 
-    private void distributeCards() {
-        for (Player player : players) {
-            player.clearHand();
-            for (int i = 0; i < 7; i++) {
-                Card c = light_deck.getLight_Deck()
-                        .remove(light_deck.getLight_Deck().size() - 1);
-                player.drawCard(c);
-            }
-        }
 
-        Card c = light_deck.getLight_Deck()
-                .remove(light_deck.getLight_Deck().size() - 1);
-        playPile.add(c);
-        drawPile = light_deck.getLight_Deck();
-    }
 
-    private void tallyScores() {
+    private void tallyScores(Player winner) {
         System.out.println("\n--- Scoreboard ---");
+
+        // Tally winner's points from opponent's remaining cards
         for (Player p : players) {
             int handPoints = 0;
-            for (Card c : p.getHand()) {
-                handPoints += c.getValue().getPointValue();
+
+            if(p != winner) {
+                for (Card c : p.getHand()) {
+                    handPoints += c.getType().getPointValue();
+                }
+                winner.addScore(handPoints);
             }
-            p.addScore(handPoints);
+            System.out.println(p.getName() + " total score: " + p.getScore());
+        }
+
+        // Display the current scores of all players
+        for (Player p : players) {
             System.out.println(p.getName() + " total score: " + p.getScore());
         }
         System.out.println("-------------------\n");
     }
 
     public static void main(String[] args) {
-        new UNO_Game();
+        UNO_Game game = new UNO_Game();
     }
 }

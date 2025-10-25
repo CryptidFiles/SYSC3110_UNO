@@ -28,10 +28,10 @@ public class Player {
     }
 
     public void printHand() {
-        System.out.println("Your hand:");
+        System.out.println(name + "'s hand:");
         int index = 1;
         for (Card card : hand) {
-            System.out.print(index + ". ");
+            System.out.print("\t" + index + ". ");
             index++;
             card.printCard();
         }

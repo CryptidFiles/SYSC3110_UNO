@@ -6,7 +6,7 @@ public enum Color {
     WILD,
 
     //Dark (5-8)
-    ORANGE, TEAL, PURPLE, PINK;
+    PURPLE, PINK, ORANGE, TEAL;
 
 
     //Helper functions
@@ -16,6 +16,16 @@ public enum Color {
 
     public boolean isDark() {
         return this == PINK || this == TEAL || this == ORANGE || this == PURPLE;
+    }
+
+    public Color getDarkCounterpart() {
+        return switch (this) {
+            case RED -> Color.PINK;
+            case BLUE -> Color.TEAL;
+            case YELLOW -> Color.ORANGE;
+            case GREEN -> Color.PURPLE;
+            default -> this; // Return self for wild/dark colors
+        };
     }
 }
 

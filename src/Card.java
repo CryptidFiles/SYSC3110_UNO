@@ -1,26 +1,50 @@
 
-public class Card {
-    private final Color color;
-    private final CardType value;
+abstract public class Card {
+    protected boolean isLightSideActive;
 
-    public Card(Color color, CardType cardType) {
-        this.color = color;
-        this.value = cardType;
-    }
+    // Attributes shared by ALL cards
+    protected Color lightColor;
+    protected Color darkColor;
+
+    protected CardType lightType;
+    protected CardType darkType;
+
+    // Blueprint for acting upon the play of the card
+    public abstract boolean action(UNO_Game model, Player player);
 
     // Determine if card can be played on the top of the stack
-    public boolean playableOnTop(Card other) {
-        return this.color == Color.WILD ||
-                other.color == Color.WILD ||
-                this.color == other.color ||
-                this.value == other.value;
+    public abstract boolean playableOnTop(Card otherCard);
+
+
+    public CardType getType() {
+        if (isLightSideActive) {
+            return lightType;
+        } else {
+            return darkType;
+        }
     }
 
-    public CardType getValue() {
-        return value;
+    public Color getColor() {
+        if (isLightSideActive) {
+            return lightColor;
+        } else {
+            return darkColor;
+        }
+    }
+
+    public void flip() {
+        isLightSideActive = !isLightSideActive;
+    }
+
+    public boolean getActiveSide() {
+        return isLightSideActive;
     }
 
     public void printCard(){
-        System.out.println(this.color + " " + this.value);
+        if(isLightSideActive){
+            System.out.println(this.lightColor + "  " + this.lightType);
+        } else if (!isLightSideActive) {
+            System.out.println(this.darkColor + "  " + this.darkType);
+        }
     }
 }

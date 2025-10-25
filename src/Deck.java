@@ -2,87 +2,80 @@ import java.util.*;
 
 public class Deck {
 
-    private ArrayList<Card> light_deck;
-    private ArrayList<Card> dark_deck;
+    private ArrayList<Card> deck;
 
     public Deck() {
-        light_deck = new ArrayList<>();
-        dark_deck = new ArrayList<>();
+        deck = new ArrayList<>();
         initializeDeck();
     }
 
     private void initializeDeck() {
         for (CardType type : CardType.values()) {
 
-            //Light Side
+            //Number cards
             if (type.isNumberCard()) {
-                // Number cards
+
+                // For each color of specific number card
                 for (Color color : Color.values()) {
                     if (color.isLight()) {
-                        light_deck.add(new Card(color, type));
-                        light_deck.add(new Card(color, type));
+                        deck.add(new NumberCard(color, color.getDarkCounterpart(), type));
+                        deck.add(new NumberCard(color, color.getDarkCounterpart(), type));
                     }
                 }
             }
 
-            // Light action cards
-            if (type == CardType.DRAW_ONE || type == CardType.LIGHT_REVERSE ||
-                    type == CardType.SKIP || type == CardType.FLIP) {
-
-                for (Color color : Color.values()) {
-                    if (color.isLight()) {
-                        light_deck.add(new Card(color, type));
-                        light_deck.add(new Card(color, type));
+            // Reverse Card
+            if (type.isActionCard()) {
+                if (type == CardType.DRAW_ONE) {
+                    for (Color color : Color.values()) {
+                        deck.add(new DrawXCard(color, color.getDarkCounterpart()));
+                        deck.add(new DrawXCard(color, color.getDarkCounterpart()));
                     }
                 }
-            }
 
-            // Light wild cards
-            if (type == CardType.WILD || type == CardType.WILD_DRAW_TWO) {
-                for (int i = 0; i < 4; i++) {
-                    light_deck.add(new Card(Color.WILD, type));
-                }
-            }
-
-            //Dark Side
-            if (type.isNumberCard()) {
-                for (Color color : Color.values()) {
-                    if (color.isDark()) {
-                        dark_deck.add(new Card(color, type));
-                        dark_deck.add(new Card(color, type));
+                if (type == CardType.LIGHT_REVERSE) {
+                    for (Color color : Color.values()) {
+                        deck.add(new ReverseCard(color, color.getDarkCounterpart()));
+                        deck.add(new ReverseCard(color, color.getDarkCounterpart()));
                     }
                 }
-            }
 
-            // Dark action cards
-            if (type == CardType.DRAW_FIVE || type == CardType.DARK_REVERSE ||
-                    type == CardType.SKIP_EVERYONE || type == CardType.DARK_FLIP) {
-
-                for (Color color : Color.values()) {
-                    if (color.isDark()) {
-                        dark_deck.add(new Card(color, type));
-                        dark_deck.add(new Card(color, type));
+                if (type == CardType.SKIP) {
+                    for (Color color : Color.values()) {
+                        deck.add(new SkipCard(color, color.getDarkCounterpart()));
+                        deck.add(new SkipCard(color, color.getDarkCounterpart()));
                     }
                 }
-            }
 
-            // Dark wild cards
-            if (type == CardType.DARK_WILD || type == CardType.WILD_DRAW_COLOR) {
-                for (int i = 0; i < 4; i++) {
-                    dark_deck.add(new Card(Color.WILD, type));
+                if (type == CardType.WILD) {
+                    for (int i = 0; i < 4; i++) {
+                        deck.add(new WildCard());
+                        deck.add(new WildCard());
+                    }
+                }
+
+                if (type == CardType.WILD_DRAW_TWO) {
+                    for (int i = 0; i < 4; i++) {
+                        deck.add(new WildDrawCard());
+                        deck.add(new WildDrawCard());
+                    }
                 }
             }
         }
 
-        Collections.shuffle(light_deck);
-        Collections.shuffle(dark_deck);
+        Collections.shuffle(deck);
     }
 
-    public ArrayList<Card> getLight_Deck() {
-        return light_deck;
+    public ArrayList<Card> getDeck() {
+        return deck;
     }
 
-    public ArrayList<Card> getDark_Deck() {
-        return dark_deck;
+    // Basic drawCard method
+    public Card drawCard() {
+        if (deck.isEmpty()) {
+            return null; // or handle reshuffling from discard pile
+        }
+        return deck.removeLast(); // Draw from top
     }
+
 }
