@@ -3,8 +3,6 @@ import java.util.*;
 public class UNO_Game {
     private ArrayList<Player> players;
 
-
-
     private Deck playDeck;
     private Stack<Card> playPile;
     private Direction direction;
