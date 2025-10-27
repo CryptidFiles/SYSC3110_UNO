@@ -9,7 +9,12 @@ public class UNO_Game {
     private Stack<Card> playPile;
     private Direction direction;
     private boolean gameOver;
-    private Player winningPlayer;
+
+
+    private Player roundWinningPlayer;
+    private Player gameWinningPlayer;
+    final int WINNING_SCORE = 500;
+
     private int numPlayers;
     private Scanner input = new Scanner(System.in);
     private int currentPlayerIndex;
@@ -38,7 +43,7 @@ public class UNO_Game {
             playGame();
 
             System.out.println("\n--- Round Over ---");
-            tallyScores(winningPlayer);
+            tallyScores(roundWinningPlayer);
 
             System.out.print("Do you want to play again? (y/n): ");
             String choice = input.nextLine().trim().toLowerCase(); //Defensive programming right here
@@ -169,7 +174,7 @@ public class UNO_Game {
                     // if player ran out of cards — they win the round
                     if (player.handSize() == 0) {
                         System.out.println("\n" + player.getName() + " wins ");
-                        winningPlayer = player;
+                        roundWinningPlayer = player;
                         gameOver = true;
                         break; //someone won
                     }
@@ -239,17 +244,27 @@ public class UNO_Game {
             if(p != winner) {
                 for (Card c : p.getHand()) {
                     handPoints += c.getType().getPointValue(); //adds all players remaining card points to the winning player's score
+                    System.out.println(handPoints + "from " + p.getName() + "'s hand");
                 }
                 winner.addScore(handPoints);
             }
-            System.out.println(p.getName() + " total score: " + p.getScore()); //prints the updated scores
         }
 
-        // Display the current scores of all players, isn't that repetitive code? this loop is unnecessary
+        // Display the current scores of all players
         for (Player p : players) {
             System.out.println(p.getName() + " total score: " + p.getScore());
+
+            // Assign the winner to anyone who has a total score of 500 or more points
+            if(p.getScore() >= WINNING_SCORE){
+                gameWinningPlayer = p;
+            }
         }
         System.out.println("-------------------\n");
+
+
+        if(gameWinningPlayer != null){
+            System.out.println(gameWinningPlayer.getName() + " won!");
+        }
     }
 
     public Player getNextPlayer(Player currentPlayer) {
