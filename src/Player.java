@@ -41,10 +41,10 @@ public class Player {
         printHand();
         int chosenCard = 0;
         while (true) {
-            System.out.print("Enter Card Number: ");
+            System.out.print("Enter Card Number or draw a card (Enter 0): ");
             if (input.hasNextInt()) {
                 chosenCard = input.nextInt();
-                if (chosenCard > 0 && chosenCard <= hand.size()) {
+                if (chosenCard >= 0 && chosenCard <= hand.size()) {
                     input.nextLine();
                     break;
                 } else {

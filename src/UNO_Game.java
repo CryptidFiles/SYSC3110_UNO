@@ -155,8 +155,23 @@ public class UNO_Game {
                     break; // End the turn of the player
                 }
 
+
                 chosenIndex = player.takeTurn(input); //asks current player which card to play acc to index
-                Card chosenCard = player.playCard(chosenIndex); //gets the card from hand but not remove it yet
+
+                // If the user decides to draw a card this turn (enter 0), draw from the deck and end turn
+                if (chosenIndex == 0) {
+                    System.out.println(player.getName() + " decided to draw a ");
+
+                    Card card = playDeck.drawCard();
+                    if (card == null) break;
+
+                    card.printCard();
+                    player.drawCard(card);
+                    break; // End the turn of the player
+                }
+
+                // If a valid card input, get the card from the hand but not remove it yet
+                Card chosenCard = player.playCard(chosenIndex);
 
                 if (validMove(player, chosenIndex)) { //checks if card valid (matches color type on top of play pile
                     playPile.push(chosenCard); //pushes that card to the play pile
@@ -327,13 +342,18 @@ public class UNO_Game {
 
     public void processSkip() {
         if (skipCount > 0) {
-            skipCount--;
-            // Skip the current player by advancing the index
-            if (direction == Direction.CLOCKWISE) {
-                currentPlayerIndex = (currentPlayerIndex + 1) % players.size();
-            } else {
-                currentPlayerIndex = (currentPlayerIndex - 1 + players.size()) % players.size();
+            System.out.println("Skipping " + skipCount + " player(s)!");
+
+            for (int i = 0; i < skipCount; i++) {
+                // Skip the current player by advancing the index
+                if (direction == Direction.CLOCKWISE) {
+                    currentPlayerIndex = (currentPlayerIndex + 1) % players.size();
+                } else {
+                    currentPlayerIndex = (currentPlayerIndex - 1 + players.size()) % players.size();
+                }
             }
+
+            skipCount = 0;
         }
     }
 
