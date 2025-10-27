@@ -1,32 +1,53 @@
 public enum CardType {
     // Number cards
-    ZERO, ONE, TWO, THREE, FOUR, FIVE, SIX, SEVEN, EIGHT, NINE,
-    // Action cards
-    SKIP, SKIP_EVERYONE, REVERSE, DRAW_TWO, FLIP,
-    // Wild cards
-    WILD, WILD_DRAW_FOUR;
+    ONE, TWO, THREE, FOUR, FIVE, SIX, SEVEN, EIGHT, NINE,
 
-    // Helper methods
+    // Light Action Cards
+    DRAW_ONE, LIGHT_REVERSE, SKIP, WILD, WILD_DRAW_TWO, FLIP,
+
+    // Dark Action Cards
+    DRAW_FIVE, DARK_REVERSE, SKIP_EVERYONE, DARK_WILD, WILD_DRAW_COLOR, DARK_FLIP;
+
+    // Helper methods on determining type of card
     public boolean isNumberCard() {
-        return this.ordinal() >= ZERO.ordinal() && this.ordinal() <= NINE.ordinal();
+        return this.ordinal() <= NINE.ordinal();
     }
 
     public boolean isActionCard() {
-        return this == SKIP || this == REVERSE || this == DRAW_TWO;
+        return this.ordinal() >= DRAW_ONE.ordinal() && this.ordinal() <= DARK_FLIP.ordinal();
     }
 
     public boolean isWildCard() {
-        return this == WILD || this == WILD_DRAW_FOUR;
+        return this == WILD || this == WILD_DRAW_TWO || this == DARK_WILD || this == WILD_DRAW_COLOR;
     }
 
+    // Get the value associated with the type of card
     public int getPointValue() {
-        return 0;
+        if (this == LIGHT_REVERSE || this == DARK_REVERSE || this == DRAW_FIVE || this == SKIP || this == FLIP || this == DARK_FLIP) {
+            return 20;
+        }
 
-        // REVISIT in future milestone for uno flip point system
-        /**return switch (this) {
-            case ZERO, ONE, TWO, THREE, FOUR, FIVE, SIX, SEVEN, EIGHT, NINE -> ordinal();
-            case SKIP, REVERSE, DRAW_TWO -> 20;
-            case WILD, WILD_DRAW_FOUR -> 50;
-        };*/
+        if (this == DRAW_ONE) {
+            return 10;
+        }
+
+        if (this == SKIP_EVERYONE) {
+            return 30;
+        }
+
+        if (this == WILD_DRAW_TWO) {
+            return 50;
+        }
+
+        if (this == WILD_DRAW_COLOR) {
+            return 60;
+        }
+
+        if (this == DARK_WILD || this == WILD) {
+            return 40;
+        }
+        else {
+            return this.ordinal() + 1;
+        }
     }
 }
