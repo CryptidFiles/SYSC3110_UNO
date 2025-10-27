@@ -16,10 +16,9 @@ public class NumberCard extends Card {
     }
 
 
-    // Determine if card can be played on the top of the stack
+    // Card can be played if top card is same type or same color
     @Override
     public boolean playableOnTop(Card otherCard){
-        //this works because it checks which color: LIGHT or DARK is activated
         return getColor() == otherCard.getColor() || getType() == otherCard.getType();
     }
 }

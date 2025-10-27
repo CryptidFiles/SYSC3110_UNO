@@ -1,7 +1,7 @@
 import java.util.*;
 
 public class Deck {
-
+    //Holds every card that’s still in the deck either not dealt, not in hands, or not on the display pile.
     private ArrayList<Card> deck;
 
     public Deck() {
@@ -10,9 +10,10 @@ public class Deck {
     }
 
     private void initializeDeck() {
+        //Go through every card type (e.g. NUMBER, SKIP, REVERSE) to ensure 112 card deck
         for (CardType type : CardType.values()) {
 
-            //Number cards
+            // Number cards
             if (type.isNumberCard()) {
 
                 // For each color of specific number card
@@ -24,9 +25,10 @@ public class Deck {
                 }
             }
 
-            // Reverse Card
+            // Action Cards as outlined in the CardType enum
             if (type.isActionCard()) {
                 switch (type){
+                    // Takes care of DRAW_ONE and DRAW_FIVE cards as they are two sides of the same card
                     case DRAW_ONE -> {
                         for (Color color : Color.values()) {
                             if (color.isLight()) {
@@ -36,6 +38,7 @@ public class Deck {
                         }
                     }
 
+                    // Takes care of the reverse cards
                     case LIGHT_REVERSE -> {
                         for (Color color : Color.values()) {
                             if (color.isLight()) {
@@ -45,6 +48,7 @@ public class Deck {
                         }
                     }
 
+                    // Takes care of the skip and skip all cards
                     case SKIP -> {
                         for (Color color : Color.values()) {
                             if (color.isLight()) {
@@ -54,6 +58,7 @@ public class Deck {
                         }
                     }
 
+                    // Takes care of the flip cards
                     case FLIP -> {
                         for (Color color : Color.values()) {
                             if (color.isLight()) {
@@ -63,12 +68,14 @@ public class Deck {
                         }
                     }
 
+                    // Takes care of the wild change color cards
                     case WILD -> {
                         for (int i = 0; i < 4; i++) {
                             deck.add(new WildCard());
                         }
                     }
 
+                    // Takes care of the wild draw two and wild draw color cards
                     case WILD_DRAW_TWO -> {
                         for (int i = 0; i < 4; i++) {
                             deck.add(new WildDrawCard());
@@ -79,29 +86,34 @@ public class Deck {
             }
         }
 
+        // Shuffles arraylist of cards
         Collections.shuffle(deck);
     }
 
+    // Adds a card to the deck
     public void addCard(Card card) {
         deck.add(card);
     }
 
+    // Returns the current deck
     public ArrayList<Card> getDeck() {
         return deck;
     }
 
+    // Sets the deck
     public void setDeck(ArrayList<Card> deck) {
         this.deck = deck;
     }
 
-    // Basic drawCard method
+    // Method handles drawing a card from it
     public Card drawCard() {
         if (deck.isEmpty()) {
-            return null; // or handle reshuffling from discard pile
+            return null;
         }
-        return deck.removeLast(); // Draw from top
+        return deck.removeLast(); // Draw from end
     }
 
+    // Shuffles deck for randomness
     public void shuffle() {
         Collections.shuffle(deck);
     }

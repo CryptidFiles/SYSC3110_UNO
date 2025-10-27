@@ -8,7 +8,7 @@ public enum CardType {
     // Dark Action Cards
     DRAW_FIVE, DARK_REVERSE, SKIP_EVERYONE, DARK_WILD, WILD_DRAW_COLOR, DARK_FLIP;
 
-    // Helper methods
+    // Helper methods on determining type of card
     public boolean isNumberCard() {
         return this.ordinal() <= NINE.ordinal();
     }
@@ -21,6 +21,7 @@ public enum CardType {
         return this == WILD || this == WILD_DRAW_TWO || this == DARK_WILD || this == WILD_DRAW_COLOR;
     }
 
+    // Get the value associated with the type of card
     public int getPointValue() {
         if (this == LIGHT_REVERSE || this == DARK_REVERSE || this == DRAW_FIVE || this == SKIP || this == FLIP || this == DARK_FLIP) {
             return 20;

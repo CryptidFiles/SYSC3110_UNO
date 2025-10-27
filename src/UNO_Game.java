@@ -2,26 +2,26 @@ import java.util.*;
 
 public class UNO_Game {
     private ArrayList<Player> players;
+    private int numPlayers;
 
     private Deck playDeck;
     private Stack<Card> playPile;
     private Direction direction;
+
     private boolean gameOver;
-
-
     private Player roundWinningPlayer;
     private Player gameWinningPlayer;
     final int WINNING_SCORE = 500;
 
-    private int numPlayers;
-    private Scanner input = new Scanner(System.in);
     private int currentPlayerIndex;
     private int skipCount;
+
+    private Scanner input = new Scanner(System.in);
+
 
     public UNO_Game() {
         players = new ArrayList<>();
         playDeck = new Deck();
-        //drawPile = new ArrayList<>();
         playPile = new Stack<>();
         direction = Direction.CLOCKWISE;
         gameOver = false;

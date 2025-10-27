@@ -56,11 +56,10 @@ public class DrawXCard extends Card {
         return true;
     }
 
-    // Determine if card can be played on the top of the stack
+    // Card can be played if top card is same type or same color
     @Override
     public boolean playableOnTop(Card otherCard){
-        return lightColor == otherCard.getColor() || darkColor == otherCard.getColor()
-                || lightType == otherCard.getType() || darkType == otherCard.getType();
+        return getColor() == otherCard.getColor() || getType() == otherCard.getType();
     }
 
 }
