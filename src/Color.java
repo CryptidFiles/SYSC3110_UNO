@@ -27,6 +27,16 @@ public enum Color {
             default -> this; // Return self for wild/dark colors
         };
     }
+
+    public Color getLightCounterpart() {
+        return switch (this) {
+            case PINK -> Color.RED;
+            case TEAL -> Color.BLUE ;
+            case ORANGE -> Color.YELLOW;
+            case PURPLE -> Color.GREEN;
+            default -> this; // Return self for wild/dark colors
+        };
+    }
 }
 
 

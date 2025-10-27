@@ -136,7 +136,7 @@ public class UNO_Game {
                         }
                         break;
                     } else {
-                        System.out.println("Invalid move. Try again.");
+                        System.out.println("Invalid move. Try again.\n");
                     }
                 }
 
