@@ -82,8 +82,16 @@ public class Deck {
         Collections.shuffle(deck);
     }
 
+    public void addCard(Card card) {
+        deck.add(card);
+    }
+
     public ArrayList<Card> getDeck() {
         return deck;
+    }
+
+    public void setDeck(ArrayList<Card> deck) {
+        this.deck = deck;
     }
 
     // Basic drawCard method
@@ -92,6 +100,10 @@ public class Deck {
             return null; // or handle reshuffling from discard pile
         }
         return deck.removeLast(); // Draw from top
+    }
+
+    public void shuffle() {
+        Collections.shuffle(deck);
     }
 
 }

@@ -11,7 +11,8 @@ public class FlipCard extends Card {
 
     @Override
     public boolean action(UNO_Game model, Player player){
-        isLightSideActive = false;
+        isLightSideActive = !isLightSideActive;
+
         // Flip the rest of the cards
         model.flipGameSide();
         return true;

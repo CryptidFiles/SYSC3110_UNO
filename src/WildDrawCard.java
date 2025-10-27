@@ -64,6 +64,7 @@ public class WildDrawCard extends Card {
                     nextPlayer.drawCard(card);
                 }
 
+                return true; // Add this to exit the method after successful light side action
 
             } else {
                 System.out.print("(Teal, Orange, Purple, Pink): ");
@@ -74,25 +75,26 @@ public class WildDrawCard extends Card {
                     case "teal":
                         this.lightColor = Color.TEAL.getLightCounterpart();
                         this.darkColor = Color.TEAL;
-                        return true;
+                        break;
 
                     case "orange":
                         this.lightColor = Color.ORANGE.getLightCounterpart();
                         this.darkColor = Color.ORANGE;
-                        return true;
+                        break;
 
                     case "purple":
                         this.lightColor = Color.PURPLE.getLightCounterpart();
                         this.darkColor = Color.PURPLE;
-                        return true;
+                        break;
 
                     case "pink":
                         this.lightColor = Color.PINK.getLightCounterpart();
                         this.darkColor = Color.PINK;
-                        return true;
+                        break;
 
                     default:
                         System.out.println("Invalid move. Try again.\n");
+                        continue;
                 }
 
 
@@ -113,6 +115,8 @@ public class WildDrawCard extends Card {
                         System.out.println(nextPlayer.getName() + " found the chosen color after drawing " + cardsDrawn + " cards!");
                     }
                 }
+
+                return true; // Add this to exit the method after successful dark side action
             }
         }
 

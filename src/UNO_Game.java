@@ -50,7 +50,6 @@ public class UNO_Game {
 
     private void resetDecks() {
         playDeck = new Deck();  // fresh shuffled decks
-        //drawPile = new ArrayList<>();
         playPile = new Stack<>();
     }
 
@@ -63,17 +62,21 @@ public class UNO_Game {
             }
         }
 
-        // Set up first card
-        Card firstCard = playDeck.drawCard();
-        if (firstCard != null) {
-            playPile.push(firstCard);
-        }
+        // Set up first card. Keep drawing cards until we get a non-action card
+        Card firstCard;
+        do {
+            firstCard = playDeck.drawCard();
 
-        /**while (true) {
-            Card card = playDeck.drawCard();
-            if (card == null) break;
-            drawPile.add(card);
-        }*/
+            // If it's an action card, put it back and shuffle
+            if (firstCard != null && firstCard.getType().isActionCard()) {
+                playDeck.addCard(firstCard);  // Put it back in the deck
+                playDeck.shuffle();           // Shuffle it back in
+                firstCard = null;             // Reset so we continue looping
+            }
+        } while (firstCard == null);
+
+        // We found a non-action card
+        playPile.push(firstCard);
     }
 
     public void numPlayers() {
@@ -115,34 +118,39 @@ public class UNO_Game {
 
         //keeps looping over all players until one runs out of cards and win
         while (!gameOver) {
-            // Check if current player(s) should be skipped by applying the number of skips to player index
-            processSkip();
+            // Reshuffle the play pile into the deck if the deck is empty
+            if(playDeck.getDeck().isEmpty()) {
+                reshuffleDrawingDeck();
+            }
 
-            //displays whose turn it is and the current card on top of play Pile so player knows what color
+            // If any pending skips from the previous player's action occurred
+            // then apply the number of skips to player index
+            if(skipCount > 0){
+                processSkip();
+            }
+
+            // displays whose turn it is
             Player player = players.get(currentPlayerIndex);
-
             System.out.println("\n" + player.getName() + "'s turn");
-            System.out.print("Top Card:\t");
-            topCard().printCard();
-            System.out.println();
 
             int chosenIndex;
             while (true) {
+                // Print out the top card of the play pile so player knows what color
+                System.out.print("Top Card:\t");
+                topCard().printCard();
+                System.out.println();
+
                 // If the player cannot play with their hand, draw a card and end turn
                 if(!playableHand(player)){
                     System.out.println("You do not have a playable hand! " + player.getName() + " draws a card.");
 
                     Card card = playDeck.drawCard();
-
                     if (card == null) break;
 
                     card.printCard();
                     player.drawCard(card);
-
-                    // End the turn of the player
-                    break;
+                    break; // End the turn of the player
                 }
-
 
                 chosenIndex = player.takeTurn(input); //asks current player which card to play acc to index
                 Card chosenCard = player.playCard(chosenIndex); //gets the card from hand but not remove it yet
@@ -181,6 +189,32 @@ public class UNO_Game {
             }
         }
     }
+
+
+    private void reshuffleDrawingDeck(){
+        if (playPile.size() <= 1) {
+            return; // Not enough cards to reshuffle (need at least 2: one to keep, one to reshuffle)
+        }
+
+        // Save the top card of the play pile
+        Card topCard = playPile.pop();
+
+        // Add all remaining play pile cards back to the deck
+        while (!playPile.isEmpty()) {
+            Card card = playPile.pop();
+            playDeck.addCard(card);
+        }
+
+        // Shuffle the deck
+        playDeck.shuffle();
+
+        // Put the saved top card back on the play pile
+        playPile.push(topCard);
+
+        System.out.println("Reshuffled the draw deck from play pile!");
+    }
+
+
 
     private boolean validMove(Player p, int i) { //returns true if players card matches type or color of the top card in play Pile
         return p.playCard(i).playableOnTop(topCard());
@@ -274,7 +308,7 @@ public class UNO_Game {
 
 
     public void skipAllPlayers() {
-        // Skip all other players (players.size() - 1 skips)
+        // Skip all other players
         this.skipCount = players.size() - 1;
     }
 

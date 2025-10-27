@@ -1,6 +1,5 @@
 
 public class NumberCard extends Card {
-    private int number;
 
     public NumberCard(Color light_color, Color dark_color, CardType number) {
         isLightSideActive = true;
