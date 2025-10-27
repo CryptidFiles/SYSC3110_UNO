@@ -12,6 +12,7 @@ public class NumberCard extends Card {
 
     @Override
     public boolean action(UNO_Game model, Player player){
+        //Numbered Card have no special effect
         return true;
     }
 
@@ -19,7 +20,7 @@ public class NumberCard extends Card {
     // Determine if card can be played on the top of the stack
     @Override
     public boolean playableOnTop(Card otherCard){
-        return lightColor == otherCard.getColor() || darkColor == otherCard.getColor()
-                || lightType == otherCard.getType() || darkType == otherCard.getType();
+        //this works because it checks which color: LIGHT or DARK is activated
+        return getColor() == otherCard.getColor() || getType() == otherCard.getType();
     }
 }

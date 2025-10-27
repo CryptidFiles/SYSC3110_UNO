@@ -26,39 +26,55 @@ public class Deck {
 
             // Reverse Card
             if (type.isActionCard()) {
-                if (type == CardType.DRAW_ONE) {
-                    for (Color color : Color.values()) {
-                        deck.add(new DrawXCard(color, color.getDarkCounterpart()));
-                        deck.add(new DrawXCard(color, color.getDarkCounterpart()));
+                switch (type){
+                    case DRAW_ONE -> {
+                        for (Color color : Color.values()) {
+                            if (color.isLight()) {
+                                deck.add(new DrawXCard(color, color.getDarkCounterpart()));
+                                deck.add(new DrawXCard(color, color.getDarkCounterpart()));
+                            }
+                        }
                     }
-                }
 
-                if (type == CardType.LIGHT_REVERSE) {
-                    for (Color color : Color.values()) {
-                        deck.add(new ReverseCard(color, color.getDarkCounterpart()));
-                        deck.add(new ReverseCard(color, color.getDarkCounterpart()));
+                    case LIGHT_REVERSE -> {
+                        for (Color color : Color.values()) {
+                            if (color.isLight()) {
+                                deck.add(new ReverseCard(color, color.getDarkCounterpart()));
+                                deck.add(new ReverseCard(color, color.getDarkCounterpart()));
+                            }
+                        }
                     }
-                }
 
-                if (type == CardType.SKIP) {
-                    for (Color color : Color.values()) {
-                        deck.add(new SkipCard(color, color.getDarkCounterpart()));
-                        deck.add(new SkipCard(color, color.getDarkCounterpart()));
+                    case SKIP -> {
+                        for (Color color : Color.values()) {
+                            if (color.isLight()) {
+                                deck.add(new SkipCard(color, color.getDarkCounterpart()));
+                                deck.add(new SkipCard(color, color.getDarkCounterpart()));
+                            }
+                        }
                     }
-                }
 
-                if (type == CardType.WILD) {
-                    for (int i = 0; i < 4; i++) {
-                        deck.add(new WildCard());
-                        deck.add(new WildCard());
+                    case FLIP -> {
+                        for (Color color : Color.values()) {
+                            if (color.isLight()) {
+                                deck.add(new FlipCard(color, color.getDarkCounterpart()));
+                                deck.add(new FlipCard(color, color.getDarkCounterpart()));
+                            }
+                        }
                     }
-                }
 
-                if (type == CardType.WILD_DRAW_TWO) {
-                    for (int i = 0; i < 4; i++) {
-                        deck.add(new WildDrawCard());
-                        deck.add(new WildDrawCard());
+                    case WILD -> {
+                        for (int i = 0; i < 4; i++) {
+                            deck.add(new WildCard());
+                        }
                     }
+
+                    case WILD_DRAW_TWO -> {
+                        for (int i = 0; i < 4; i++) {
+                            deck.add(new WildDrawCard());
+                        }
+                    }
+
                 }
             }
         }

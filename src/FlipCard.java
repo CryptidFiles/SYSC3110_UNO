@@ -1,17 +1,19 @@
 
-public class ReverseCard extends Card {
+public class FlipCard extends Card {
 
-    public ReverseCard(Color light_color, Color dark_color) {
+    public FlipCard(Color light_color, Color dark_color) {
         isLightSideActive = true;
         this.lightColor = light_color;
         this.darkColor = dark_color;
-        this.lightType = CardType.LIGHT_REVERSE;
-        this.darkType = CardType.DARK_REVERSE;
+        this.lightType = CardType.FLIP;
+        this.darkType = CardType.DARK_FLIP;
     }
 
     @Override
     public boolean action(UNO_Game model, Player player){
-        model.flipDirection();
+        isLightSideActive = false;
+        // Flip the rest of the cards
+        model.flipGameSide();
         return true;
     }
 

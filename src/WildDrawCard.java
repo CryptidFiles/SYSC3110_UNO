@@ -24,7 +24,6 @@ public class WildDrawCard extends Card {
 
                 String wildCardColor = color_input.nextLine().trim().toLowerCase();
                 switch (wildCardColor) {
-
                     case "red":
                         this.lightColor = Color.RED;
                         this.darkColor = Color.RED.getDarkCounterpart();
@@ -47,7 +46,24 @@ public class WildDrawCard extends Card {
 
                     default:
                         System.out.println("Invalid move. Try again.\n");
+                        continue;
                 }
+
+                // Light side: next player picks up two cards
+                Player nextPlayer = model.getNextPlayer(player);
+                System.out.println(nextPlayer.getName() + " draws 2 cards!");
+
+                for(int i = 0; i < 2; i++){
+                    Card card = model.getPlayDeck().drawCard();
+
+                    if (card == null) break;
+
+                    System.out.print(nextPlayer.getName() + " draws ");
+                    card.printCard();
+
+                    nextPlayer.drawCard(card);
+                }
+
 
             } else {
                 System.out.print("(Teal, Orange, Purple, Pink): ");
@@ -58,34 +74,50 @@ public class WildDrawCard extends Card {
                     case "teal":
                         this.lightColor = Color.TEAL.getLightCounterpart();
                         this.darkColor = Color.TEAL;
-                        break;
+                        return true;
 
                     case "orange":
                         this.lightColor = Color.ORANGE.getLightCounterpart();
                         this.darkColor = Color.ORANGE;
-                        break;
+                        return true;
 
                     case "purple":
                         this.lightColor = Color.PURPLE.getLightCounterpart();
                         this.darkColor = Color.PURPLE;
-                        break;
+                        return true;
 
                     case "pink":
                         this.lightColor = Color.PINK.getLightCounterpart();
                         this.darkColor = Color.PINK;
-                        break;
+                        return true;
 
                     default:
                         System.out.println("Invalid move. Try again.\n");
                 }
+
+
+                // Dark side: next player keeps drawing until they get the chosen color
+                Player nextPlayer = model.getNextPlayer(player);
+                boolean foundColor = false;
+                int cardsDrawn = 0;
+
+                while (!foundColor) {
+                    Card drawnCard = model.getPlayDeck().drawCard(); // Assuming there's a method to draw one card
+                    cardsDrawn++;
+                    System.out.print(nextPlayer.getName() + " draws a ");
+                    drawnCard.printCard();
+
+                    // Check if the drawn card matches the chosen color
+                    if (drawnCard.getColor() == this.darkColor) {
+                        foundColor = true;
+                        System.out.println(nextPlayer.getName() + " found the chosen color after drawing " + cardsDrawn + " cards!");
+                    }
+                }
             }
         }
 
-        //if(isLightSideActive){
-
-        //}
-        //next person picks up
     }
+
 
     // Determine if card can be played on the top of the stack
     @Override

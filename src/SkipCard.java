@@ -11,6 +11,18 @@ public class SkipCard extends Card {
 
     @Override
     public boolean action(UNO_Game model, Player player){
+        if (isLightSideActive) {
+            // Light side: Regular Skip - skip next player
+            Player nextPlayer = model.getNextPlayer(player);
+            System.out.println("Skipping " + nextPlayer.getName() + "!");
+            model.addSkip(1);
+
+        } else {
+            // Dark side: Skip All - skip all other players
+            System.out.println("Skipping all other players!");
+            model.skipAllPlayers();
+        }
+
         return true;
     }
 
