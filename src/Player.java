@@ -3,6 +3,13 @@ import java.util.*;
 /**
  * Represents a player in the UNO Flip game.
  * Each player has a name, a hand of cards, and a running score.
+ *
+ * @author Ahmad El-Jabi 101303269
+ * @author Atik Mahmud 101318070
+ * @author Aryan Singh 101299776
+ * @author Jonathan Gitej 101294584
+ *
+ * @version 1.0
  */
 public class Player {
     private String name;
