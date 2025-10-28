@@ -4,6 +4,13 @@ import java.util.Scanner;
  * Represents the Wild Draw card in UNO Flip.
  * When played, this card lets the player choose the next color and forces the next player
  * to draw cards based on the active side.
+ *
+ * @author Ahmad El-Jabi 101303269
+ * @author Atik Mahmud 101318070
+ * @author Aryan Singh 101299776
+ * @author Jonathan Gitej 101294584
+ *
+ * @version 1.0
  */
 public class WildDrawCard extends Card {
     private Scanner color_input;
