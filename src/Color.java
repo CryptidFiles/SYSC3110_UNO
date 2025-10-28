@@ -2,6 +2,13 @@
  * Represents all color variations used in UNO Flip cards, including light, dark, and wild colors.
  * Each color has a corresponding counterpart on the opposite side.
  *
+ * @author Ahmad El-Jabi 101303269
+ * @author Atik Mahmud 101318070
+ * @author Aryan Singh 101299776
+ * @author Jonathan Gitej 101294584
+ *
+ * @version 1.0
+ *
  */
 public enum Color {
     //Light (0-3)
