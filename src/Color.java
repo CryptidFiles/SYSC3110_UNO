@@ -1,3 +1,8 @@
+/**
+ * Represents all color variations used in UNO Flip cards, including light, dark, and wild colors.
+ * Each color has a corresponding counterpart on the opposite side.
+ *
+ */
 public enum Color {
     //Light (0-3)
     RED, BLUE, YELLOW, GREEN,
@@ -9,15 +14,31 @@ public enum Color {
     PURPLE, PINK, ORANGE, TEAL;
 
 
+    /**
+     * Determines whether this color belongs to the light side.
+     *
+     * @return boolean. true if the color is a light color; false otherwise.
+     */
     //Helper functions
     public boolean isLight() {
         return this == BLUE || this == GREEN || this == RED || this == YELLOW;
     }
 
+    /**
+     * Determines whether this color belongs to the dark side.
+     *
+     * @return boolean. true if the color is a dark color; false otherwise.
+     */
     public boolean isDark() {
         return this == PINK || this == TEAL || this == ORANGE || this == PURPLE;
     }
 
+    /**
+     * Returns the dark-side counterpart of this color.
+     * Wild and dark colors return themselves.
+     *
+     * @return {@link Color} The corresponding dark-side Color.
+     */
     public Color getDarkCounterpart() {
         return switch (this) {
             case RED -> Color.PINK;
@@ -28,6 +49,12 @@ public enum Color {
         };
     }
 
+    /**
+     * Returns the light-side counterpart of this color.
+     * Wild and light colors return themselves.
+     *
+     * @return {@link Color} The corresponding light-side Color.
+     */
     public Color getLightCounterpart() {
         return switch (this) {
             case PINK -> Color.RED;

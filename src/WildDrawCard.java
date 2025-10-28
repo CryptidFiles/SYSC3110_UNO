@@ -1,9 +1,18 @@
 import java.util.Scanner;
 
+/**
+ * Represents the Wild Draw card in UNO Flip.
+ * When played, this card lets the player choose the next color and forces the next player
+ * to draw cards based on the active side.
+ */
 public class WildDrawCard extends Card {
     private Scanner color_input;
 
 
+    /**
+     * Constructs a WildDrawCard with default wild colors for both sides.
+     * On the light side, it acts as a Wild Draw Two card; on the dark side, as a Wild Draw Color card.
+     */
     public WildDrawCard() {
         isLightSideActive = true;
         this.lightColor = Color.WILD;
@@ -14,6 +23,15 @@ public class WildDrawCard extends Card {
         color_input = new Scanner(System.in);
     }
 
+    /**
+     * Executes the Wild Draw card’s action.
+     * On the light side, the next player draws two cards. On the dark side,
+     * the next player draws until they find a card matching the chosen color.
+     *
+     * @param model  The current UNO game instance managing the round.
+     * @param player The player who played this card.
+     * @return boolean. true once the chosen color has been set and the draw action completed.
+     */
     @Override
     public boolean action(UNO_Game model, Player player){
         System.out.println("What color do you want it to be?");
@@ -123,6 +141,13 @@ public class WildDrawCard extends Card {
     }
 
 
+    /**
+     * Determines whether this card can be legally played on top of another card.
+     * Wild Draw cards can always be played regardless of color or type.
+     *
+     * @param otherCard The card currently on top of the play pile.
+     * @return boolean. true since Wild Draw cards are always playable.
+     */
     // Determine if card can be played on the top of the stack
     @Override
     public boolean playableOnTop(Card otherCard){
