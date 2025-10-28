@@ -1,6 +1,13 @@
 /**
  * Represents the Flip card in UNO Flip.
  * When played, it reverses the game’s active side (light ↔ dark) for all cards.
+ *
+ * @author Ahmad El-Jabi 101303269
+ * @author Atik Mahmud 101318070
+ * @author Aryan Singh 101299776
+ * @author Jonathan Gitej 101294584
+ *
+ * @version 1.0
  */
 public class FlipCard extends Card {
 
