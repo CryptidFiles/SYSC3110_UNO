@@ -1,6 +1,13 @@
 /**
  * Represents the Draw One / Draw Five action card in UNO Flip.
  * This card makes the next player draw cards and skip their turn.
+ *
+ * @author Ahmad El-Jabi 101303269
+ * @author Atik Mahmud 101318070
+ * @author Aryan Singh 101299776
+ * @author Jonathan Gitej 101294584
+ *
+ * @version 1.0
  */
 public class DrawXCard extends Card {
 
