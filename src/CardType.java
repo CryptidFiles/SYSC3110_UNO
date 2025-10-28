@@ -2,6 +2,13 @@
  * Represents all possible UNO Flip card types, including both light and dark side cards.
  * Each card type may correspond to number cards or special action cards with unique effects.
  *
+ * @author Ahmad El-Jabi 101303269
+ * @author Atik Mahmud 101318070
+ * @author Aryan Singh 101299776
+ * @author Jonathan Gitej 101294584
+ *
+ * @version 1.0
+ *
  */
 public enum CardType {
     // Number cards
