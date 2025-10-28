@@ -1,6 +1,7 @@
 /**
  * Represents an abstract UNO Flip card with light and dark sides, each having its own color and type.
  * Subclasses define specific card behaviors and playable rules.
+ *
  * @author Ahmad El-Jabi 101303269
  * @author Atik Mahmud 101318070
  * @author Aryan Singh 101299776
