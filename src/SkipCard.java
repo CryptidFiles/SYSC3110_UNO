@@ -1,6 +1,13 @@
 /**
  * Represents the Skip card in UNO Flip.
  * When played, this card causes one or all players to lose their turn depending on the active side.
+ *
+ * @author Ahmad El-Jabi 101303269
+ * @author Atik Mahmud 101318070
+ * @author Aryan Singh 101299776
+ * @author Jonathan Gitej 101294584
+ *
+ * @version 1.0
  */
 public class SkipCard extends Card {
 
