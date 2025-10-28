@@ -3,6 +3,13 @@ import java.util.Scanner;
 /**
  * Represents the Wild card in UNO Flip.
  * When played, this card allows the player to choose the next active color for the game.
+ *
+ * @author Ahmad El-Jabi 101303269
+ * @author Atik Mahmud 101318070
+ * @author Aryan Singh 101299776
+ * @author Jonathan Gitej 101294584
+ *
+ * @version 1.0
  */
 public class WildCard extends Card {
     private Scanner color_input;
