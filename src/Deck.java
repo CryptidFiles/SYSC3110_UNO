@@ -3,6 +3,13 @@ import java.util.*;
 /**
  * Represents the deck of UNO Flip cards used during gameplay.
  * This class manages deck initialization, shuffling, drawing, and card management.
+ *
+ * @author Ahmad El-Jabi 101303269
+ * @author Atik Mahmud 101318070
+ * @author Aryan Singh 101299776
+ * @author Jonathan Gitej 101294584
+ *
+ * @version 1.0
  */
 public class Deck {
     //Holds every card that’s still in the deck either not dealt, not in hands, or not on the display pile.
