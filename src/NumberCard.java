@@ -1,6 +1,13 @@
 /**
  * Represents a numbered card in UNO Flip.
  * Number cards have no special actions but can be played when matching in color or number.
+ 
+ * @author Ahmad El-Jabi 101303269
+ * @author Atik Mahmud 101318070
+ * @author Aryan Singh 101299776
+ * @author Jonathan Gitej 101294584
+ *
+ * @version 1.0
  */
 public class NumberCard extends Card {
 
