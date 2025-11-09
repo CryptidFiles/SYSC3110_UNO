@@ -11,7 +11,7 @@ public class CardTest {
 
     // Concrete subclass to test the abstract Card
     private static class TestCard extends Card {
-        public TestCard(Color lightColor, Color darkColor, CardType lightType, CardType darkType) {
+        public TestCard(CardColor lightColor, CardColor darkColor, CardType lightType, CardType darkType) {
             this.lightColor = lightColor;
             this.darkColor = darkColor;
             this.lightType = lightType;

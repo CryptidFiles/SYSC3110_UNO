@@ -1,7 +1,7 @@
 
 public class DrawXCard extends Card {
 
-    public DrawXCard(Color light_color, Color dark_color) {
+    public DrawXCard(CardColor light_color, CardColor dark_color) {
         isLightSideActive = true;
         this.lightColor = light_color;
         this.darkColor = dark_color;
