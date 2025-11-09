@@ -19,7 +19,7 @@ public class NumberCard extends Card {
      * @param dark_color The color of the card on the dark side.
      * @param number The CardType representing the card's number.
      */
-    public NumberCard(CardColor light_color, CardColor dark_color, CardType number) {
+    public NumberCard(Color light_color, Color dark_color, CardType number) {
         isLightSideActive = true;
         this.lightColor = light_color;
         this.darkColor = dark_color;
