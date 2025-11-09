@@ -1,6 +1,7 @@
 import javax.swing.*;
 import java.awt.*;
 import java.awt.Color;
+import java.util.ArrayList;
 
 public class UNO_Frame extends JFrame implements UNO_View{
     private JPanel mainPanel;
@@ -17,12 +18,45 @@ public class UNO_Frame extends JFrame implements UNO_View{
 
     public UNO_Frame() {
 
+        ArrayList<String> playerNames = new ArrayList<>();
+        int numPlayers = 0;
+
+        while (true) {
+            String inputValue = JOptionPane.showInputDialog(null,"Please enter the number of players (2–4):");
+
+            // if cancel or red x pressed stop program
+            if (inputValue == null) {
+                JOptionPane.showMessageDialog(null, "Game setup cancelled.");
+                return;
+            }
+
+
+            try {
+                numPlayers = Integer.parseInt(inputValue.trim());
+                if (numPlayers >= 2 && numPlayers <= 4) {
+                    break;
+                } else {
+                    JOptionPane.showMessageDialog(null, "Please enter a number between 2 and 4.");
+                }
+            } catch (NumberFormatException e) {
+                JOptionPane.showMessageDialog(null, "Invalid input. Please enter a valid number.");
+            }
+        }
+
+        for (int i = 1; i <= numPlayers; i++) {
+            String name = JOptionPane.showInputDialog("Enter name for Player " + i + ":");
+            if (name == null || name.trim().isEmpty()) {
+                name = "Player " + i; // default name if user cancels or leaves blank
+            }
+            playerNames.add(name.trim());
+        }
+
         initializeUI();
         setupLayout();
 
         this.setVisible(true);
 
-        model = new UNO_Game();
+        model = new UNO_Game(numPlayers, playerNames);
         controller = new UNO_Controller(model, this);
     }
 
