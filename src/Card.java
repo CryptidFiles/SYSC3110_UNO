@@ -3,8 +3,8 @@ abstract public class Card {
     protected boolean isLightSideActive;
 
     // Attributes shared by ALL cards. Each card object has both a color and a type for each side
-    protected Color lightColor;
-    protected Color darkColor;
+    protected CardColor lightColor;
+    protected CardColor darkColor;
 
     protected CardType lightType;
     protected CardType darkType;
@@ -26,7 +26,7 @@ abstract public class Card {
     }
 
     // getColor return the correct color depending on which side is active.
-    public Color getColor() {
+    public CardColor getColor() {
         if (isLightSideActive) {
             return lightColor;
         } else {

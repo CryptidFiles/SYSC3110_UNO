@@ -19,7 +19,7 @@ public class WildDrawCardTest {
     @Before
     public void setUp() {
         wildDrawCard = new WildDrawCard();
-        dummyCard = new NumberCard(Color.RED, Color.BLUE, CardType.ONE);
+        dummyCard = new NumberCard(CardColor.RED, CardColor.BLUE, CardType.ONE);
         System.out.println("Test setup completed.");
     }
 

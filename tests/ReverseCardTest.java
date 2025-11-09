@@ -20,7 +20,7 @@ public class ReverseCardTest {
 
     @Before
     public void setUp() {
-        reverseCard = new ReverseCard(Color.RED, Color.PINK);
+        reverseCard = new ReverseCard(CardColor.RED, CardColor.PINK);
     }
 
     @After
@@ -33,8 +33,8 @@ public class ReverseCardTest {
      */
     @Test
     public void testConstructorSetsColorsAndTypes() {
-        assertEquals(Color.RED, reverseCard.lightColor);
-        assertEquals(Color.PINK, reverseCard.darkColor);
+        assertEquals(CardColor.RED, reverseCard.lightColor);
+        assertEquals(CardColor.PINK, reverseCard.darkColor);
         assertEquals(CardType.LIGHT_REVERSE, reverseCard.lightType);
         assertEquals(CardType.DARK_REVERSE, reverseCard.darkType);
         assertTrue(reverseCard.isLightSideActive);
@@ -45,7 +45,7 @@ public class ReverseCardTest {
      */
     @Test
     public void testPlayableOnTopSameColor() {
-        ReverseCard other = new ReverseCard(Color.RED, Color.TEAL);
+        ReverseCard other = new ReverseCard(CardColor.RED, CardColor.TEAL);
         assertTrue(reverseCard.playableOnTop(other));
     }
 
@@ -54,7 +54,7 @@ public class ReverseCardTest {
      */
     @Test
     public void testPlayableOnTopSameType() {
-        ReverseCard other = new ReverseCard(Color.BLUE, Color.PURPLE);
+        ReverseCard other = new ReverseCard(CardColor.BLUE, CardColor.PURPLE);
         assertTrue(reverseCard.playableOnTop(other)); // same type LIGHT_REVERSE
     }
 
@@ -63,7 +63,7 @@ public class ReverseCardTest {
      */
     @Test
     public void testPlayableOnTopDifferentColorAndType() {
-        ReverseCard other = new ReverseCard(Color.GREEN, Color.ORANGE) {
+        ReverseCard other = new ReverseCard(CardColor.GREEN, CardColor.ORANGE) {
             @Override
             public CardType getType() { return CardType.SKIP; }
         };
