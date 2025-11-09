@@ -1,5 +1,6 @@
 import javax.swing.*;
 import java.awt.*;
+import java.awt.Color;
 
 public class UNO_Frame extends JFrame implements UNO_View{
     private JPanel mainPanel;
@@ -41,10 +42,10 @@ public class UNO_Frame extends JFrame implements UNO_View{
         // Initialize components
         topCardLabel = new JLabel("Top Card: ", SwingConstants.CENTER);
         topCardLabel.setFont(new Font("Arial", Font.BOLD, 16));
-        topCardLabel.setBorder(BorderFactory.createLineBorder(Color.BLACK, 2));
+        topCardLabel.setBorder(BorderFactory.createLineBorder(new Color(0, 0, 0), 2));
         topCardLabel.setPreferredSize(new Dimension(120, 160));
         topCardLabel.setOpaque(true);
-        topCardLabel.setBackground(Color.WHITE);
+        topCardLabel.setBackground(new Color(255, 255, 255));
 
         drawButton = new JButton("Draw Card");
         drawButton.setFont(new Font("Arial", Font.BOLD, 14));

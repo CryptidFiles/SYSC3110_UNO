@@ -1,6 +1,7 @@
 import java.awt.*;
 import javax.swing.*;
 import java.awt.event.*;
+import java.awt.Color;
 
 // Physical UNO card component that you can see and click
 public class CardComponent extends JComponent {
