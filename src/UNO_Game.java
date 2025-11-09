@@ -1,5 +1,20 @@
 import java.util.*;
 
+/**
+ * Manages the overall UNO Flip gameplay loop and core mechanics.
+ * This class handles player setup, deck management, card distribution,
+ * turn progression, score tallying, and victory conditions.
+ *
+ * The UNO_Game class serves as the main controller for the game,
+ * coordinating interactions between {@link Player}, {@link Card}, and {@link Deck}.
+ *
+ * @author Ahmad El-Jabi 101303269
+ * @author Atik Mahmud 101318070
+ * @author Aryan Singh 101299776
+ * @author Jonathan Gitej 101294584
+ *
+ * @version 1.0
+ */
 public class UNO_Game {
     private ArrayList<Player> players;
     private int numPlayers;
@@ -19,6 +34,9 @@ public class UNO_Game {
     private Scanner input = new Scanner(System.in);
 
 
+    /**
+     * Creates a new UNO game instance, gathers player info, and starts the main loop.
+     */
     public UNO_Game() {
         players = new ArrayList<>();
         playDeck = new Deck();
@@ -32,6 +50,9 @@ public class UNO_Game {
         gameLoop(); // main game loop
     }
 
+    /**
+     * Runs the multi-round game loop, handling setup, a round of play, scoring, and replay prompt.
+     */
     private void gameLoop() {
         boolean playAgain = true;
 
@@ -51,11 +72,17 @@ public class UNO_Game {
         System.out.println("\nThanks for playing UNO Flip!");
     }
 
+    /**
+     * Reinitializes the draw deck and clears the play pile for a new round.
+     */
     private void resetDecks() {
         playDeck = new Deck();  // fresh shuffled decks
         playPile = new Stack<>();
     }
 
+    /**
+     * Deals seven cards to each player and places the first non-action card on the play pile.
+     */
     private void distributeCards() {
         for (Player player : players) {
             player.clearHand();
@@ -82,6 +109,9 @@ public class UNO_Game {
         playPile.push(firstCard);
     }
 
+    /**
+     * Prompts the user until a valid player count (2–4) is entered and stores it.
+     */
     public void numPlayers() {
         numPlayers = 0;
         while (true) {
@@ -103,6 +133,9 @@ public class UNO_Game {
         }
     }
 
+    /**
+     * Collects and records each player's name based on the chosen player count.
+     */
     public void playerNames() {
         for (int i = 0; i < numPlayers; i++) {
             System.out.print("Enter a name for player " + (i + 1) + ": ");
@@ -110,11 +143,16 @@ public class UNO_Game {
         }
     }
 
+    /**
+     * @return Card, which is the card on top of the play pile
+     */
     public Card topCard() {
         return playPile.peek();
     }
 
-    //where all actions happen, player turns, playing cards and detecting if someone won
+    /**
+     * Plays one full round by iterating player turns, handling actions, and detecting the round winner.
+     */
     private void playGame() {
         currentPlayerIndex = 0; //start from player 0
         gameOver = false;
@@ -209,6 +247,9 @@ public class UNO_Game {
     }
 
 
+    /**
+     * Rebuilds the draw deck from the play pile while preserving the current top discard.
+     */
     private void reshuffleDrawingDeck(){
         if (playPile.size() <= 1) {
             return; // Not enough cards to reshuffle (need at least 2: one to keep, one to reshuffle)
@@ -233,11 +274,23 @@ public class UNO_Game {
     }
 
 
-
+    /**
+     * Determines whether the chosen card can be legally played on the current top card of the play Pile.
+     *
+     * @param p The player attempting the move.
+     * @param  i The index of the chosen card in the player's hand.
+     * @return boolean. true if the card is playable; false otherwise.
+     */
     private boolean validMove(Player p, int i) { //returns true if players card matches type or color of the top card in play Pile
         return p.playCard(i).playableOnTop(topCard());
     }
 
+    /**
+     * Checks whether the player has at least one card that can be played on the top card.
+     *
+     * @param p The current player who's turn it is
+     * @return boolean, true if he has any card in his hand that is playable, false other wise
+     */
     private boolean playableHand(Player p) {
         for (Card c : p.getHand()) {
             if(c.playableOnTop(topCard())) {
@@ -247,6 +300,12 @@ public class UNO_Game {
         return false;
     }
 
+
+    /**
+     * Totals opponents' remaining card values to the round winner and updates overall game status.
+     *
+     * @param winner The player who won the round.
+     */
     private void tallyScores(Player winner) {
         System.out.println("\n--- Scoreboard ---");
 
@@ -280,6 +339,12 @@ public class UNO_Game {
         }
     }
 
+    /**
+     * Returns the next player in turn order based on the current direction.
+     *
+     * @param currentPlayer The player whose successor is requested.
+     * @return {@link Player}, the next Player in order.
+     */
     public Player getNextPlayer(Player currentPlayer) {
         int currentPlayerIndex = players.indexOf(currentPlayer);
         int nextIndex;
@@ -293,10 +358,18 @@ public class UNO_Game {
         return players.get(nextIndex);
     }
 
+    /**
+     * Returns the current direction of play.
+     *
+     * @return {@link Direction}. The current direction
+     */
     public Direction getDirection() {
         return direction;
     }
 
+    /**
+     * Toggles the direction of play between clockwise and counterclockwise.
+     */
     public void flipDirection() {
         if (direction == Direction.CLOCKWISE){
             direction = Direction.COUNTERCLOCKWISE;
@@ -305,6 +378,9 @@ public class UNO_Game {
         }
     }
 
+    /**
+     * Flips all cards (play pile, draw deck, and hands) to the opposite light/dark side.
+     */
     public void flipGameSide() {
 
         boolean newSideState = !topCard().isLightSideActive;
@@ -329,17 +405,27 @@ public class UNO_Game {
     }
 
 
-    // Skip methods that manipulate currentPlayerIndex
+    /**
+     * Increases the number of players to skip on the next skip processing.
+     *
+     * @param count The number of players to skip
+     */
     public void addSkip(int count) {
         this.skipCount += count;
     }
 
 
+    /**
+     * Schedules a skip for all other players on the next skip processing.
+     */
     public void skipAllPlayers() {
         // Skip all other players
         this.skipCount = players.size() - 1;
     }
 
+    /**
+     * Applies pending skips by advancing the current turn index, then clears the skip count.
+     */
     public void processSkip() {
         if (skipCount > 0) {
             System.out.println("Skipping " + skipCount + " player(s)!");
@@ -358,10 +444,20 @@ public class UNO_Game {
     }
 
 
+    /**
+     * Returns the draw deck used for gameplay.
+     *
+     * @return {@link Deck} The active deck
+     */
     public Deck getPlayDeck() {
         return playDeck;
     }
 
+    /**
+     * Starts the interactive UNO Flip session from the command line.
+     *
+     * @param args The command line arguments which are unused
+     */
     public static void main(String[] args) {
         UNO_Game game = new UNO_Game();
 
