@@ -17,12 +17,15 @@ public class UNO_Frame extends JFrame implements UNO_View{
 
     public UNO_Frame() {
 
+        // Get number of players and name
+
+
         initializeUI();
         setupLayout();
 
         this.setVisible(true);
 
-        model = new UNO_Game();
+        //model = new UNO_Game();
         controller = new UNO_Controller(model, this);
     }
 
@@ -140,6 +143,10 @@ public class UNO_Frame extends JFrame implements UNO_View{
     }
 
     public void showWinner(Player player){
+
+    }
+
+    public void showRoundWinner(Player player){
 
     }
 

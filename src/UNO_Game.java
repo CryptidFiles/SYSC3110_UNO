@@ -140,7 +140,7 @@ public class UNO_Game {
             chosenCard.action(this, currentPlayer);
 
         // Check for round win
-            if (currentPlayer.handSize() == 0) {
+        if (currentPlayer.handSize() == 0) {
             roundWinningPlayer = currentPlayer;
             roundOver = true;
             tallyScores(roundWinningPlayer);
@@ -282,7 +282,7 @@ public class UNO_Game {
      * @param p The current player whose turn it is
      * @return boolean, true if he has any card in his hand that is playable, false other wise
      */
-    private boolean playableHand(Player p) {
+    public boolean hasPlayableHand(Player p) {
         for (Card c : p.getHand()) {
             if(c.playableOnTop(topCard())) {
                 return true;
