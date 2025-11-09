@@ -35,10 +35,10 @@ public class Deck {
             if (type.isNumberCard()) {
 
                 // For each color of specific number card
-                for (Color color : Color.values()) {
-                    if (color.isLight()) {
-                        deck.add(new NumberCard(color, color.getDarkCounterpart(), type));
-                        deck.add(new NumberCard(color, color.getDarkCounterpart(), type));
+                for (CardColor cardColor : CardColor.values()) {
+                    if (cardColor.isLight()) {
+                        deck.add(new NumberCard(cardColor, cardColor.getDarkCounterpart(), type));
+                        deck.add(new NumberCard(cardColor, cardColor.getDarkCounterpart(), type));
                     }
                 }
             }
@@ -48,40 +48,40 @@ public class Deck {
                 switch (type){
                     // Takes care of DRAW_ONE and DRAW_FIVE cards as they are two sides of the same card
                     case DRAW_ONE -> {
-                        for (Color color : Color.values()) {
-                            if (color.isLight()) {
-                                deck.add(new DrawXCard(color, color.getDarkCounterpart()));
-                                deck.add(new DrawXCard(color, color.getDarkCounterpart()));
+                        for (CardColor cardColor : CardColor.values()) {
+                            if (cardColor.isLight()) {
+                                deck.add(new DrawXCard(cardColor, cardColor.getDarkCounterpart()));
+                                deck.add(new DrawXCard(cardColor, cardColor.getDarkCounterpart()));
                             }
                         }
                     }
 
                     // Takes care of the reverse cards
                     case LIGHT_REVERSE -> {
-                        for (Color color : Color.values()) {
-                            if (color.isLight()) {
-                                deck.add(new ReverseCard(color, color.getDarkCounterpart()));
-                                deck.add(new ReverseCard(color, color.getDarkCounterpart()));
+                        for (CardColor cardColor : CardColor.values()) {
+                            if (cardColor.isLight()) {
+                                deck.add(new ReverseCard(cardColor, cardColor.getDarkCounterpart()));
+                                deck.add(new ReverseCard(cardColor, cardColor.getDarkCounterpart()));
                             }
                         }
                     }
 
                     // Takes care of the skip and skip all cards
                     case SKIP -> {
-                        for (Color color : Color.values()) {
-                            if (color.isLight()) {
-                                deck.add(new SkipCard(color, color.getDarkCounterpart()));
-                                deck.add(new SkipCard(color, color.getDarkCounterpart()));
+                        for (CardColor cardColor : CardColor.values()) {
+                            if (cardColor.isLight()) {
+                                deck.add(new SkipCard(cardColor, cardColor.getDarkCounterpart()));
+                                deck.add(new SkipCard(cardColor, cardColor.getDarkCounterpart()));
                             }
                         }
                     }
 
                     // Takes care of the flip cards
                     case FLIP -> {
-                        for (Color color : Color.values()) {
-                            if (color.isLight()) {
-                                deck.add(new FlipCard(color, color.getDarkCounterpart()));
-                                deck.add(new FlipCard(color, color.getDarkCounterpart()));
+                        for (CardColor cardColor : CardColor.values()) {
+                            if (cardColor.isLight()) {
+                                deck.add(new FlipCard(cardColor, cardColor.getDarkCounterpart()));
+                                deck.add(new FlipCard(cardColor, cardColor.getDarkCounterpart()));
                             }
                         }
                     }
