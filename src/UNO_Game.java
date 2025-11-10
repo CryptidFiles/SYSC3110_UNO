@@ -415,16 +415,17 @@ public class UNO_Game {
 
             System.out.println("Skipping " + skipCount + " player(s)!");
 
-            for (int i = 0; i < skipCount; i++) {
-                // Skip the current player by advancing the index
-                if (direction == Direction.CLOCKWISE) {
-                    currentPlayerIndex = (currentPlayerIndex + 2) % players.size();
-                } else {
-                    currentPlayerIndex = (currentPlayerIndex - 2 + players.size()) % players.size();
-                }
-                System.out.println("DEBUG: After skip " + (i+1) + ": " + getCurrentPlayer().getName());
+            // Calculate the final position directly based on skip count and direction
+            if (direction == Direction.CLOCKWISE) {
+                // Skip N players means advance by (N + 1) positions
+                // +1 to get to the first player to skip, +N to skip all of them
+                currentPlayerIndex = (currentPlayerIndex + skipCount + 1) % players.size();
+            } else {
+                // Counter-clockwise: go backwards by (N + 1) positions
+                currentPlayerIndex = (currentPlayerIndex - skipCount - 1 + players.size()) % players.size();
             }
 
+            System.out.println("DEBUG: After skipping " + skipCount + " players: " + getCurrentPlayer().getName());
             skipCount = 0;  // Reset skip count after processing
             notifyViews();   // Notify views once after all skips are processed
         }
