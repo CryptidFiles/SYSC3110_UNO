@@ -7,6 +7,6 @@ public interface UNO_View {
     void displayMessage(String message);
     void updateScores();
     void showWinner(Player player);
-
+    void showRoundWinner(Player player);
 
 }

@@ -4,17 +4,17 @@ import java.awt.Color;
 import java.util.ArrayList;
 
 public class UNO_Frame extends JFrame implements UNO_View{
-    private JPanel mainPanel;
-    private JPanel playerHandPanel;
-    private JPanel playAreaPanel;
-    private JPanel playerInfoPanel;
-    private JLabel topCardLabel;
-    private JButton drawButton;
-    private JLabel currentPlayerLabel;
-    private JLabel directionLabel;
+    private JPanel mainPanel; //container that holds everything
+    private JPanel playerHandPanel; //bottom area showing the players cards
+    private JPanel playAreaPanel; //middle area showing draw deck and top card
+    private JPanel playerInfoPanel; //top area showing current player and direction
+    private JLabel topCardLabel; //shows which card is on top of the play pile
+    private JButton drawButton; //button to draw a card
+    private JLabel currentPlayerLabel; //shows whose turn it is
+    private JLabel directionLabel; //shows turn direction (clockwise or counetrclockwise)
 
-    private UNO_Game model;
-    private UNO_Controller controller;
+    private UNO_Game model; //UNO game logic
+    private UNO_Controller controller; //listens for buttons or card clicks, and updates the model
 
     public UNO_Frame() {
 
@@ -31,7 +31,7 @@ public class UNO_Frame extends JFrame implements UNO_View{
             }
 
             try {
-                numPlayers = Integer.parseInt(inputValue.trim());
+                numPlayers = Integer.parseInt(inputValue.trim()); //converts input to an integer
                 if (numPlayers >= 2 && numPlayers <= 4) {
                     break;
                 } else {
@@ -50,9 +50,9 @@ public class UNO_Frame extends JFrame implements UNO_View{
             playerNames.add(name.trim());
         }
 
+        //Set up the GUI, calls helper methods o create and organize the layout, and makes the window visible
         initializeUI();
         setupLayout();
-
         this.setVisible(true);
 
         model = new UNO_Game(numPlayers, playerNames);
@@ -107,7 +107,7 @@ public class UNO_Frame extends JFrame implements UNO_View{
     }
 
     public void setupLayout() {
-        // Set up play area (center)
+        // Set up play area (center) ORGANIZES WHERE EVERYTHING GOES ON THE SCREEN
         JPanel centerPanel = new JPanel(new FlowLayout(FlowLayout.CENTER, 50, 20));
         centerPanel.setBackground(playAreaPanel.getBackground());
 
@@ -195,6 +195,11 @@ public class UNO_Frame extends JFrame implements UNO_View{
     }
 
     public void showWinner(Player player){
+
+    }
+
+    @Override
+    public void showRoundWinner(Player player) {
 
     }
 
