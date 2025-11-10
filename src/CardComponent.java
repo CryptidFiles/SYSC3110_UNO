@@ -9,7 +9,7 @@ public class CardComponent extends JPanel {
     private Card card;           // The actual card data from model
     private int cardIndex;       // Position in player's hand
     private boolean isPlayable;  // Highlight if playable
-    private JButton useButton;
+    private JButton useButton;  //has its own use button
     private BufferedImage cardImage;
 
     public CardComponent(Card card, int index, UNO_Controller controller) {
@@ -18,7 +18,7 @@ public class CardComponent extends JPanel {
         this.isPlayable = false;
 
         setLayout(new BorderLayout());
-        setPreferredSize(new Dimension(120, 140));
+        setPreferredSize(new Dimension(100, 140)); //size of card
 
         loadCardImage();
         initializeComponents(controller);
@@ -33,13 +33,12 @@ public class CardComponent extends JPanel {
 
         // Directly connect to controller - no need for listener list!
         useButton.addActionListener(e -> {
-            // Debug output
-            System.out.println("Use button clicked for card index: " + cardIndex);
             controller.handleCardPlay(cardIndex);
         });
     }
 
-    private void setupLayout() {
+    private void setupLayout() { //builds what the card looks like visually
+        // Main card display panel
         JPanel imagePanel = new JPanel() {
             @Override
             protected void paintComponent(Graphics g) {
@@ -102,7 +101,7 @@ public class CardComponent extends JPanel {
 
 
     private void updateBorder() {
-        if (isPlayable) {
+        if (isPlayable) {//if playable then make it green
             setBorder(BorderFactory.createLineBorder(Color.GREEN, 3));
         } else {
             setBorder(BorderFactory.createLineBorder(Color.GRAY, 1));
@@ -120,7 +119,7 @@ public class CardComponent extends JPanel {
 
     public void setPlayable(boolean playable) {
         this.isPlayable = playable;
-        useButton.setEnabled(playable);
+        useButton.setEnabled(playable); //enable button to use
         updateBorder();
         repaint();
     }

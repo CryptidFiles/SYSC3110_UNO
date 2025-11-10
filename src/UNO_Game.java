@@ -16,21 +16,23 @@ import java.util.*;
  * @version 1.0
  */
 public class UNO_Game {
-    private ArrayList<Player> players;
-    private int numPlayers;
+    private ArrayList<Player> players; //a list of all players
+    private int numPlayers; //how many players there are
 
-    private Deck playDeck;
-    private Stack<Card> playPile;
-    private Direction direction;
+    private Deck playDeck; //where we draw cards from
+    private Stack<Card> playPile; //where we put played cards
+    private Direction direction; //CLOCKWISE OR COUNTERCLOCKWISE
 
-    private boolean gameOver;
-    private Player gameWinningPlayer;
-    private boolean roundOver;
-    private Player roundWinningPlayer;
-    final int WINNING_SCORE = 500;
+    private boolean gameOver; //is the whole game done? (a player reached 500 points?)
+    private Player gameWinningPlayer; //who won the whole game
 
-    private int currentPlayerIndex;
-    private int skipCount;
+    private boolean roundOver; //is this round finished
+    private Player roundWinningPlayer; //who won this round
+
+    final int WINNING_SCORE = 500; //first to 500 wins the whole game
+
+    private int currentPlayerIndex; //whose turn it is
+    private int skipCount; //how many players to skip next time we move turns
 
     private boolean waitingForColorSelection; // For wild card implementations
 
@@ -44,8 +46,8 @@ public class UNO_Game {
     public UNO_Game(int numPlayers, ArrayList<String> playerNames) {
         this.players = new ArrayList<>();
         this.numPlayers = numPlayers;
-        this.playDeck = new Deck();
-        this.playPile = new Stack<>();
+        this.playDeck = new Deck(); //a new shuffled deck
+        this.playPile = new Stack<>(); //empty pile
         this.direction = Direction.CLOCKWISE;
         this.gameOver = false;
         this.roundOver = false;
@@ -131,9 +133,9 @@ public class UNO_Game {
         resetDecks();
         distributeCards();
         currentPlayerIndex = 0;
-        gameOver = false;
-        roundOver = false;
-        roundWinningPlayer = null;
+        gameOver = false; //since we are doing a new round, whole game not done yet
+        roundOver = false; //round just got activated
+        roundWinningPlayer = null; //no winners yet
         skipCount = 0;
     }
 
@@ -142,7 +144,7 @@ public class UNO_Game {
      */
     private void resetDecks() {
         playDeck = new Deck();  // fresh shuffled decks
-        playPile = new Stack<>();
+        playPile = new Stack<>(); //empty discard pile
     }
 
     /**
@@ -151,7 +153,7 @@ public class UNO_Game {
     private void distributeCards() {
         for (Player player : players) {
             player.clearHand();
-            for (int i = 0; i < 7; i++) {
+            for (int i = 0; i < 7; i++) { //deals 7 cards to each player
                 Card c = playDeck.drawCard();
                 player.drawCard(c);
             }
@@ -170,7 +172,7 @@ public class UNO_Game {
             }
         } while (firstCard == null);
 
-        // We found a non-action card
+        // We found a non-action card so push to play Pile stack
         playPile.push(firstCard);
     }
 
@@ -183,15 +185,16 @@ public class UNO_Game {
     public boolean playCard(int cardIndex) {
         Player currentPlayer = getCurrentPlayer();
 
-        if (!validMove(currentPlayer, cardIndex)) {
+        if (!validMove(currentPlayer, cardIndex)) { //check if the chosen card can legally be played on the top card
             return false;
         }
 
+        //Take that card from the players hand and put it in the pile
         Card chosenCard = currentPlayer.playCard(cardIndex);
         playPile.push(chosenCard);
         currentPlayer.removeCard(cardIndex);
 
-        // Execute card action
+        // Execute card action (if any)
         chosenCard.action(this, currentPlayer);
 
         // NOTIFY views since card was selected
@@ -202,7 +205,7 @@ public class UNO_Game {
         if (currentPlayer.handSize() == 0) {
             roundWinningPlayer = currentPlayer;
             roundOver = true;
-            tallyScores(roundWinningPlayer);
+            tallyScores(roundWinningPlayer); //give the roundWinningPlayer points from other player's leftover hands
 
             // NOTIFY views as round ended
             notifyViews();
@@ -217,7 +220,7 @@ public class UNO_Game {
             }
         } else {
             if(!waitingForColorSelection){
-                moveToNextPlayer();
+                moveToNextPlayer(); //otherwise, pass the turn to the next player
             }
         }
 
@@ -232,7 +235,7 @@ public class UNO_Game {
     public Card drawCard() {
         Player currentPlayer = getCurrentPlayer();
 
-        // Automatic reshuffling if the drawn card leaves the deck empty
+        // If draw deck is empty, try to rebuild and reshuffle it from the play pile
         if (playDeck.getDeck().isEmpty()) {
             reshuffleDrawingDeck();
             if (playDeck.getDeck().isEmpty()) {
@@ -240,12 +243,13 @@ public class UNO_Game {
             }
         }
 
+        //draw the card and give it to the current player
         Card drawnCard = playDeck.drawCard();
         if (drawnCard != null) {
             currentPlayer.drawCard(drawnCard);
         }
 
-        // Current player drew a card, so their turn is skipped
+        //After voluntarily drawing, turn moves on
         moveToNextPlayer();
 
         // NOTIFY views as player has drawn a card and skipping current player's turn
@@ -257,7 +261,7 @@ public class UNO_Game {
 
     public void moveToNextPlayer() {
         if (skipCount > 0) {
-            processSkip();  // Handle skips automatically
+            processSkip();  // jumps past players
         } else {
             // Normal turn progression
             if (direction == Direction.CLOCKWISE) {
@@ -284,7 +288,7 @@ public class UNO_Game {
             return; // Not enough cards to reshuffle (need at least 2: one to keep, one to reshuffle)
         }
 
-        // Save the top card of the play pile
+        // removes and saves the top card of the play pile
         Card topCard = playPile.pop();
 
         // Add all remaining play pile cards back to the deck
@@ -376,7 +380,7 @@ public class UNO_Game {
      * @return {@link Player}, the next Player in order.
      */
     public Player getNextPlayer(Player currentPlayer) {
-        int currentPlayerIndex = players.indexOf(currentPlayer);
+        int currentPlayerIndex = players.indexOf(currentPlayer); //gets the index of the current player
         int nextIndex;
 
         if (getDirection() == Direction.CLOCKWISE) {
@@ -385,7 +389,7 @@ public class UNO_Game {
             nextIndex = (currentPlayerIndex - 1 + players.size()) % players.size();
         }
 
-        return players.get(nextIndex);
+        return players.get(nextIndex); //returns the player based on their index that was set by (nextindex)
     }
 
 
@@ -411,8 +415,6 @@ public class UNO_Game {
      */
     public void processSkip() {
         if (skipCount > 0) {
-            System.out.println("DEBUG: Processing " + skipCount + " skips. Current player: " + getCurrentPlayer().getName());
-
             System.out.println("Skipping " + skipCount + " player(s)!");
 
             // Calculate the final position directly based on skip count and direction
@@ -425,7 +427,6 @@ public class UNO_Game {
                 currentPlayerIndex = (currentPlayerIndex - skipCount - 1 + players.size()) % players.size();
             }
 
-            System.out.println("DEBUG: After skipping " + skipCount + " players: " + getCurrentPlayer().getName());
             skipCount = 0;  // Reset skip count after processing
             notifyViews();   // Notify views once after all skips are processed
         }
