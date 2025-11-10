@@ -53,9 +53,11 @@ public class UNO_Frame extends JFrame implements UNO_View{
         initializeUI();
         setupLayout();
 
+
         this.setVisible(true);
 
         model = new UNO_Game(numPlayers, playerNames);
+        model.addUnoView(this);
         controller = new UNO_Controller(model, this);
 
         model.startNewRound();
@@ -170,7 +172,7 @@ public class UNO_Frame extends JFrame implements UNO_View{
         ArrayList<Card> hand = player.getHand();
         for (int i = 0; i < hand.size(); i++) {
             Card card = hand.get(i);
-            CardComponent cardComp = new CardComponent(card, i, controller);
+            CardComponent cardComp = new CardComponent(card, i + 1, controller);
 
             // Highlight playable cards
             cardComp.setPlayable(model.isPlayable(card));
@@ -201,7 +203,7 @@ public class UNO_Frame extends JFrame implements UNO_View{
         playAreaPanel.removeAll();
 
         if (card != null) {
-            CardComponent topCardComponent = new CardComponent(card, -1, controller);
+            CardComponent topCardComponent = new CardComponent(card, 0, controller);
             topCardComponent.setPlayable(false); // cannot play the top card
             playAreaPanel.add(topCardComponent, BorderLayout.CENTER);
         } else {
@@ -246,11 +248,15 @@ public class UNO_Frame extends JFrame implements UNO_View{
 
     }
 
-    @Override
     public void showRoundWinner(Player player) {
 
     }
 
+
+
+    public JButton getDrawButton(){
+        return drawButton;
+    }
 
     public static void main(String[] args) {
         UNO_Frame frame = new UNO_Frame();

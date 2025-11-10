@@ -28,6 +28,8 @@ public class CardComponent extends JPanel {
 
         // Directly connect to controller - no need for listener list!
         useButton.addActionListener(e -> {
+            // Debug output
+            System.out.println("Use button clicked for card index: " + cardIndex);
             controller.handleCardPlay(cardIndex);
         });
     }
@@ -79,7 +81,7 @@ public class CardComponent extends JPanel {
         cardDisplayPanel.add(infoPanel, BorderLayout.CENTER);
 
         // Add index label for debugging
-        JLabel indexLabel = new JLabel("Card " + (cardIndex + 1), SwingConstants.CENTER);
+        JLabel indexLabel = new JLabel("Card " + (cardIndex), SwingConstants.CENTER);
         cardDisplayPanel.add(indexLabel, BorderLayout.NORTH);
 
         // Assemble the component

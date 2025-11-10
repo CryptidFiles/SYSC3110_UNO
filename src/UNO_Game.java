@@ -32,7 +32,8 @@ public class UNO_Game {
     private int currentPlayerIndex;
     private int skipCount;
 
-    // Removed scanner as we want to only use GUI
+    private List<UNO_View> views;
+
 
 
     /**
@@ -48,18 +49,7 @@ public class UNO_Game {
         this.roundOver = false;
         this.skipCount = 0;
         this.currentPlayerIndex = 0;
-
-        // Initialize players from provided data
-        for (String name : playerNames) {
-            players.add(new Player(name));
-        }
-
-        players = new ArrayList<>();
-        playDeck = new Deck();
-        playPile = new Stack<>();
-        direction = Direction.CLOCKWISE;
-        gameOver = false;
-        skipCount = 0;
+        views = new ArrayList<>();
 
         // Initialize players from provided data
         this.numPlayers = numPlayers;
@@ -67,6 +57,49 @@ public class UNO_Game {
             players.add(new Player(name));
         }
     }
+
+    public void addUnoView(UNO_View view){
+        views.add(view);
+    }
+    public void removeUnoView(UNO_View view){
+        views.remove(view);
+    }
+
+    // Notify all views when game state changes
+    private void notifyViews() {
+        for (UNO_View view : views) {
+            view.updateGameState();
+        }
+    }
+
+    // Notify when a specific card is played
+    private void notifyCardPlayed(Card card) {
+        for (UNO_View view : views) {
+            view.showCardPlayed(card);
+        }
+    }
+
+    // Notify when a player wins
+    private void notifyWinner(Player player) {
+        for (UNO_View view : views) {
+            view.showWinner(player);
+        }
+    }
+
+    // Notify when scores update
+    private void notifyScoresUpdated() {
+        for (UNO_View view : views) {
+            view.updateScores();
+        }
+    }
+
+    // Notify when message should be displayed
+    private void notifyMessage(String message) {
+        for (UNO_View view : views) {
+            view.displayMessage(message);
+        }
+    }
+
 
 
     /**
@@ -137,7 +170,11 @@ public class UNO_Game {
         currentPlayer.removeCard(cardIndex);
 
         // Execute card action
-            chosenCard.action(this, currentPlayer);
+        chosenCard.action(this, currentPlayer);
+
+        // NOTIFY views since card was selected
+        notifyCardPlayed(chosenCard);
+        notifyViews();
 
         // Check for round win
         if (currentPlayer.handSize() == 0) {
@@ -145,13 +182,21 @@ public class UNO_Game {
             roundOver = true;
             tallyScores(roundWinningPlayer);
 
+            // NOTIFY views as round ended
+            notifyViews();
+
             // Check for game win
             if (roundWinningPlayer.getScore() >= WINNING_SCORE) {
                 gameWinningPlayer = roundWinningPlayer;
                 gameOver = true;
+
+                // NOTIFY views as game ended
+                notifyWinner(gameWinningPlayer);
             }
         } else {
             moveToNextPlayer();
+            // NOTIFY views as we are moving to the next player
+            notifyViews();
         }
 
         return true;
@@ -178,7 +223,12 @@ public class UNO_Game {
             currentPlayer.drawCard(drawnCard);
         }
 
+        // Current player drew a card, so their turn is skipped
         moveToNextPlayer();
+
+        // NOTIFY views as player has drawn a card and skipping current player's turn
+        notifyViews();
+
         return drawnCard;
     }
 
@@ -194,6 +244,9 @@ public class UNO_Game {
                 currentPlayerIndex = (currentPlayerIndex - 1 + players.size()) % players.size();
             }
         }
+
+        // Redundant as methods that invoke this notifyViews, but as a failsafe
+        notifyViews();
     }
 
     /**   NUMBER OF PLAYERS AND NAME, MUST MAKE VIEW DO THIS
@@ -272,7 +325,7 @@ public class UNO_Game {
      * @param  i The index of the chosen card in the player's hand.
      * @return boolean. true if the card is playable; false otherwise.
      */
-    private boolean validMove(Player p, int i) { //returns true if players card matches type or color of the top card in play Pile
+    public boolean validMove(Player p, int i) { //returns true if players card matches type or color of the top card in play Pile
         return p.playCard(i).playableOnTop(topCard());
     }
 
@@ -297,7 +350,7 @@ public class UNO_Game {
      *
      * @param winner The player who won the round.
      */
-    private void tallyScores(Player winner) {
+    public void tallyScores(Player winner) {
         System.out.println("\n--- Scoreboard ---");
 
         // Tally winner's points from opponent's remaining cards

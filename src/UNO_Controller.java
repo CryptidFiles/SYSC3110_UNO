@@ -1,13 +1,17 @@
+import javax.swing.*;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
 
 public class UNO_Controller implements ActionListener {
     private UNO_Game model;
-    private UNO_View view;
+    private UNO_Frame view; // Changed to concrete type for button access
 
-    public UNO_Controller(UNO_Game model, UNO_View view) {
+    public UNO_Controller(UNO_Game model, UNO_Frame view) {
         this.model = model;
         this.view = view;
+
+        // Connect draw button to controller
+        view.getDrawButton().addActionListener(this);
 
         // Starting a new round
         try {
@@ -15,73 +19,89 @@ public class UNO_Controller implements ActionListener {
         } catch (Exception ignored) {
         }
 
-        // Initial view
+        // Initial view update
         view.updateGameState();
     }
 
     @Override
-    public void actionPerformed(ActionEvent actionEvent) {
-        Object source = actionEvent.getSource();
+    public void actionPerformed(ActionEvent e) {
+        Object source = e.getSource();
 
-//        if (source == view.getDrawButton(){
-//            handleDrawCard();
-//            return;
-//        }
-//
-//        // This mean they are playing a card because we only have two buttons (draw and card)
-//        int index = view.getCardIndex(); //TODO: implement this in view
-//        handleCardPlay(index);
-    }
+        // Handle Draw Card button
+        if (source == view.getDrawButton()) {
+            handleDrawCard();
+        }
+        // Handle card plays from CardComponents
+        else if (source instanceof JButton) {
+            JButton button = (JButton) source;
 
-    private void handleDrawCard() {
-        try {
-            if (model == null || view == null) return;
-
-            Card drawnCard = model.drawCard();
-
-            if (drawnCard == null) {
-                view.displayMessage("No cards could be drawn (deck empty).");
+            // Check if this is a card use button by looking at the parent (button is inside this class)
+            if (button.getParent() instanceof CardComponent) {
+                CardComponent cardComp = (CardComponent) button.getParent();
+                handleCardPlay(cardComp.getCardIndex());
             }
-
-            // Update view after drawing
-            view.updateGameState();
-
-            if (model.isGameOver()) {
-                Player gameWinner = model.getGameWinningPlayer();
-                view.displayMessage("Game Over! " + gameWinner.getName() + " has won the game!");
-            }
-        } catch (Exception ex) {
-            view.displayMessage("Error playing card: " + ex.getMessage());
         }
     }
 
-
-    public void handleCardPlay(int cardIndex) {
-        // Validate move, update model, refresh view
+    /**
+     * Handles when a player wants to draw a card
+     */
+    public void handleDrawCard() {
         try {
             Player currentPlayer = model.getCurrentPlayer();
+            if (currentPlayer == null) return;
 
-            if (model.hasPlayableHand(currentPlayer)) {
-                boolean success = model.playCard(cardIndex);
+            // Use the existing drawCard() method which already handles drawing for current player
+            Card drawnCard = model.drawCard();
 
-                if (success) {
-                    view.showCardPlayed(currentPlayer.playCard(cardIndex));
-
-                    if (model.isRoundOver()) {
-                        view.showRoundWinner(model.getRoundWinningPlayer());
-                    } else if (model.isGameOver()) {
-                        view.showWinner(model.getGameWinningPlayer());
-                    } else {
-                        view.updateGameState();
-                    }
-                } else {
-                    view.displayMessage("Invalid move! Please try a different card.");
-                }
+            if (drawnCard != null) {
+                // Model will automatically notify views through observer pattern
+                // The card is already added to player's hand in the model
+                System.out.println(currentPlayer.getName() + " drew a card.");
             } else {
-                view.displayMessage("No playable cards in hand. You must draw a card.");
+                // Model should handle empty deck scenario through reshuffling
+                System.out.println("No cards available to draw.");
             }
+
         } catch (Exception ex) {
-            view.displayMessage("Error playing card: " + ex.getMessage());
+            System.err.println("Error drawing card: " + ex.getMessage());
+            ex.printStackTrace();
+        }
+    }
+
+    /**
+     * Handles when a player wants to play a card
+     */
+    public void handleCardPlay(int cardIndex) {
+        try {
+            Player currentPlayer = model.getCurrentPlayer();
+            if (currentPlayer == null) {
+                System.err.println("No current player found.");
+                return;
+            }
+
+            System.out.println("Attempting to play card index: " + cardIndex + " for player: " + currentPlayer.getName());
+
+            // Validate and play the card through the model
+            boolean success = model.playCard(cardIndex);
+
+            if (!success) {
+                System.out.println("Invalid move! This card cannot be played on the current top card.");
+            }
+            // If successful, model will handle game logic and notify views automatically
+
+        } catch (Exception ex) {
+            System.err.println("Error playing card: " + ex.getMessage());
+            ex.printStackTrace();
+        }
+    }
+
+    public void startNewGame() {
+        try {
+            model.startNewRound();
+            // Model will notify views automatically through observer pattern
+        } catch (Exception ex) {
+            System.err.println("Error starting new game: " + ex.getMessage());
         }
     }
 }

@@ -1,3 +1,5 @@
+import javax.swing.*;
+
 public interface UNO_View {
     void updateGameState();
     void displayPlayerHand(Player player);
@@ -9,5 +11,7 @@ public interface UNO_View {
     void showWinner(Player player);
     void showRoundWinner(Player player);
 
+
+    JButton getDrawButton();
 
 }
