@@ -200,14 +200,19 @@ public class UNO_Frame extends JFrame implements UNO_View{
     public void showCardPlayed(Card card){
         playAreaPanel.removeAll();
 
+        JPanel cardHolder = new JPanel();
+        cardHolder.setLayout(new FlowLayout(FlowLayout.CENTER));
+        cardHolder.setPreferredSize(new Dimension(150, 300)); // Adjust size
+
         if (card != null) {
             CardComponent topCardComponent = new CardComponent(card, -1, controller);
-            topCardComponent.setPlayable(false); // cannot play the top card
-            playAreaPanel.add(topCardComponent, BorderLayout.CENTER);
+            topCardComponent.setPlayable(false);
+            cardHolder.add(topCardComponent);
         } else {
-            playAreaPanel.add(new JLabel("No card in play."));
+            cardHolder.add(new JLabel("No card in play."));
         }
 
+        playAreaPanel.add(cardHolder, BorderLayout.CENTER);
         playAreaPanel.revalidate();
         playAreaPanel.repaint();
     }
