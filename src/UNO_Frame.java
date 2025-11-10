@@ -198,6 +198,11 @@ public class UNO_Frame extends JFrame implements UNO_View{
 
     }
 
+    @Override
+    public void showRoundWinner(Player player) {
+
+    }
+
 
     public static void main(String[] args) {
         UNO_Frame frame = new UNO_Frame();
