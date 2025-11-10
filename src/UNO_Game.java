@@ -77,21 +77,28 @@ public class UNO_Game {
     }
 
     // Notify when a specific card is played
-    private void notifyCardPlayed(Card card) {
+    protected void notifyCardPlayed(Card card) {
         for (UNO_View view : views) {
             view.showCardPlayed(card);
         }
     }
 
     // Notify when a player wins
-    private void notifyWinner(Player player) {
+    protected void notifyRoundWinner(Player player) {
+        for (UNO_View view : views) {
+            view.showRoundWinner(player);
+        }
+    }
+
+    // Notify when a player wins
+    protected void notifyGameWinner(Player player) {
         for (UNO_View view : views) {
             view.showWinner(player);
         }
     }
 
     // Notify when scores update
-    private void notifyScoresUpdated() {
+    protected void notifyScoresUpdated() {
         for (UNO_View view : views) {
             view.updateScores();
         }
@@ -137,6 +144,9 @@ public class UNO_Game {
         roundOver = false; //round just got activated
         roundWinningPlayer = null; //no winners yet
         skipCount = 0;
+
+        // Update the game state
+        notifyViews();
     }
 
     /**
@@ -208,7 +218,8 @@ public class UNO_Game {
             tallyScores(roundWinningPlayer); //give the roundWinningPlayer points from other player's leftover hands
 
             // NOTIFY views as round ended
-            notifyViews();
+            notifyRoundWinner(roundWinningPlayer);
+            notifyScoresUpdated();
 
             // Check for game win
             if (roundWinningPlayer.getScore() >= WINNING_SCORE) {
@@ -216,8 +227,19 @@ public class UNO_Game {
                 gameOver = true;
 
                 // NOTIFY views as game ended
-                notifyWinner(gameWinningPlayer);
+                notifyGameWinner(gameWinningPlayer);
+            } else {
+                notifyMessage("Starting new round!");
+                // Start new round if winner hasn't been decided
+                for (UNO_View view : views) {
+                    view.initiateNewRound();
+                }
+
+
             }
+
+            notifyViews();
+
         } else {
             if(!waitingForColorSelection){
                 moveToNextPlayer(); //otherwise, pass the turn to the next player
@@ -459,10 +481,6 @@ public class UNO_Game {
      * Flips all cards (play pile, draw deck, and hands) to the opposite light/dark side.
      */
     public void flipGameSide() {
-
-        boolean newSideState = !topCard().isLightSideActive;
-        System.out.println("\n=== GAME FLIPPED TO " + (newSideState ? "DARK" : "LIGHT") + " SIDE ===");
-
         // Flip all cards in play pile (discard pile)
         for (Card card : playPile) {
             card.flip();

@@ -10,8 +10,7 @@ public interface UNO_View {
     void updateScores();
     void showWinner(Player player);
     void showRoundWinner(Player player);
-
-
+    void initiateNewRound();
     JButton getDrawButton();
 
 }

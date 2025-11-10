@@ -37,6 +37,7 @@ public class NumberCard extends Card {
      */
     @Override
     public boolean action(UNO_Game model, Player player){
+        model.notifyMessage(player.getName() + " played a " + (isLightSideActive ? this.lightColor : this.darkColor) + " " + this.lightType);
         //Numbered Card have no special effect
         return true;
     }

@@ -63,7 +63,10 @@ public class UNO_Frame extends JFrame implements UNO_View{
         controller = new UNO_Controller(model, this);
 
         model.startNewRound();
+        // Initial game state update
         updateGameState();
+        // Initial scoreboard update
+        updateScores();
 
     }
 
@@ -78,7 +81,9 @@ public class UNO_Frame extends JFrame implements UNO_View{
         mainPanel = new JPanel(new BorderLayout());
         playerHandPanel = new JPanel(new FlowLayout(FlowLayout.CENTER, 5, 5));
         playAreaPanel = new JPanel(new BorderLayout());
-        playerInfoPanel = new JPanel(new FlowLayout(FlowLayout.CENTER, 20, 10));
+        playerInfoPanel = new JPanel(new FlowLayout(FlowLayout.CENTER, 20, 5));
+        // Set preferred size to ensure enough height
+        playerInfoPanel.setPreferredSize(new Dimension(900, 100)); // Increased height
 
         // Initialize components
         topCardLabel = new JLabel("Top Card: ", SwingConstants.CENTER);
@@ -98,13 +103,13 @@ public class UNO_Frame extends JFrame implements UNO_View{
         directionLabel = new JLabel("Direction: ↻", SwingConstants.CENTER);
         directionLabel.setFont(new Font("Arial", Font.BOLD, 13));
 
-        messageLabel = new JLabel("Welcome to UNO Flip!", SwingConstants.CENTER);
-        messageLabel.setFont(new Font("Arial", Font.BOLD, 14));
-        messageLabel.setForeground(Color.BLACK);
-
         scoreLabel = new JLabel("Scores: ", SwingConstants.CENTER);
         scoreLabel.setFont(new Font("Arial", Font.BOLD, 13));
         scoreLabel.setForeground(Color.BLACK);
+
+        messageLabel = new JLabel("Welcome to UNO Flip!", SwingConstants.CENTER);
+        messageLabel.setFont(new Font("Arial", Font.BOLD, 14));
+        messageLabel.setForeground(Color.BLACK);
 
         // Set up action listeners (will be connected to controller later)
         drawButton.addActionListener(controller);
@@ -146,8 +151,8 @@ public class UNO_Frame extends JFrame implements UNO_View{
         // Set up player info panel
         playerInfoPanel.add(currentPlayerLabel);
         playerInfoPanel.add(directionLabel);
-        playerInfoPanel.add(messageLabel);
         playerInfoPanel.add(scoreLabel);
+        playerInfoPanel.add(messageLabel);
 
         // Assemble main layout
         mainPanel.add(playerInfoPanel, BorderLayout.NORTH);    // Game info at top
@@ -167,7 +172,6 @@ public class UNO_Frame extends JFrame implements UNO_View{
         displayPlayerHand(currentPlayer); //to show their hand on screen
         highlightCurrentPlayer(); //Highlight their turn
         showCardPlayed(model.topCard()); //show the top of the play pile on the screen
-        updateScores(); //update players scores
     }
 
     /**
@@ -219,9 +223,10 @@ public class UNO_Frame extends JFrame implements UNO_View{
         playAreaPanel.removeAll();
 
         if (card != null) {
-            //create a card component to visually represent that card. -1 means its not from the players hand, its the top card
+            //create a card component to visually represent that card. -1 means it's not from the players hand, its the top card
             CardComponent topCardComponent = new CardComponent(card, -1, controller);
             topCardComponent.setPlayable(false); // cannot play the top card
+            topCardComponent.getUseButton().setVisible(false); // set use button to invisible
             playAreaPanel.add(topCardComponent, BorderLayout.CENTER);
         } else {
             playAreaPanel.add(new JLabel("No card in play."));
@@ -315,7 +320,7 @@ public class UNO_Frame extends JFrame implements UNO_View{
 
         String winnerMessage = player.getName() + " win the game with " + player.getScore() + " points!";
         displayMessage(winnerMessage);
-        messageLabel.setForeground(Color.YELLOW);
+        messageLabel.setForeground(Color.RED);
 
         JOptionPane.showMessageDialog(this, winnerMessage, "Game Over!", JOptionPane.INFORMATION_MESSAGE);
 
@@ -347,8 +352,30 @@ public class UNO_Frame extends JFrame implements UNO_View{
         updateScores();
 
         drawButton.setEnabled(false); //disables drawing until the next round starts
+
     }
 
+    public void initiateNewRound(){
+        // Ask if user wants to continue to next round
+        int option = JOptionPane.showConfirmDialog(this,
+                "Start next round?",
+                "Continue Playing",
+                JOptionPane.YES_NO_OPTION);
+
+        if (option == JOptionPane.YES_OPTION) {
+            // Re-enable the draw button for the new round
+            drawButton.setEnabled(true);
+            displayMessage("New round started!");
+            messageLabel.setForeground(Color.BLACK);
+            // Start new round through controller
+            controller.handleNewRound();
+        } else {
+            // Or exit the game
+            System.exit(0);
+        }
+
+
+    }
 
 
     public JButton getDrawButton(){

@@ -18,9 +18,6 @@ public class UNO_Controller implements ActionListener {
             model.startNewRound();
         } catch (Exception ignored) {
         }
-
-        // Initial view update
-        view.updateGameState();
     }
 
     @Override
@@ -120,7 +117,7 @@ public class UNO_Controller implements ActionListener {
     }
 
 
-    public void startNewGame() {
+    public void handleNewRound() {
         try {
             model.startNewRound();
             // Model will notify views automatically through observer pattern

@@ -24,7 +24,7 @@ public class WildDrawCard extends Card {
 
             // Light side: next player picks up two cards
             Player nextPlayer = model.getNextPlayer(player);
-            model.notifyMessage(nextPlayer.getName() + " draws 2 cards!");
+            model.notifyMessage(nextPlayer.getName() + " draws 2 cards and lost a turn!");
 
             for(int i = 0; i < 2; i++){
                 Card card = model.getPlayDeck().drawCard();
@@ -55,7 +55,7 @@ public class WildDrawCard extends Card {
 
                 if (drawnCard.getColor() == this.darkColor) {
                     foundColor = true;
-                    model.notifyMessage(nextPlayer.getName() + " found the chosen color after drawing " + cardsDrawn + " cards!");
+                    model.notifyMessage(nextPlayer.getName() + " found the chosen color after drawing " + cardsDrawn + " cards and lost a turn!");
                 }
             }
 

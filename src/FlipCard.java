@@ -38,6 +38,9 @@ public class FlipCard extends Card {
     public boolean action(UNO_Game model, Player player){
         // Flip the rest of the cards
         model.flipGameSide();
+
+        // Notify view of which side game has been flipped to
+        model.notifyMessage("Game flipped to " + (isLightSideActive ? "LIGHT" : "DARK") + " SIDE");
         return true;
     }
 
