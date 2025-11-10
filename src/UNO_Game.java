@@ -112,7 +112,6 @@ public class UNO_Game {
     }
 
     protected void notifyWildColorSelection() {
-        System.out.println("=== NOTIFYING VIEWS: Wild Color Selection ===");
         for (UNO_View view : views) {
             view.showWildColorSelection();
         }
@@ -250,7 +249,7 @@ public class UNO_Game {
                 notifyViews();
 
             } else {
-                if(!waitingForColorSelection){
+                if (!waitingForColorSelection){
                     moveToNextPlayer(); //otherwise, pass the turn to the next player
                 }
             }
@@ -342,7 +341,6 @@ public class UNO_Game {
         // Put the saved top card back on the play pile
         playPile.push(topCard);
 
-        //System.out.println("Reshuffled the draw deck from play pile!");
     }
 
 
@@ -384,8 +382,6 @@ public class UNO_Game {
      * @param winner The player who won the round.
      */
     public void tallyScores(Player winner) {
-        System.out.println("\n--- Scoreboard ---");
-
         // Tally winner's points from opponent's remaining cards
         for (Player p : players) {
             int handPoints = 0;
@@ -393,28 +389,10 @@ public class UNO_Game {
             if(p != winner) {
                 for (Card c : p.getHand()) {
                     handPoints += c.getType().getPointValue(); //adds all players remaining card points to the winning player's score
-                    System.out.println(handPoints + "from " + p.getName() + "'s hand");
                 }
                 winner.addScore(handPoints);
             }
         }
-
-        /** MAKE THIS PART OF THE VIEW
-         * Display the current scores of all players
-        for (Player p : players) {
-            System.out.println(p.getName() + " total score: " + p.getScore());
-
-            // Assign the winner to anyone who has a total score of 500 or more points
-            if(p.getScore() >= WINNING_SCORE){
-                gameWinningPlayer = p;
-            }
-        }
-        System.out.println("-------------------\n");
-
-
-        if(gameWinningPlayer != null){
-            System.out.println(gameWinningPlayer.getName() + " won!");
-        }*/
     }
 
     /**
@@ -459,8 +437,6 @@ public class UNO_Game {
      */
     public void processSkip() {
         if (skipCount > 0) {
-            System.out.println("Skipping " + skipCount + " player(s)!");
-
             // Calculate the final position directly based on skip count and direction
             if (direction == Direction.CLOCKWISE) {
                 // Skip N players means advance by (N + 1) positions
