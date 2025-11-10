@@ -12,4 +12,14 @@
 public enum Direction {
     CLOCKWISE, COUNTERCLOCKWISE;
 
+    @Override
+    public String toString() {
+        if (this == CLOCKWISE){
+            return "Clockwise ↻";
+        }
+        else{
+            return "Counter Clockwise ↺";
+        }
+    }
+
 }
