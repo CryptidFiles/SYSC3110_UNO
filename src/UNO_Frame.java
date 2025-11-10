@@ -383,7 +383,7 @@ public class UNO_Frame extends JFrame implements UNO_View{
     }
 
     public static void main(String[] args) {
-        UNO_Frame frame = new UNO_Frame();
+        UNO_Frame frame = new UNO_Frame(); //to create the game
     }
 
 }
