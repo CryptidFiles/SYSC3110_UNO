@@ -84,9 +84,9 @@ public class CardTypeTest {
     @Test
     public void testIsWildCard_TrueForWilds() {
         assertTrue(CardType.WILD.isWildCard());
-        assertTrue(CardType.WILD_DRAW_TWO.isWildCard());
+        assertTrue(CardType.DRAW_TWO.isWildCard());
         assertTrue(CardType.DARK_WILD.isWildCard());
-        assertTrue(CardType.WILD_DRAW_COLOR.isWildCard());
+        assertTrue(CardType.DRAW_COLOR.isWildCard());
     }
 
     /**
@@ -119,8 +119,8 @@ public class CardTypeTest {
         assertEquals(20, CardType.FLIP.getPointValue());
         assertEquals(20, CardType.DARK_FLIP.getPointValue());
         assertEquals(30, CardType.SKIP_EVERYONE.getPointValue());
-        assertEquals(50, CardType.WILD_DRAW_TWO.getPointValue());
-        assertEquals(60, CardType.WILD_DRAW_COLOR.getPointValue());
+        assertEquals(50, CardType.DRAW_TWO.getPointValue());
+        assertEquals(60, CardType.DRAW_COLOR.getPointValue());
         assertEquals(40, CardType.WILD.getPointValue());
         assertEquals(40, CardType.DARK_WILD.getPointValue());
     }

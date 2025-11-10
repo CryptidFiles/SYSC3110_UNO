@@ -15,10 +15,10 @@ public enum CardType {
     ONE, TWO, THREE, FOUR, FIVE, SIX, SEVEN, EIGHT, NINE,
 
     // Light Action Cards
-    DRAW_ONE, LIGHT_REVERSE, SKIP, WILD, WILD_DRAW_TWO, FLIP,
+    DRAW_ONE, LIGHT_REVERSE, SKIP, WILD, DRAW_TWO, FLIP,
 
     // Dark Action Cards
-    DRAW_FIVE, DARK_REVERSE, SKIP_EVERYONE, DARK_WILD, WILD_DRAW_COLOR, DARK_FLIP;
+    DRAW_FIVE, DARK_REVERSE, SKIP_EVERYONE, DARK_WILD, DRAW_COLOR, DARK_FLIP;
 
     /**
      * Determines if the card type is a number card (1–9).
@@ -44,7 +44,7 @@ public enum CardType {
      * @return boolean. true if the card is a wild card; false otherwise
      */
     public boolean isWildCard() {
-        return this == WILD || this == WILD_DRAW_TWO || this == DARK_WILD || this == WILD_DRAW_COLOR;
+        return this == WILD || this == DRAW_TWO || this == DARK_WILD || this == DRAW_COLOR;
     }
 
     /**
@@ -65,11 +65,11 @@ public enum CardType {
             return 30;
         }
 
-        if (this == WILD_DRAW_TWO) {
+        if (this == DRAW_TWO) {
             return 50;
         }
 
-        if (this == WILD_DRAW_COLOR) {
+        if (this == DRAW_COLOR) {
             return 60;
         }
 

@@ -3,8 +3,8 @@ public class WildDrawCard extends Card {
         isLightSideActive = true;
         this.lightColor = CardColor.WILD;
         this.darkColor = CardColor.WILD;
-        this.lightType = CardType.WILD_DRAW_TWO;
-        this.darkType = CardType.WILD_DRAW_COLOR;
+        this.lightType = CardType.DRAW_TWO;
+        this.darkType = CardType.DRAW_COLOR;
     }
 
     @Override

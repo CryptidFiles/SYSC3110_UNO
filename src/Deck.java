@@ -94,7 +94,7 @@ public class Deck {
                     }
 
                     // Takes care of the wild draw two and wild draw color cards
-                    case WILD_DRAW_TWO -> {
+                    case DRAW_TWO -> {
                         for (int i = 0; i < 4; i++) {
                             deck.add(new WildDrawCard());
                         }
