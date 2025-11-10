@@ -30,7 +30,6 @@ public class UNO_Frame extends JFrame implements UNO_View{
                 return;
             }
 
-
             try {
                 numPlayers = Integer.parseInt(inputValue.trim());
                 if (numPlayers >= 2 && numPlayers <= 4) {
@@ -58,6 +57,7 @@ public class UNO_Frame extends JFrame implements UNO_View{
 
         model = new UNO_Game(numPlayers, playerNames);
         controller = new UNO_Controller(model, this);
+
     }
 
     public void initializeUI() {
@@ -146,7 +146,11 @@ public class UNO_Frame extends JFrame implements UNO_View{
     }
 
     public void updateGameState(){
-
+        Player currentPlayer = model.getCurrentPlayer();
+        displayPlayerHand(currentPlayer);
+        highlightCurrentPlayer();
+        showCardPlayed(model.topCard());
+        updateScores();
     }
 
     public void displayPlayerHand(Player player){
