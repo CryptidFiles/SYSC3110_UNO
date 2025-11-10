@@ -543,10 +543,19 @@ public class UNO_Game {
     /**
      * Returns the draw deck used for gameplay.
      *
-     * @return {@link Deck} The active deck
+     * @return Deck The active deck
      */
     public Deck getPlayDeck() {
         return playDeck;
+    }
+
+    /**
+     * Returns the play pile used for gameplay.
+     *
+     * @return Deck The active deck
+     */
+    public Stack<Card> getPlayPile() {
+        return playPile;
     }
 
     /**
