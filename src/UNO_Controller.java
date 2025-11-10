@@ -61,7 +61,7 @@ public class UNO_Controller implements ActionListener {
             }
 
         } catch (Exception ex) {
-            System.err.println("Error drawing card: " + ex.getMessage());
+            model.notifyMessage("Error drawing card: " + ex.getMessage());
             ex.printStackTrace();
         }
     }
@@ -88,31 +88,35 @@ public class UNO_Controller implements ActionListener {
             // If successful, model will handle game logic and notify views automatically
 
         } catch (Exception ex) {
-            System.err.println("Error playing card: " + ex.getMessage());
+            model.notifyMessage("Error playing card: " + ex.getMessage());
             ex.printStackTrace();
         }
     }
 
     public void handleWildColorSelection(CardColor chosenColor) {
-        if (!model.isWaitingForColorSelection()) {
-            return; // Not in color selection state
-        }
+        try {
+            if (!model.isWaitingForColorSelection()) {
+                return; // Not in color selection state
+            }
 
-        // Get the top card (which should be the wild card that was just played)
-        Card topCard = model.topCard();
+            // Get the top card (which should be the wild card that was just played)
+            Card topCard = model.topCard();
 
-        if (topCard instanceof WildCard) {
-            WildCard wildCard = (WildCard) topCard;
-            wildCard.applyChosenColor(chosenColor, model.topCard().isLightSideActive);
-            model.completeColorSelection();
-            //model.moveToNextPlayer(); // Normal turn progression after wild card
+            if (topCard instanceof WildCard) {
+                WildCard wildCard = (WildCard) topCard;
+                wildCard.applyChosenColor(chosenColor, model.topCard().isLightSideActive);
+                model.completeColorSelection();
+                //model.moveToNextPlayer(); // Normal turn progression after wild card
 
-        } else if(topCard instanceof WildDrawCard) {
+            } else if (topCard instanceof WildDrawCard) {
                 WildDrawCard wildDrawCard = (WildDrawCard) topCard;
                 Player currentPlayer = model.getCurrentPlayer();
                 wildDrawCard.executeDrawAction(chosenColor, model.topCard().isLightSideActive, model, currentPlayer);
                 model.completeColorSelection();
                 // moveToNextPlayer is handled by addSkip() in the card logic
+            }
+        } catch (Exception ex) {
+            model.notifyMessage("Error playing card: " + ex.getMessage());
         }
     }
 
@@ -122,7 +126,7 @@ public class UNO_Controller implements ActionListener {
             model.startNewRound();
             // Model will notify views automatically through observer pattern
         } catch (Exception ex) {
-            System.err.println("Error starting new game: " + ex.getMessage());
+            model.notifyMessage("Error starting new game: " + ex.getMessage());
         }
     }
 }

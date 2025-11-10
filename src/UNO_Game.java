@@ -164,26 +164,35 @@ public class UNO_Game {
         for (Player player : players) {
             player.clearHand();
             for (int i = 0; i < 7; i++) { //deals 7 cards to each player
-                Card c = playDeck.drawCard();
-                player.drawCard(c);
+                try {
+                    Card c = playDeck.drawCard();
+                    if (c == null) throw new NoSuchElementException("Deck is empty while distributing cards");
+                    player.drawCard(c);
+                } catch (Exception e) {
+                    notifyMessage("Error dealing cards: " + e.getMessage());
+                }
             }
         }
 
         // Set up first card. Keep drawing cards until we get a non-action card
-        Card firstCard;
-        do {
-            firstCard = playDeck.drawCard();
+        try {
+            Card firstCard;
+            do {
+                firstCard = playDeck.drawCard();
 
-            // If it's an action card, put it back and shuffle
-            if (firstCard != null && firstCard.getType().isActionCard()) {
-                playDeck.addCard(firstCard);  // Put it back in the deck
-                playDeck.shuffle();           // Shuffle it back in
-                firstCard = null;             // Reset so we continue looping
-            }
-        } while (firstCard == null);
+                // If it's an action card, put it back and shuffle
+                if (firstCard != null && firstCard.getType().isActionCard()) {
+                    playDeck.addCard(firstCard);  // Put it back in the deck
+                    playDeck.shuffle();           // Shuffle it back in
+                    firstCard = null;             // Reset so we continue looping
+                }
+            } while (firstCard == null);
 
-        // We found a non-action card so push to play Pile stack
-        playPile.push(firstCard);
+            // We found a non-action card
+            playPile.push(firstCard);
+        } catch (Exception e) {
+            notifyMessage("Error initializing first card: " + e.getMessage());
+        }
     }
 
     /**
@@ -193,60 +202,63 @@ public class UNO_Game {
      * @return boolean true if the card was successfully played, false otherwise
      */
     public boolean playCard(int cardIndex) {
-        Player currentPlayer = getCurrentPlayer();
+        try {
+            Player currentPlayer = getCurrentPlayer();
 
-        if (!validMove(currentPlayer, cardIndex)) { //check if the chosen card can legally be played on the top card
-            return false;
-        }
-
-        //Take that card from the players hand and put it in the pile
-        Card chosenCard = currentPlayer.playCard(cardIndex);
-        playPile.push(chosenCard);
-        currentPlayer.removeCard(cardIndex);
-
-        // Execute card action (if any)
-        chosenCard.action(this, currentPlayer);
-
-        // NOTIFY views since card was selected
-        notifyCardPlayed(chosenCard);
-        notifyViews();
-
-        // Check for round win
-        if (currentPlayer.handSize() == 0) {
-            roundWinningPlayer = currentPlayer;
-            roundOver = true;
-            tallyScores(roundWinningPlayer); //give the roundWinningPlayer points from other player's leftover hands
-
-            // NOTIFY views as round ended
-            notifyRoundWinner(roundWinningPlayer);
-            notifyScoresUpdated();
-
-            // Check for game win
-            if (roundWinningPlayer.getScore() >= WINNING_SCORE) {
-                gameWinningPlayer = roundWinningPlayer;
-                gameOver = true;
-
-                // NOTIFY views as game ended
-                notifyGameWinner(gameWinningPlayer);
-            } else {
-                notifyMessage("Starting new round!");
-                // Start new round if winner hasn't been decided
-                for (UNO_View view : views) {
-                    view.initiateNewRound();
-                }
-
-
+            if (!validMove(currentPlayer, cardIndex)) {
+                return false;
             }
 
+            //Take that card from the players hand and put it in the pile
+            Card chosenCard = currentPlayer.playCard(cardIndex);
+            playPile.push(chosenCard);
+            currentPlayer.removeCard(cardIndex);
+
+            // Execute card action (if any)
+            chosenCard.action(this, currentPlayer);
+
+            // NOTIFY views since card was selected
+            notifyCardPlayed(chosenCard);
             notifyViews();
 
-        } else {
-            if(!waitingForColorSelection){
-                moveToNextPlayer(); //otherwise, pass the turn to the next player
-            }
-        }
+            // Check for round win
+            if (currentPlayer.handSize() == 0) {
+                roundWinningPlayer = currentPlayer;
+                roundOver = true;
+                tallyScores(roundWinningPlayer); //give the roundWinningPlayer points from other player's leftover hands
 
-        return true;
+                // NOTIFY views as round ended
+                notifyRoundWinner(roundWinningPlayer);
+                notifyScoresUpdated();
+
+                // Check for game win
+                if (roundWinningPlayer.getScore() >= WINNING_SCORE) {
+                    gameWinningPlayer = roundWinningPlayer;
+                    gameOver = true;
+
+                    // NOTIFY views as game ended
+                    notifyGameWinner(gameWinningPlayer);
+
+                } else {
+                    notifyMessage("Starting new round!");
+                    // Start new round if winner hasn't been decided
+                    for (UNO_View view : views) {
+                        view.initiateNewRound();
+                    }
+                }
+
+                notifyViews();
+
+            } else {
+                if(!waitingForColorSelection){
+                    moveToNextPlayer(); //otherwise, pass the turn to the next player
+                }
+            }
+            return true;
+        } catch (Exception e) {
+            notifyMessage("Error playing card: " + e.getMessage());
+        }
+        return false;
     }
 
     /**
@@ -255,29 +267,34 @@ public class UNO_Game {
      * @return Card The drawn card, or null if deck is empty
      */
     public Card drawCard() {
-        Player currentPlayer = getCurrentPlayer();
+        try {
+            Player currentPlayer = getCurrentPlayer();
 
-        // If draw deck is empty, try to rebuild and reshuffle it from the play pile
-        if (playDeck.getDeck().isEmpty()) {
-            reshuffleDrawingDeck();
+            // If draw deck is empty, try to rebuild and reshuffle it from the play pile
             if (playDeck.getDeck().isEmpty()) {
-                return null; // No cards available even after reshuffle
+                reshuffleDrawingDeck();
+                if (playDeck.getDeck().isEmpty()) {
+                    return null; // No cards available even after reshuffle
+                }
             }
+
+            //draw the card and give it to the current player
+            Card drawnCard = playDeck.drawCard();
+            if (drawnCard != null) {
+                currentPlayer.drawCard(drawnCard);
+            }
+
+            // Current player drew a card, so their turn is skipped
+            moveToNextPlayer();
+
+            // NOTIFY views as player has drawn a card and skipping current player's turn
+            notifyViews();
+
+            return drawnCard;
+        } catch (Exception e) {
+            notifyMessage("Error drawing card: " + e.getMessage());
+            return null;
         }
-
-        //draw the card and give it to the current player
-        Card drawnCard = playDeck.drawCard();
-        if (drawnCard != null) {
-            currentPlayer.drawCard(drawnCard);
-        }
-
-        //After voluntarily drawing, turn moves on
-        moveToNextPlayer();
-
-        // NOTIFY views as player has drawn a card and skipping current player's turn
-        notifyViews();
-
-        return drawnCard;
     }
 
 
@@ -337,7 +354,12 @@ public class UNO_Game {
      * @return boolean. true if the card is playable; false otherwise.
      */
     public boolean validMove(Player p, int i) { //returns true if players card matches type or color of the top card in play Pile
-        return p.playCard(i).playableOnTop(topCard());
+        try {
+            return p.playCard(i).playableOnTop(topCard());
+        } catch (Exception e) {
+            notifyMessage("Error validating top card: " + e.getMessage());
+            return false;
+        }
     }
 
     /**
