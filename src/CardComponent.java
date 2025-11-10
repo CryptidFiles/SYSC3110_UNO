@@ -6,7 +6,7 @@ public class CardComponent extends JPanel {
     private Card card;           // The actual card data from model
     private int cardIndex;       // Position in player's hand
     private boolean isPlayable;  // Highlight if playable
-    private JButton useButton;
+    private JButton useButton; //has its own use button
 
     public CardComponent(Card card, int index, UNO_Controller controller) {
         this.card = card;
@@ -14,7 +14,7 @@ public class CardComponent extends JPanel {
         this.isPlayable = false;
 
         setLayout(new BorderLayout());
-        setPreferredSize(new Dimension(100, 140));
+        setPreferredSize(new Dimension(100, 140)); //size of card
 
         initializeComponents(controller);
         setupLayout();
@@ -32,7 +32,7 @@ public class CardComponent extends JPanel {
         });
     }
 
-    private void setupLayout() {
+    private void setupLayout() { //builds what the card looks like visually
         // Main card display panel
         JPanel cardDisplayPanel = new JPanel() {
             @Override
@@ -125,7 +125,7 @@ public class CardComponent extends JPanel {
     }
 
     private void updateBorder() {
-        if (isPlayable) {
+        if (isPlayable) {//if playable then make it green
             setBorder(BorderFactory.createLineBorder(Color.GREEN, 3));
         } else {
             setBorder(BorderFactory.createLineBorder(Color.GRAY, 1));
@@ -138,7 +138,7 @@ public class CardComponent extends JPanel {
 
     public void setPlayable(boolean playable) {
         this.isPlayable = playable;
-        useButton.setEnabled(playable);
+        useButton.setEnabled(playable); //enable button to use
         updateBorder();
         repaint();
     }
