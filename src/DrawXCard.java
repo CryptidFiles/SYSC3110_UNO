@@ -27,7 +27,6 @@ public class DrawXCard extends Card {
             // Skip the next player's turn
             model.addSkip(1);
 
-
         } else {
             // Dark side: DRAW_FIVE - next player draws five cards and loses turn
             Player nextPlayer = model.getNextPlayer(player);

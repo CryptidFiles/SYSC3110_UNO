@@ -145,5 +145,10 @@ public class CardComponent extends JPanel {
         repaint();
     }
 
+    public JButton getUseButton() {
+        return useButton;
+    }
+
+
     public boolean isPlayable() { return isPlayable; }
 }

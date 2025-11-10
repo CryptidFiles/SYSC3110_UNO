@@ -36,9 +36,16 @@ public class ReverseCard extends Card {
      */
     @Override
     public boolean action(UNO_Game model, Player player){
-        model.flipDirection();
-        model.notifyMessage("Direction reversed! Now going " +
-                (model.getDirection() == Direction.CLOCKWISE ? "clockwise" : "counter-clockwise"));
+        // Special case for 2 players: reverse acts as skip
+        if (model.getPlayers().size() == 2) {
+            model.notifyMessage("Reverse card with 2 players - skipping opponent!");
+            model.addSkip(1);
+        } else {
+            // Normal behavior for 3+ players
+            model.flipDirection();
+            model.notifyMessage("Direction reversed! Now going " +
+                    (model.getDirection() == Direction.CLOCKWISE ? "clockwise" : "counter-clockwise"));
+        }
         return true;
     }
 

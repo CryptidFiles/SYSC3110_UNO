@@ -108,7 +108,7 @@ public class UNO_Controller implements ActionListener {
             WildCard wildCard = (WildCard) topCard;
             wildCard.applyChosenColor(chosenColor, model.topCard().isLightSideActive);
             model.completeColorSelection();
-            model.moveToNextPlayer(); // Normal turn progression after wild card
+            //model.moveToNextPlayer(); // Normal turn progression after wild card
 
         } else if(topCard instanceof WildDrawCard) {
                 WildDrawCard wildDrawCard = (WildDrawCard) topCard;

@@ -193,7 +193,10 @@ public class UNO_Frame extends JFrame implements UNO_View{
 
         if (card != null) {
             CardComponent topCardComponent = new CardComponent(card, 0, controller);
-            topCardComponent.setPlayable(false); // cannot play the top card
+
+            // cannot play the top card and make it invisible
+            topCardComponent.setPlayable(false);
+            topCardComponent.getUseButton().setVisible(false);
             playAreaPanel.add(topCardComponent, BorderLayout.CENTER);
         } else {
             playAreaPanel.add(new JLabel("No card in play."));

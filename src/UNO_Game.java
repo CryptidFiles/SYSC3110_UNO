@@ -218,8 +218,6 @@ public class UNO_Game {
         } else {
             if(!waitingForColorSelection){
                 moveToNextPlayer();
-                // NOTIFY views as we are moving to the next player
-                notifyViews();
             }
         }
 
@@ -260,7 +258,6 @@ public class UNO_Game {
     public void moveToNextPlayer() {
         if (skipCount > 0) {
             processSkip();  // Handle skips automatically
-            notifyViews();  // NOTIFY views are updated after skip processing
         } else {
             // Normal turn progression
             if (direction == Direction.CLOCKWISE) {
@@ -268,45 +265,9 @@ public class UNO_Game {
             } else {
                 currentPlayerIndex = (currentPlayerIndex - 1 + players.size()) % players.size();
             }
-            notifyViews();  // NOTIFY views of player change
-        }
-
-        // Redundant as methods that invoke this notifyViews, but as a failsafe
-        notifyViews();
-    }
-
-    /**   NUMBER OF PLAYERS AND NAME, MUST MAKE VIEW DO THIS
-     * Prompts the user until a valid player count (2–4) is entered and stores it.
-
-    public void numPlayers() {
-        numPlayers = 0;
-        while (true) {
-            System.out.print("Enter the number of players (2-4): ");
-            if (input.hasNextInt()) {
-                numPlayers = input.nextInt();
-                input.nextLine();
-                if (numPlayers >= 2 && numPlayers <= 4) {
-                    System.out.println("You entered: " + numPlayers);
-                    break;
-                } else {
-                    System.out.println("Number of players must be between 2 and 4.");
-                }
-            } else {
-                System.out.println("Please enter an integer");
-                input.next();
-            }
-
+            notifyViews();  // Only notify once after the move
         }
     }
-
-     * Collects and records each player's name based on the chosen player count.
-
-    public void playerNames() {
-        for (int i = 0; i < numPlayers; i++) {
-            System.out.print("Enter a name for player " + (i + 1) + ": ");
-            players.add(new Player(input.nextLine()));
-        }
-    }*/
 
     /**
      * @return Card, which is the card on top of the play pile
@@ -314,8 +275,6 @@ public class UNO_Game {
     public Card topCard() {
         return playPile.peek();
     }
-
-
 
     /**
      * Rebuilds the draw deck from the play pile while preserving the current top discard.
@@ -452,20 +411,22 @@ public class UNO_Game {
      */
     public void processSkip() {
         if (skipCount > 0) {
+            System.out.println("DEBUG: Processing " + skipCount + " skips. Current player: " + getCurrentPlayer().getName());
+
             System.out.println("Skipping " + skipCount + " player(s)!");
 
             for (int i = 0; i < skipCount; i++) {
                 // Skip the current player by advancing the index
                 if (direction == Direction.CLOCKWISE) {
-                    currentPlayerIndex = (currentPlayerIndex + 1) % players.size();
+                    currentPlayerIndex = (currentPlayerIndex + 2) % players.size();
                 } else {
-                    currentPlayerIndex = (currentPlayerIndex - 1 + players.size()) % players.size();
+                    currentPlayerIndex = (currentPlayerIndex - 2 + players.size()) % players.size();
                 }
+                System.out.println("DEBUG: After skip " + (i+1) + ": " + getCurrentPlayer().getName());
             }
 
-            skipCount = 0;
-
-            //notifyViews();
+            skipCount = 0;  // Reset skip count after processing
+            notifyViews();   // Notify views once after all skips are processed
         }
     }
 
