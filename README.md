@@ -44,37 +44,39 @@ java UNO_Frame
 ---
 ## Contributions
 
-### Milestone 1:
+### Milestone 1
 
-Ahmad:
--
+**Ahmad**
+- No contributions
 
-Aryan:
--
+**Aryan**
+- No contributions
 
-Atik:
--
+**Atik**
+- No contributions
 
-Jonathan:
--Created ReadME
--Created UML diagram
--Documented data structure usage
--Created Sequence diagram
--Implemented some game logic
+**Jonathan**
+- Created README
+- Created UML diagram
+- Documented data structure usage
+- Created Sequence diagram
+- Implemented some game logic
 
-### Milestone 2:
+### Milestone 2
 
-Ahmad:
+**Ahmad**
+- No contributions
 
-Aryan:
+**Aryan**
+- No contributions
 
-Atik:
+**Atik**
+- No contributions
 
-Jonathan:
--Updated ReadME
--Updated UML diagram
--Implemented the players hand
--Implemented the Top card
--Adjusted some game logic
--Implemented GUI to follow game logic
-
+**Jonathan**
+- Updated README
+- Updated UML diagram
+- Implemented the player's hand
+- Implemented the top card
+- Adjusted some game logic
+- Implemented GUI to follow game logic
