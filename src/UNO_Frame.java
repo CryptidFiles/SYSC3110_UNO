@@ -154,11 +154,28 @@ public class UNO_Frame extends JFrame implements UNO_View{
     }
 
     public void displayPlayerHand(Player player){
+        playerHandPanel.removeAll();
 
+        ArrayList<Card> hand = player.getHand();
+        for (int i = 0; i < hand.size(); i++) {
+            Card card = hand.get(i);
+            JButton cardButton = new JButton(card.toString());
+            int cardIndex = i;
+
+            // Send event to controller when clicked
+            cardButton.addActionListener(controller);
+            playerHandPanel.add(cardButton);
+        }
+
+        playerHandPanel.revalidate();
+        playerHandPanel.repaint();
     }
 
     public void highlightCurrentPlayer(){
+        Player currentPlayer = model.getCurrentPlayer();
+        currentPlayerLabel.setText("Current Player: " + currentPlayer.getName());
 
+        playerInfoPanel.setBackground(Color.YELLOW);
     }
 
     public void showCardPlayed(Card card){
