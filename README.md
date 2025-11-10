@@ -1,36 +1,80 @@
 # SYSC 3110 UNO Flip
 
 ## Overview
-**UNO Flip** is a Java implementation of the popular card game **UNO Flip!** where every card has two sides: a **light side** and a **dark side**.  
-Play proceeds as normal until someone plays a **Flip** card!
+**UNO FLIP!** plays just like classic UNO, but with a twist! Every card has **two sides**: a **Light Side** and a **Dark Side**.
 
-This console-based program supports multiple players and includes complete UNO Flip mechanics such as:
-- Matching cards by **color** or **number**
-- Action cards like **Draw Two**, **Reverse**, **Skip**, and **Wild**
-- **Flip cards** that switch the deck to its opposite side
-- Automatic handling of **turn order** and **draw piles**
+The game begins on the **Light Side**, but when a player plays a **FLIP** card,**deck**, **discard pile**, and every player’s **hand** are flipped to the opposite side.
+
+The **Dark Side** introduces new action cards with **tougher penalties** and higher stakes. Players continue playing on this side until another **FLIP** card is played, switching the game back to the **Light Side**.
+
+Play alternates between both sides until a player has played all the cards in their hand, ending the game.
 
 ---
+## Rules
 
+The offical **UNO FLIP!** rules can be found here: https://service.mattel.com/instruction_sheets/GDR44-English.pdf
+
+---
 ## Features
-✅ Supports **2+ players**  
-✅ Implements **light** and **dark** decks  
-✅ Handles **special action cards**  
-✅ Follows **official UNO Flip rules**  
-✅ **Console-based** user interface for easy testing and gameplay  
 
+- ✅ Supports **2–4 players**  
+- ✅ Implements **light and dark decks** with all **special action cards**
+- ✅ Follows **official UNO Flip rules**  
+- ✅ Fully **GUI-based** interface 
+- ✅ Implements **MVC pattern** 
+- ✅ Includes **error handling**, and **JUnit-tested game logic**  
+- ✅ Provides **UML diagrams** and **sequence diagrams** for main gameplay scenarios
+  
 ---
-
 ## How to Run
 
 ### Requirements
-- **Java 17** or newer
+- **Java 25** or newer
 - A terminal or IDE that can compile and run Java files
 
 ### Steps
 ```bash
-# Compile the program
-javac UNO_Game.java
+# Compile all the Files
+javac *.java
 
 # Run the game
-java UNO_Game
+java UNO_Frame
+```
+
+---
+## Contributions
+
+### Milestone 1:
+
+Ahmad:
+-
+
+Aryan:
+-
+
+Atik:
+-
+
+Jonathan:
+-Created ReadME
+-Created UML diagram
+-Documented data structure usage
+-Created Sequence diagram
+-Implemented some game logic
+
+### Milestone 2:
+
+Ahmad:
+
+Aryan:
+
+Atik:
+
+Jonathan:
+-Updated ReadME
+-Updated UML diagram
+-Implemented the players hand
+-Implemented the Top card
+-Adjusted some game logic
+-Implemented GUI to follow game logic
+
