@@ -334,7 +334,7 @@ public class UNO_Frame extends JFrame implements UNO_View{
 
         updateScores();
 
-        drawButton.setEnabled(false); //disables srawing until the next round starts
+        drawButton.setEnabled(false); //disables drawing until the next round starts
     }
 
 
