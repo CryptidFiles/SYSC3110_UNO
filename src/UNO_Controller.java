@@ -8,12 +8,51 @@ public class UNO_Controller implements ActionListener {
     public UNO_Controller(UNO_Game model, UNO_View view) {
         this.model = model;
         this.view = view;
+
+        // Starting a new round
+        try {
+            model.startNewRound();
+        } catch (Exception ignored) {
+        }
+
+        // Initial view
+        view.updateGameState();
     }
 
     @Override
     public void actionPerformed(ActionEvent actionEvent) {
-        //
+        Object source = actionEvent.getSource();
 
+//        if (source == view.getDrawButton(){
+//            handleDrawCard();
+//            return;
+//        }
+//
+//        // This mean they are playing a card because we only have two buttons (draw and card)
+//        int index = view.getCardIndex(); //TODO: implement this in view
+//        handleCardPlay(index);
+    }
+
+    private void handleDrawCard() {
+        try {
+            if (model == null || view == null) return;
+
+            Card drawnCard = model.drawCard();
+
+            if (drawnCard == null) {
+                view.displayMessage("No cards could be drawn (deck empty).");
+            }
+
+            // Update view after drawing
+            view.updateGameState();
+
+            if (model.isGameOver()) {
+                Player gameWinner = model.getGameWinningPlayer();
+                view.displayMessage("Game Over! " + gameWinner.getName() + " has won the game!");
+            }
+        } catch (Exception ex) {
+            view.displayMessage("Error playing card: " + ex.getMessage());
+        }
     }
 
 
@@ -44,9 +83,5 @@ public class UNO_Controller implements ActionListener {
         } catch (Exception ex) {
             view.displayMessage("Error playing card: " + ex.getMessage());
         }
-    }
-
-    public void handleDrawCard() {
-        // Process draw card action
     }
 }

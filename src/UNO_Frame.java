@@ -18,7 +18,6 @@ public class UNO_Frame extends JFrame implements UNO_View{
 
     public UNO_Frame() {
 
-        // Get number of players and name
         ArrayList<String> playerNames = new ArrayList<>();
         int numPlayers = 0;
 
@@ -38,35 +37,29 @@ public class UNO_Frame extends JFrame implements UNO_View{
                 } else {
                     JOptionPane.showMessageDialog(null, "Please enter a number between 2 and 4.");
                 }
-
             } catch (NumberFormatException e) {
                 JOptionPane.showMessageDialog(null, "Invalid input. Please enter a valid number.");
             }
         }
 
-
         for (int i = 1; i <= numPlayers; i++) {
             String name = JOptionPane.showInputDialog("Enter name for Player " + i + ":");
-
             if (name == null || name.trim().isEmpty()) {
                 name = "Player " + i; // default name if user cancels or leaves blank
             }
-
             playerNames.add(name.trim());
         }
-
-        model = new UNO_Game(numPlayers, playerNames);
-        controller = new UNO_Controller(model, this);
 
         initializeUI();
         setupLayout();
 
-        Card example = new NumberCard(CardColor.BLUE, CardColor.TEAL, CardType.FOUR);
-        CardComponent example_comp = new CardComponent(example,0, controller);
-
-        playerHandPanel.add(example_comp);
-
         this.setVisible(true);
+
+        model = new UNO_Game(numPlayers, playerNames);
+        controller = new UNO_Controller(model, this);
+
+        model.startNewRound();
+        updateGameState();
 
     }
 
@@ -107,8 +100,6 @@ public class UNO_Frame extends JFrame implements UNO_View{
         // Style panels
         playerHandPanel.setBackground(new Color(240, 240, 240));
         playerHandPanel.setBorder(BorderFactory.createTitledBorder("Your Hand"));
-
-
 
         playAreaPanel.setBackground(new Color(200, 230, 200));
         playAreaPanel.setBorder(BorderFactory.createEmptyBorder(20, 20, 20, 20));
@@ -157,23 +148,85 @@ public class UNO_Frame extends JFrame implements UNO_View{
         add(mainPanel);
     }
 
+    /**
+     * Updates the game's visual state in the GUI.
+     */
     public void updateGameState(){
-
+        Player currentPlayer = model.getCurrentPlayer();
+        displayPlayerHand(currentPlayer);
+        highlightCurrentPlayer();
+        showCardPlayed(model.topCard());
+        updateScores();
     }
 
+    /**
+     * Displays the given player's hand on the GUI.
+     * @param player the Player whose hand is currently being displayed
+     */
     public void displayPlayerHand(Player player){
+        playerHandPanel.removeAll();
 
+        ArrayList<Card> hand = player.getHand();
+        for (int i = 0; i < hand.size(); i++) {
+            Card card = hand.get(i);
+            CardComponent cardComp = new CardComponent(card, i, controller);
+
+            // Highlight playable cards
+            cardComp.setPlayable(model.isPlayable(card));
+
+            playerHandPanel.add(cardComp);
+        }
+
+        playerHandPanel.revalidate();
+        playerHandPanel.repaint();
     }
 
+    /**
+     * Highlights the current player's name in the GUI.
+     */
     public void highlightCurrentPlayer(){
+        Player currentPlayer = model.getCurrentPlayer();
+        currentPlayerLabel.setText("Current Player: " + currentPlayer.getName());
+        directionLabel.setText("Direction: " + model.getDirection().toString());
 
+        playerInfoPanel.setBackground(Color.YELLOW);
     }
 
+    /**
+     * Displays the most recently played card in the play area.
+     * @param card the Card currently on top of the play pile
+     */
     public void showCardPlayed(Card card){
+        playAreaPanel.removeAll();
 
+        if (card != null) {
+            CardComponent topCardComponent = new CardComponent(card, -1, controller);
+            topCardComponent.setPlayable(false); // cannot play the top card
+            playAreaPanel.add(topCardComponent);
+        } else {
+            playAreaPanel.add(new JLabel("No card in play."));
+        }
+
+        playAreaPanel.revalidate();
+        playAreaPanel.repaint();
     }
 
+    /**
+     * Prompts the player to select a color when a wild card is played.
+     */
     public void showWildColorSelection(){
+        String[] colors = {"RED", "BLUE", "GREEN", "YELLOW"};
+        String chosen = (String) JOptionPane.showInputDialog(this,
+                "Choose a color:",
+                "Wild Card Color Selection",
+                JOptionPane.PLAIN_MESSAGE,
+                null,
+                colors,
+                colors[0]);
+
+        //idk the logic for dealing with wild card after picking colour
+
+
 
     }
 
@@ -189,7 +242,8 @@ public class UNO_Frame extends JFrame implements UNO_View{
 
     }
 
-    public void showRoundWinner(Player player){
+    @Override
+    public void showRoundWinner(Player player) {
 
     }
 
