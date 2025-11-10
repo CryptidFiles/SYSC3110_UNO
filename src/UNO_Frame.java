@@ -163,7 +163,7 @@ public class UNO_Frame extends JFrame implements UNO_View{
             int cardIndex = i;
 
             // Send event to controller when clicked
-            cardButton.addActionListener();
+            cardButton.addActionListener(controller);
             playerHandPanel.add(cardButton);
         }
 
