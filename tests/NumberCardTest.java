@@ -20,7 +20,7 @@ public class NumberCardTest {
 
     @Before
     public void setUp() {
-        numberCard = new NumberCard(Color.YELLOW, Color.ORANGE, CardType.ONE);
+        numberCard = new NumberCard(CardColor.YELLOW, CardColor.ORANGE, CardType.ONE);
     }
 
     @After
@@ -33,8 +33,8 @@ public class NumberCardTest {
      */
     @Test
     public void testConstructorSetsColorsAndTypes() {
-        assertEquals(Color.YELLOW, numberCard.lightColor);
-        assertEquals(Color.ORANGE, numberCard.darkColor);
+        assertEquals(CardColor.YELLOW, numberCard.lightColor);
+        assertEquals(CardColor.ORANGE, numberCard.darkColor);
         assertEquals(CardType.ONE, numberCard.lightType);
         assertEquals(CardType.ONE, numberCard.darkType);
         assertTrue(numberCard.isLightSideActive);
@@ -45,7 +45,7 @@ public class NumberCardTest {
      */
     @Test
     public void testPlayableOnTopSameColor() {
-        NumberCard other = new NumberCard(Color.YELLOW, Color.RED, CardType.TWO);
+        NumberCard other = new NumberCard(CardColor.YELLOW, CardColor.RED, CardType.TWO);
         assertTrue(numberCard.playableOnTop(other));
     }
 
@@ -54,7 +54,7 @@ public class NumberCardTest {
      */
     @Test
     public void testPlayableOnTopSameType() {
-        NumberCard other = new NumberCard(Color.RED, Color.PURPLE, CardType.ONE);
+        NumberCard other = new NumberCard(CardColor.RED, CardColor.PURPLE, CardType.ONE);
         assertTrue(numberCard.playableOnTop(other));
     }
 
@@ -63,7 +63,7 @@ public class NumberCardTest {
      */
     @Test
     public void testPlayableOnTopDifferentColorAndType() {
-        NumberCard other = new NumberCard(Color.RED, Color.PURPLE, CardType.TWO);
+        NumberCard other = new NumberCard(CardColor.RED, CardColor.PURPLE, CardType.TWO);
         assertFalse(numberCard.playableOnTop(other));
     }
 

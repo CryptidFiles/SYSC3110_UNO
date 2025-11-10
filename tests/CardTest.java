@@ -11,7 +11,7 @@ public class CardTest {
 
     // Concrete subclass to test the abstract Card
     private static class TestCard extends Card {
-        public TestCard(Color lightColor, Color darkColor, CardType lightType, CardType darkType) {
+        public TestCard(CardColor lightColor, CardColor darkColor, CardType lightType, CardType darkType) {
             this.lightColor = lightColor;
             this.darkColor = darkColor;
             this.lightType = lightType;
@@ -33,7 +33,7 @@ public class CardTest {
     @BeforeClass
     public static void setUpBeforeClass() {
         System.out.println("Starting CardTest...");
-        testCard = new TestCard(Color.RED, Color.BLUE, CardType.ONE, CardType.SKIP);
+        testCard = new TestCard(CardColor.RED, CardColor.BLUE, CardType.ONE, CardType.SKIP);
     }
 
     @AfterClass
@@ -68,9 +68,9 @@ public class CardTest {
      */
     @Test
     public void testGetColor() {
-        assertEquals(Color.RED, testCard.getColor());
+        assertEquals(CardColor.RED, testCard.getColor());
         testCard.flip();
-        assertEquals(Color.BLUE, testCard.getColor());
+        assertEquals(CardColor.BLUE, testCard.getColor());
     }
 
     /**

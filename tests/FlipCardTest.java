@@ -20,7 +20,7 @@ public class FlipCardTest {
 
     @Before
     public void setUp() {
-        flipCard = new FlipCard(Color.BLUE, Color.TEAL);
+        flipCard = new FlipCard(CardColor.BLUE, CardColor.TEAL);
     }
 
     @After
@@ -33,8 +33,8 @@ public class FlipCardTest {
      */
     @Test
     public void testConstructorSetsColorsAndTypes() {
-        assertEquals(Color.BLUE, flipCard.lightColor);
-        assertEquals(Color.TEAL, flipCard.darkColor);
+        assertEquals(CardColor.BLUE, flipCard.lightColor);
+        assertEquals(CardColor.TEAL, flipCard.darkColor);
         assertEquals(CardType.FLIP, flipCard.lightType);
         assertEquals(CardType.DARK_FLIP, flipCard.darkType);
         assertTrue(flipCard.isLightSideActive);
@@ -45,7 +45,7 @@ public class FlipCardTest {
      */
     @Test
     public void testPlayableOnTopSameColor() {
-        FlipCard other = new FlipCard(Color.BLUE, Color.PURPLE);
+        FlipCard other = new FlipCard(CardColor.BLUE, CardColor.PURPLE);
         assertTrue(flipCard.playableOnTop(other));
     }
 
@@ -54,7 +54,7 @@ public class FlipCardTest {
      */
     @Test
     public void testPlayableOnTopSameType() {
-        FlipCard other = new FlipCard(Color.GREEN, Color.PURPLE);
+        FlipCard other = new FlipCard(CardColor.GREEN, CardColor.PURPLE);
         assertTrue(flipCard.playableOnTop(other)); // same type FLIP
     }
 
@@ -63,7 +63,7 @@ public class FlipCardTest {
      */
     @Test
     public void testPlayableOnTopDifferentColorAndType() {
-        FlipCard other = new FlipCard(Color.RED, Color.PINK) {
+        FlipCard other = new FlipCard(CardColor.RED, CardColor.PINK) {
             @Override
             public CardType getType() { return CardType.SKIP; }
         };

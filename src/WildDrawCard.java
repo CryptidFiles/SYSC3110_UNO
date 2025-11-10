@@ -22,8 +22,8 @@ public class WildDrawCard extends Card {
      */
     public WildDrawCard() {
         isLightSideActive = true;
-        this.lightColor = Color.WILD;
-        this.darkColor = Color.WILD;
+        this.lightColor = CardColor.WILD;
+        this.darkColor = CardColor.WILD;
         this.lightType = CardType.WILD_DRAW_TWO;
         this.darkType = CardType.WILD_DRAW_COLOR;
 
@@ -50,23 +50,23 @@ public class WildDrawCard extends Card {
                 String wildCardColor = color_input.nextLine().trim().toLowerCase();
                 switch (wildCardColor) {
                     case "red":
-                        this.lightColor = Color.RED;
-                        this.darkColor = Color.RED.getDarkCounterpart();
+                        this.lightColor = CardColor.RED;
+                        this.darkColor = CardColor.RED.getDarkCounterpart();
                         break;
 
                     case "yellow":
-                        this.lightColor = Color.YELLOW;
-                        this.darkColor = Color.YELLOW.getDarkCounterpart();
+                        this.lightColor = CardColor.YELLOW;
+                        this.darkColor = CardColor.YELLOW.getDarkCounterpart();
                         break;
 
                     case "blue":
-                        this.lightColor = Color.BLUE;
-                        this.darkColor = Color.BLUE.getDarkCounterpart();
+                        this.lightColor = CardColor.BLUE;
+                        this.darkColor = CardColor.BLUE.getDarkCounterpart();
                         break;
 
                     case "green":
-                        this.lightColor = Color.GREEN;
-                        this.darkColor = Color.GREEN.getDarkCounterpart();
+                        this.lightColor = CardColor.GREEN;
+                        this.darkColor = CardColor.GREEN.getDarkCounterpart();
                         break;
 
                     default:
@@ -98,23 +98,23 @@ public class WildDrawCard extends Card {
                 switch (wildCardColor) {
 
                     case "teal":
-                        this.lightColor = Color.TEAL.getLightCounterpart();
-                        this.darkColor = Color.TEAL;
+                        this.lightColor = CardColor.TEAL.getLightCounterpart();
+                        this.darkColor = CardColor.TEAL;
                         break;
 
                     case "orange":
-                        this.lightColor = Color.ORANGE.getLightCounterpart();
-                        this.darkColor = Color.ORANGE;
+                        this.lightColor = CardColor.ORANGE.getLightCounterpart();
+                        this.darkColor = CardColor.ORANGE;
                         break;
 
                     case "purple":
-                        this.lightColor = Color.PURPLE.getLightCounterpart();
-                        this.darkColor = Color.PURPLE;
+                        this.lightColor = CardColor.PURPLE.getLightCounterpart();
+                        this.darkColor = CardColor.PURPLE;
                         break;
 
                     case "pink":
-                        this.lightColor = Color.PINK.getLightCounterpart();
-                        this.darkColor = Color.PINK;
+                        this.lightColor = CardColor.PINK.getLightCounterpart();
+                        this.darkColor = CardColor.PINK;
                         break;
 
                     default:

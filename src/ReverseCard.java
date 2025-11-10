@@ -18,7 +18,7 @@ public class ReverseCard extends Card {
      * @param light_color The color of the card on the light side.
      * @param dark_color The color of the card on the dark side.
      */
-    public ReverseCard(Color light_color, Color dark_color) {
+    public ReverseCard(CardColor light_color, CardColor dark_color) {
         isLightSideActive = true;
         this.lightColor = light_color;
         this.darkColor = dark_color;

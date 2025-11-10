@@ -20,7 +20,7 @@ public class DrawXCardTest {
 
     @Before
     public void setUp() {
-        drawCard = new DrawXCard(Color.RED, Color.PINK);
+        drawCard = new DrawXCard(CardColor.RED, CardColor.PINK);
     }
 
     @After
@@ -30,8 +30,8 @@ public class DrawXCardTest {
 
     @Test
     public void testConstructorSetsColorsAndTypes() {
-        assertEquals(Color.RED, drawCard.lightColor);
-        assertEquals(Color.PINK, drawCard.darkColor);
+        assertEquals(CardColor.RED, drawCard.lightColor);
+        assertEquals(CardColor.PINK, drawCard.darkColor);
         assertEquals(CardType.DRAW_ONE, drawCard.lightType);
         assertEquals(CardType.DRAW_FIVE, drawCard.darkType);
         assertTrue(drawCard.isLightSideActive);
@@ -39,19 +39,19 @@ public class DrawXCardTest {
 
     @Test
     public void testPlayableOnTopSameColor() {
-        DrawXCard other = new DrawXCard(Color.RED, Color.PINK);
+        DrawXCard other = new DrawXCard(CardColor.RED, CardColor.PINK);
         assertTrue(drawCard.playableOnTop(other));
     }
 
     @Test
     public void testPlayableOnTopSameType() {
-        DrawXCard other = new DrawXCard(Color.BLUE, Color.TEAL);
+        DrawXCard other = new DrawXCard(CardColor.BLUE, CardColor.TEAL);
         assertTrue(drawCard.playableOnTop(other)); // same type DRAW_ONE
     }
 
     @Test
     public void testPlayableOnTopDifferentColorAndType() {
-        DrawXCard other = new DrawXCard(Color.GREEN, Color.PURPLE) {
+        DrawXCard other = new DrawXCard(CardColor.GREEN, CardColor.PURPLE) {
             @Override
             public CardType getType() { return CardType.SKIP; }
         };

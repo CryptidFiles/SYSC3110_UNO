@@ -10,7 +10,7 @@
  * @version 1.0
  *
  */
-public enum Color {
+public enum CardColor {
     //Light (0-3)
     RED, BLUE, YELLOW, GREEN,
 
@@ -44,14 +44,14 @@ public enum Color {
      * Returns the dark-side counterpart of this color.
      * Wild and dark colors return themselves.
      *
-     * @return {@link Color} The corresponding dark-side Color.
+     * @return {@link CardColor} The corresponding dark-side Color.
      */
-    public Color getDarkCounterpart() {
+    public CardColor getDarkCounterpart() {
         return switch (this) {
-            case RED -> Color.PINK;
-            case BLUE -> Color.TEAL;
-            case YELLOW -> Color.ORANGE;
-            case GREEN -> Color.PURPLE;
+            case RED -> CardColor.PINK;
+            case BLUE -> CardColor.TEAL;
+            case YELLOW -> CardColor.ORANGE;
+            case GREEN -> CardColor.PURPLE;
             default -> this; // Return self for wild/dark colors
         };
     }
@@ -60,14 +60,14 @@ public enum Color {
      * Returns the light-side counterpart of this color.
      * Wild and light colors return themselves.
      *
-     * @return {@link Color} The corresponding light-side Color.
+     * @return {@link CardColor} The corresponding light-side Color.
      */
-    public Color getLightCounterpart() {
+    public CardColor getLightCounterpart() {
         return switch (this) {
-            case PINK -> Color.RED;
-            case TEAL -> Color.BLUE ;
-            case ORANGE -> Color.YELLOW;
-            case PURPLE -> Color.GREEN;
+            case PINK -> CardColor.RED;
+            case TEAL -> CardColor.BLUE ;
+            case ORANGE -> CardColor.YELLOW;
+            case PURPLE -> CardColor.GREEN;
             default -> this; // Return self for wild/dark colors
         };
     }

@@ -20,7 +20,7 @@ public class SkipCardTest {
 
     @Before
     public void setUp() {
-        skipCard = new SkipCard(Color.YELLOW, Color.ORANGE);
+        skipCard = new SkipCard(CardColor.YELLOW, CardColor.ORANGE);
     }
 
     @After
@@ -33,8 +33,8 @@ public class SkipCardTest {
      */
     @Test
     public void testConstructorSetsColorsAndTypes() {
-        assertEquals(Color.YELLOW, skipCard.lightColor);
-        assertEquals(Color.ORANGE, skipCard.darkColor);
+        assertEquals(CardColor.YELLOW, skipCard.lightColor);
+        assertEquals(CardColor.ORANGE, skipCard.darkColor);
         assertEquals(CardType.SKIP, skipCard.lightType);
         assertEquals(CardType.SKIP_EVERYONE, skipCard.darkType);
         assertTrue(skipCard.isLightSideActive);
@@ -45,7 +45,7 @@ public class SkipCardTest {
      */
     @Test
     public void testPlayableOnTopSameColor() {
-        SkipCard other = new SkipCard(Color.YELLOW, Color.PURPLE);
+        SkipCard other = new SkipCard(CardColor.YELLOW, CardColor.PURPLE);
         assertTrue(skipCard.playableOnTop(other));
     }
 
@@ -54,7 +54,7 @@ public class SkipCardTest {
      */
     @Test
     public void testPlayableOnTopSameType() {
-        SkipCard other = new SkipCard(Color.GREEN, Color.TEAL);
+        SkipCard other = new SkipCard(CardColor.GREEN, CardColor.TEAL);
         assertTrue(skipCard.playableOnTop(other)); // same type SKIP
     }
 
@@ -63,7 +63,7 @@ public class SkipCardTest {
      */
     @Test
     public void testPlayableOnTopDifferentColorAndType() {
-        SkipCard other = new SkipCard(Color.BLUE, Color.PINK) {
+        SkipCard other = new SkipCard(CardColor.BLUE, CardColor.PINK) {
             @Override
             public CardType getType() { return CardType.DRAW_ONE; }
         };

@@ -19,7 +19,7 @@ public class WildCardTest {
     @Before
     public void setUp() {
         wildCard = new WildCard();
-        dummyCard = new NumberCard(Color.RED, Color.BLUE, CardType.ONE);
+        dummyCard = new NumberCard(CardColor.RED, CardColor.BLUE, CardType.ONE);
         System.out.println("Test setup completed.");
     }
 
