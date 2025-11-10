@@ -12,6 +12,7 @@ public class UNO_Frame extends JFrame implements UNO_View{
     private JButton drawButton;
     private JLabel currentPlayerLabel;
     private JLabel directionLabel;
+    private JScrollPane handScrollPane;
 
     private UNO_Game model;
     private UNO_Controller controller;
@@ -107,6 +108,13 @@ public class UNO_Frame extends JFrame implements UNO_View{
         playerInfoPanel.setBackground(new Color(220, 220, 255));
         playerInfoPanel.setBorder(BorderFactory.createTitledBorder("Game Info"));
 
+        handScrollPane = new JScrollPane(playerHandPanel);
+        handScrollPane.setHorizontalScrollBarPolicy(JScrollPane.HORIZONTAL_SCROLLBAR_AS_NEEDED);
+        handScrollPane.setVerticalScrollBarPolicy(JScrollPane.VERTICAL_SCROLLBAR_NEVER);
+        handScrollPane.setPreferredSize(new Dimension(850, 180)); // adjust height as needed
+        handScrollPane.getHorizontalScrollBar().setUnitIncrement(20); // smoother scrolling
+
+
     }
 
     public void setupLayout() {
@@ -142,7 +150,8 @@ public class UNO_Frame extends JFrame implements UNO_View{
         // Assemble main layout
         mainPanel.add(playerInfoPanel, BorderLayout.NORTH);    // Game info at top
         mainPanel.add(playAreaPanel, BorderLayout.CENTER);     // Play area in middle
-        mainPanel.add(playerHandPanel, BorderLayout.SOUTH);    // Hand at bottom
+        //mainPanel.add(playerHandPanel, BorderLayout.SOUTH);    // Hand at bottom
+        mainPanel.add(handScrollPane, BorderLayout.SOUTH);
 
         // Add main panel to frame
         add(mainPanel);
