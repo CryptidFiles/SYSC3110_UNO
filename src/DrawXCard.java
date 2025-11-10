@@ -17,18 +17,16 @@ public class DrawXCard extends Card {
 
             Card card = model.getPlayDeck().drawCard();
             if (card == null) {
-                System.out.println("No more cards left!");
+                model.notifyMessage("No more cards left!");
                 return false;
             }
 
-            System.out.print(nextPlayer.getName() + " draws ");
-            card.printCard();
-
             nextPlayer.drawCard(card);
-            System.out.println(nextPlayer.getName() + " draws 1 card and loses their turn!");
+            model.notifyMessage(nextPlayer.getName() + " draws 1 card and loses their turn!");
 
             // Skip the next player's turn
             model.addSkip(1);
+
 
         } else {
             // Dark side: DRAW_FIVE - next player draws five cards and loses turn
@@ -38,16 +36,13 @@ public class DrawXCard extends Card {
                 Card card = model.getPlayDeck().drawCard();
 
                 if (card == null) {
-                    System.out.println("No more cards left!");
+                    model.notifyMessage("No more cards left after drawing " + i + " cards!");
                     return false;
                 }
 
-                System.out.print(nextPlayer.getName() + " draws ");
-                card.printCard();
-
                 nextPlayer.drawCard(card);
             }
-            System.out.println(nextPlayer.getName() + " draws 5 cards and loses their turn!");
+            model.notifyMessage(nextPlayer.getName() + " draws 5 cards and loses their turn!");
 
             // Skip the next player's turn
             model.addSkip(1);

@@ -96,6 +96,30 @@ public class UNO_Controller implements ActionListener {
         }
     }
 
+    public void handleWildColorSelection(CardColor chosenColor) {
+        if (!model.isWaitingForColorSelection()) {
+            return; // Not in color selection state
+        }
+
+        // Get the top card (which should be the wild card that was just played)
+        Card topCard = model.topCard();
+
+        if (topCard instanceof WildCard) {
+            WildCard wildCard = (WildCard) topCard;
+            wildCard.applyChosenColor(chosenColor, model.topCard().isLightSideActive);
+            model.completeColorSelection();
+            model.moveToNextPlayer(); // Normal turn progression after wild card
+
+        } else if(topCard instanceof WildDrawCard) {
+                WildDrawCard wildDrawCard = (WildDrawCard) topCard;
+                Player currentPlayer = model.getCurrentPlayer();
+                wildDrawCard.executeDrawAction(chosenColor, model.topCard().isLightSideActive, model, currentPlayer);
+                model.completeColorSelection();
+                // moveToNextPlayer is handled by addSkip() in the card logic
+        }
+    }
+
+
     public void startNewGame() {
         try {
             model.startNewRound();

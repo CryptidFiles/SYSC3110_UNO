@@ -115,17 +115,6 @@ public class UNO_Frame extends JFrame implements UNO_View{
         // Set up play area (center)
         JPanel centerPanel = new JPanel(new FlowLayout(FlowLayout.CENTER, 50, 20));
         centerPanel.setBackground(playAreaPanel.getBackground());
-
-        // Draw deck placeholder
-        //JLabel drawDeckLabel = new JLabel("DRAW DECK", SwingConstants.CENTER);
-        //drawDeckLabel.setFont(new Font("Arial", Font.BOLD, 12));
-        //drawDeckLabel.setBorder(BorderFactory.createLineBorder(Color.BLACK, 1));
-        //drawDeckLabel.setPreferredSize(new Dimension(100, 150));
-        //drawDeckLabel.setOpaque(true);
-        //drawDeckLabel.setBackground(Color.DARK_GRAY);
-        //drawDeckLabel.setForeground(Color.WHITE);
-
-        //centerPanel.add(drawDeckLabel);
         centerPanel.add(topCardLabel);
 
         playAreaPanel.add(centerPanel, BorderLayout.CENTER);
@@ -192,7 +181,7 @@ public class UNO_Frame extends JFrame implements UNO_View{
         currentPlayerLabel.setText("Current Player: " + currentPlayer.getName());
         directionLabel.setText("Direction: " + model.getDirection().toString());
 
-        playerInfoPanel.setBackground(Color.YELLOW);
+        playerInfoPanel.setBackground(new Color(150, 230, 153));
     }
 
     /**
@@ -218,22 +207,34 @@ public class UNO_Frame extends JFrame implements UNO_View{
      * Prompts the player to select a color when a wild card is played.
      */
     public void showWildColorSelection(){
-        String[] colors = {"RED", "BLUE", "GREEN", "YELLOW"};
-        String chosen = (String) JOptionPane.showInputDialog(this,
-                "Choose a color:",
-                "Wild Card Color Selection",
-                JOptionPane.PLAIN_MESSAGE,
-                null,
-                colors,
-                colors[0]);
+        Card topCard = model.topCard();
+        if (topCard instanceof WildCard || topCard instanceof WildDrawCard) {
+            boolean isLightSide = topCard.isLightSideActive;
 
-        if(model.topCard().isLightSideActive){
+            String[] colors;
+            if (isLightSide) {
+                colors = new String[]{"RED", "BLUE", "GREEN", "YELLOW"};
+            } else {
+                colors = new String[]{"TEAL", "ORANGE", "PURPLE", "PINK"};
+            }
 
+            String chosen = (String) JOptionPane.showInputDialog(this,
+                    "Choose a color:",
+                    "Wild Card Color Selection",
+                    JOptionPane.PLAIN_MESSAGE,
+                    null,
+                    colors,
+                    colors[0]);
+
+            if (chosen != null) {
+                try {
+                    CardColor chosenColor = CardColor.valueOf(chosen);
+                    controller.handleWildColorSelection(chosenColor);
+                } catch (IllegalArgumentException e) {
+                    displayMessage("Invalid color selection!");
+                }
+            }
         }
-        //idk the logic for dealing with wild card after picking colour
-
-
-
     }
 
     public void displayMessage(String message){

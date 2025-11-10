@@ -39,12 +39,12 @@ public class SkipCard extends Card {
         if (isLightSideActive) {
             // Light side: Regular Skip - skip next player
             Player nextPlayer = model.getNextPlayer(player);
-            System.out.println("Skipping " + nextPlayer.getName() + "!");
+            model.notifyMessage("Skipping " + nextPlayer.getName() + "!");
             model.addSkip(1);
 
         } else {
             // Dark side: Skip All - skip all other players
-            System.out.println("Skipping all other players!");
+            model.notifyMessage("Skipping all other players!");
             model.skipAllPlayers();
         }
 

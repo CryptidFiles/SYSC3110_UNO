@@ -37,6 +37,8 @@ public class ReverseCard extends Card {
     @Override
     public boolean action(UNO_Game model, Player player){
         model.flipDirection();
+        model.notifyMessage("Direction reversed! Now going " +
+                (model.getDirection() == Direction.CLOCKWISE ? "clockwise" : "counter-clockwise"));
         return true;
     }
 

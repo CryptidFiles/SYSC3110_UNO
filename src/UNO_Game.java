@@ -32,6 +32,8 @@ public class UNO_Game {
     private int currentPlayerIndex;
     private int skipCount;
 
+    private boolean waitingForColorSelection; // For wild card implementations
+
     private List<UNO_View> views;
 
 
@@ -66,7 +68,7 @@ public class UNO_Game {
     }
 
     // Notify all views when game state changes
-    private void notifyViews() {
+    protected void notifyViews() {
         for (UNO_View view : views) {
             view.updateGameState();
         }
@@ -94,13 +96,33 @@ public class UNO_Game {
     }
 
     // Notify when message should be displayed
-    private void notifyMessage(String message) {
+    protected void notifyMessage(String message) {
         for (UNO_View view : views) {
             view.displayMessage(message);
         }
     }
 
+    protected void notifyWildColorSelection() {
+        System.out.println("=== NOTIFYING VIEWS: Wild Color Selection ===");
+        for (UNO_View view : views) {
+            view.showWildColorSelection();
+        }
+    }
 
+    // Replace with simpler approach:
+    public void triggerColorSelection() {
+        this.waitingForColorSelection = true;
+        notifyWildColorSelection(); // Notify view to show color picker
+    }
+
+    public boolean isWaitingForColorSelection() {
+        return waitingForColorSelection;
+    }
+
+    public void completeColorSelection() {
+        this.waitingForColorSelection = false;
+        notifyViews();
+    }
 
     /**
      * Starts a new round - called by controller
@@ -116,7 +138,7 @@ public class UNO_Game {
     }
 
     /**
-     * Reinitializes the draw deck and clears the play pile for a new round.
+     * Reinitialize the draw deck and clears the play pile for a new round.
      */
     private void resetDecks() {
         playDeck = new Deck();  // fresh shuffled decks
@@ -194,16 +216,18 @@ public class UNO_Game {
                 notifyWinner(gameWinningPlayer);
             }
         } else {
-            moveToNextPlayer();
-            // NOTIFY views as we are moving to the next player
-            notifyViews();
+            if(!waitingForColorSelection){
+                moveToNextPlayer();
+                // NOTIFY views as we are moving to the next player
+                notifyViews();
+            }
         }
 
         return true;
     }
 
     /**
-     * Current player draws a card from the deck.
+     * Current player draws a card from the deck. Either voluntary or because they do not have a playable hand
      *
      * @return Card The drawn card, or null if deck is empty
      */
@@ -233,9 +257,10 @@ public class UNO_Game {
     }
 
 
-    private void moveToNextPlayer() {
+    public void moveToNextPlayer() {
         if (skipCount > 0) {
             processSkip();  // Handle skips automatically
+            notifyViews();  // NOTIFY views are updated after skip processing
         } else {
             // Normal turn progression
             if (direction == Direction.CLOCKWISE) {
@@ -243,6 +268,7 @@ public class UNO_Game {
             } else {
                 currentPlayerIndex = (currentPlayerIndex - 1 + players.size()) % players.size();
             }
+            notifyViews();  // NOTIFY views of player change
         }
 
         // Redundant as methods that invoke this notifyViews, but as a failsafe
@@ -333,7 +359,7 @@ public class UNO_Game {
      * Checks whether the player has at least one card that can be played on the top card.
      *
      * @param p The current player whose turn it is
-     * @return boolean, true if he has any card in his hand that is playable, false other wise
+     * @return boolean, true if he has any card in his hand that is playable, false otherwise
      */
     public boolean hasPlayableHand(Player p) {
         for (Card c : p.getHand()) {
@@ -438,6 +464,8 @@ public class UNO_Game {
             }
 
             skipCount = 0;
+
+            //notifyViews();
         }
     }
 
