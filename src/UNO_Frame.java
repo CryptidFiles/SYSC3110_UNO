@@ -94,14 +94,14 @@ public class UNO_Frame extends JFrame implements UNO_View{
         currentPlayerLabel.setFont(new Font("Arial", Font.BOLD, 14));
 
         directionLabel = new JLabel("Direction: ↻", SwingConstants.CENTER);
-        directionLabel.setFont(new Font("Arial", Font.PLAIN, 12));
+        directionLabel.setFont(new Font("Arial", Font.BOLD, 13));
 
         messageLabel = new JLabel("Welcome to UNO Flip!", SwingConstants.CENTER);
         messageLabel.setFont(new Font("Arial", Font.BOLD, 14));
-        messageLabel.setForeground(Color.DARK_GRAY);
+        messageLabel.setForeground(Color.BLACK);
 
         scoreLabel = new JLabel("Scores: ", SwingConstants.CENTER);
-        scoreLabel.setFont(new Font("Arial", Font.PLAIN, 13));
+        scoreLabel.setFont(new Font("Arial", Font.BOLD, 13));
         scoreLabel.setForeground(Color.BLACK);
 
         // Set up action listeners (will be connected to controller later)
@@ -278,9 +278,9 @@ public class UNO_Frame extends JFrame implements UNO_View{
         ArrayList<Player> players = model.getPlayers();
         for (int i = 0; i < players.size(); i++) {
             Player currentPlayer = players.get(i);
-            score += currentPlayer.getName() + ": " + currentPlayer.getScore();
+            score += currentPlayer.getName() + ": " + currentPlayer.getScore() + " ";
 
-            if (i == players.size() - 1) {
+            if (i != players.size() - 1) {
                 score += " | ";
             }
         }
