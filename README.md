@@ -53,7 +53,8 @@ java UNO_Frame
 - No contributions
 
 **Atik**
-- No contributions
+- Helped implement the main game loop
+- Created all the test cases
 
 **Jonathan**
 - Created README
@@ -71,7 +72,9 @@ java UNO_Frame
 - No contributions
 
 **Atik**
-- No contributions
+- Helped implement UNO_Controller class
+- Created test cases for UNO_Game (the model)
+- Integrated error handling (try-catch blocks) into the codel.
 
 **Jonathan**
 - Updated README
