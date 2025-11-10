@@ -66,7 +66,7 @@ public class CardComponent extends JPanel {
 
         if (cardImage != null) {
             int panelWidth = getWidth();
-            int panelHeight = getHeight();
+            int panelHeight = getHeight() - 25; //minus 25 to account for button height
 
             int imgWidth = cardImage.getWidth();
             int imgHeight = cardImage.getHeight();
