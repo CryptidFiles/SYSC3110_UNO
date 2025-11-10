@@ -1,4 +1,7 @@
 import java.awt.*;
+import java.awt.image.BufferedImage;
+import java.io.File;
+import javax.imageio.ImageIO;
 import javax.swing.*;
 
 // Physical UNO card component with "Use" button
@@ -7,6 +10,7 @@ public class CardComponent extends JPanel {
     private int cardIndex;       // Position in player's hand
     private boolean isPlayable;  // Highlight if playable
     private JButton useButton;
+    private BufferedImage cardImage;
 
     public CardComponent(Card card, int index, UNO_Controller controller) {
         this.card = card;
@@ -14,8 +18,9 @@ public class CardComponent extends JPanel {
         this.isPlayable = false;
 
         setLayout(new BorderLayout());
-        setPreferredSize(new Dimension(100, 140));
+        setPreferredSize(new Dimension(120, 140));
 
+        loadCardImage();
         initializeComponents(controller);
         setupLayout();
     }
@@ -35,8 +40,7 @@ public class CardComponent extends JPanel {
     }
 
     private void setupLayout() {
-        // Main card display panel
-        JPanel cardDisplayPanel = new JPanel() {
+        JPanel imagePanel = new JPanel() {
             @Override
             protected void paintComponent(Graphics g) {
                 super.paintComponent(g);
@@ -45,86 +49,57 @@ public class CardComponent extends JPanel {
 
             @Override
             public Dimension getPreferredSize() {
-                return new Dimension(100, 100);
+                return new Dimension(100, 130);
             }
         };
 
-        cardDisplayPanel.setLayout(new BorderLayout());
-
-        // Add card info labels
-        JLabel typeLabel = new JLabel(card.getType().toString(), SwingConstants.CENTER);
-        JLabel colorLabel = new JLabel(card.getColor().toString(), SwingConstants.CENTER);
-        JLabel sideLabel = new JLabel(card.getActiveSide() ? "LIGHT" : "DARK", SwingConstants.CENTER);
-
-        typeLabel.setOpaque(true);
-        colorLabel.setOpaque(true);
-        sideLabel.setOpaque(true);
-
-        // Set colors based on card
-        Color bgColor = convertToAWTColor(card.getColor());
-        typeLabel.setBackground(bgColor);
-        colorLabel.setBackground(bgColor);
-        sideLabel.setBackground(bgColor);
-
-        // Make text readable on dark backgrounds
-        if (isDarkColor(bgColor)) {
-            typeLabel.setForeground(Color.WHITE);
-            colorLabel.setForeground(Color.WHITE);
-            sideLabel.setForeground(Color.WHITE);
-        }
-
-        JPanel infoPanel = new JPanel(new GridLayout(3, 1));
-        infoPanel.add(typeLabel);
-        infoPanel.add(colorLabel);
-        infoPanel.add(sideLabel);
-
-        cardDisplayPanel.add(infoPanel, BorderLayout.CENTER);
-
-        // Add index label for debugging
-        JLabel indexLabel = new JLabel("Card " + (cardIndex), SwingConstants.CENTER);
-        cardDisplayPanel.add(indexLabel, BorderLayout.NORTH);
-
-        // Assemble the component
-        add(cardDisplayPanel, BorderLayout.CENTER);
+        add(imagePanel, BorderLayout.CENTER);
         add(useButton, BorderLayout.SOUTH);
-
         updateBorder();
     }
 
     private void drawCard(Graphics g) {
-        // Draw card background
-        Color cardColor = convertToAWTColor(card.getColor());
-        g.setColor(cardColor);
-        g.fillRect(0, 0, getWidth(), getHeight());
+        Graphics2D g2 = (Graphics2D) g;
+        g2.setRenderingHint(RenderingHints.KEY_INTERPOLATION, RenderingHints.VALUE_INTERPOLATION_BILINEAR);
+        g2.setRenderingHint(RenderingHints.KEY_RENDERING, RenderingHints.VALUE_RENDER_QUALITY);
+        g2.setRenderingHint(RenderingHints.KEY_ANTIALIASING, RenderingHints.VALUE_ANTIALIAS_ON);
 
-        // Draw border
-        if (isPlayable) {
-            g.setColor(Color.GREEN);
-            g.drawRect(0, 0, getWidth()-1, getHeight()-1);
+        if (cardImage != null) {
+            int panelWidth = getWidth();
+            int panelHeight = getHeight();
+
+            int imgWidth = cardImage.getWidth();
+            int imgHeight = cardImage.getHeight();
+
+            // Calculate scale factor to fit image within the box while keeping aspect ratio
+            double scale = Math.min(
+                    (double) panelWidth / imgWidth,
+                    (double) panelHeight / imgHeight
+            );
+
+            int scaledWidth = (int) (imgWidth * scale);
+            int scaledHeight = (int) (imgHeight * scale);
+
+            // Center the image
+            int x = (panelWidth - scaledWidth) / 2;
+            int y = (panelHeight - scaledHeight) / 2;
+
+            g2.drawImage(cardImage, x, y, scaledWidth, scaledHeight, null);
         } else {
+            g.setColor(Color.LIGHT_GRAY);
+            g.fillRect(0, 0, getWidth(), getHeight());
             g.setColor(Color.BLACK);
-            g.drawRect(0, 0, getWidth()-1, getHeight()-1);
+            g.drawString("Missing", 20, 50);
+        }
+
+        // Draw border if playable
+        if (isPlayable) {
+            g2.setColor(Color.GREEN);
+            g2.setStroke(new BasicStroke(4));
+            g2.drawRect(0, 0, getWidth() - 1, getHeight() - 1);
         }
     }
 
-    private java.awt.Color convertToAWTColor(CardColor unoColor) {
-        return switch (unoColor) {
-            case RED -> java.awt.Color.RED;
-            case BLUE -> java.awt.Color.BLUE;
-            case YELLOW -> java.awt.Color.YELLOW;
-            case GREEN -> java.awt.Color.GREEN;
-            case PURPLE -> new java.awt.Color(128, 0, 128);
-            case PINK -> java.awt.Color.PINK;
-            case ORANGE -> java.awt.Color.ORANGE;
-            case TEAL -> java.awt.Color.CYAN;
-            case WILD -> java.awt.Color.BLACK;
-        };
-    }
-
-    private boolean isDarkColor(Color color) {
-        double brightness = (color.getRed() * 0.299 + color.getGreen() * 0.587 + color.getBlue() * 0.114);
-        return brightness < 128;
-    }
 
     private void updateBorder() {
         if (isPlayable) {
@@ -135,8 +110,13 @@ public class CardComponent extends JPanel {
     }
 
     // Getters and setters
-    public int getCardIndex() { return cardIndex; }
-    public Card getCard() { return card; }
+    public int getCardIndex() {
+        return cardIndex;
+    }
+
+    public Card getCard() {
+        return card;
+    }
 
     public void setPlayable(boolean playable) {
         this.isPlayable = playable;
@@ -150,5 +130,56 @@ public class CardComponent extends JPanel {
     }
 
 
-    public boolean isPlayable() { return isPlayable; }
+    public boolean isPlayable() {
+        return isPlayable;
+    }
+
+    private String getImagePath() {
+        String sideFolder = card.getActiveSide() ? "light" : "dark";
+        String basePath = "assets/" + sideFolder + "/";
+
+
+        String colorFolder = switch (card.getColor()) {
+            case RED -> "red";
+            case BLUE -> "blue";
+            case YELLOW -> "yellow";
+            case GREEN -> "green";
+            case WILD -> "wild";
+            case PURPLE -> "purple";
+            case PINK -> "pink";
+            case ORANGE -> "orange";
+            case TEAL -> "teal";
+        };
+
+        // Map special names
+        String typeName = switch (card.getType()) {
+            case ONE, WILD, DARK_WILD -> "0";
+            case TWO, DRAW_TWO, DRAW_COLOR -> "1";
+            case THREE -> "2";
+            case FOUR -> "3";
+            case FIVE -> "4";
+            case SIX -> "5";
+            case SEVEN -> "6";
+            case EIGHT -> "7";
+            case NINE -> "8";
+            case DRAW_ONE, DRAW_FIVE -> "10";
+            case FLIP, DARK_FLIP -> "9";
+            case SKIP, SKIP_EVERYONE -> "11";
+            case LIGHT_REVERSE, DARK_REVERSE -> "12";
+        };
+        return basePath + colorFolder + "/" + typeName + ".png";
+    }
+
+    private void loadCardImage() {
+        String imagePath = getImagePath();
+        try {
+            cardImage = ImageIO.read(new File(imagePath));
+        } catch (Exception e) {
+            System.out.println("Could not load card image: " + imagePath);
+            cardImage = null;
+        }
+    }
 }
+
+
+
