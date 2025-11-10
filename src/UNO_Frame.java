@@ -12,6 +12,7 @@ public class UNO_Frame extends JFrame implements UNO_View{
     private JButton drawButton;
     private JLabel currentPlayerLabel;
     private JLabel directionLabel;
+    private JScrollPane handScrollPane;
 
     private UNO_Game model;
     private UNO_Controller controller;
@@ -109,6 +110,13 @@ public class UNO_Frame extends JFrame implements UNO_View{
         playerInfoPanel.setBackground(new Color(220, 220, 255));
         playerInfoPanel.setBorder(BorderFactory.createTitledBorder("Game Info"));
 
+        handScrollPane = new JScrollPane(playerHandPanel);
+        handScrollPane.setHorizontalScrollBarPolicy(JScrollPane.HORIZONTAL_SCROLLBAR_AS_NEEDED);
+        handScrollPane.setVerticalScrollBarPolicy(JScrollPane.VERTICAL_SCROLLBAR_NEVER);
+        handScrollPane.setPreferredSize(new Dimension(850, 180)); // adjust height as needed
+        handScrollPane.getHorizontalScrollBar().setUnitIncrement(20); // smoother scrolling
+
+
     }
 
     public void setupLayout() {
@@ -133,7 +141,8 @@ public class UNO_Frame extends JFrame implements UNO_View{
         // Assemble main layout
         mainPanel.add(playerInfoPanel, BorderLayout.NORTH);    // Game info at top
         mainPanel.add(playAreaPanel, BorderLayout.CENTER);     // Play area in middle
-        mainPanel.add(playerHandPanel, BorderLayout.SOUTH);    // Hand at bottom
+        //mainPanel.add(playerHandPanel, BorderLayout.SOUTH);    // Hand at bottom
+        mainPanel.add(handScrollPane, BorderLayout.SOUTH);
 
         // Add main panel to frame
         add(mainPanel);
@@ -161,7 +170,7 @@ public class UNO_Frame extends JFrame implements UNO_View{
         ArrayList<Card> hand = player.getHand();
         for (int i = 0; i < hand.size(); i++) {
             Card card = hand.get(i);
-            CardComponent cardComp = new CardComponent(card, i + 1, controller);
+            CardComponent cardComp = new CardComponent(card, i, controller);
 
             // Highlight playable cards
             cardComp.setPlayable(model.isPlayable(card));
@@ -181,7 +190,7 @@ public class UNO_Frame extends JFrame implements UNO_View{
         currentPlayerLabel.setText("Current Player: " + currentPlayer.getName());
         directionLabel.setText("Direction: " + model.getDirection().toString());
 
-        playerInfoPanel.setBackground(new Color(150, 230, 153));
+        playerInfoPanel.setBackground(Color.YELLOW);
     }
 
     /**
@@ -191,17 +200,23 @@ public class UNO_Frame extends JFrame implements UNO_View{
     public void showCardPlayed(Card card){
         playAreaPanel.removeAll();
 
+        JPanel cardHolder = new JPanel();
+        cardHolder.setLayout(new FlowLayout(FlowLayout.CENTER));
+        cardHolder.setPreferredSize(new Dimension(150, 300)); // Adjust size
+
         if (card != null) {
-            CardComponent topCardComponent = new CardComponent(card, 0, controller);
+            CardComponent topCardComponent = new CardComponent(card, -1, controller);
 
             // cannot play the top card and make it invisible
             topCardComponent.setPlayable(false);
             topCardComponent.getUseButton().setVisible(false);
+            cardHolder.add(topCardComponent);
             playAreaPanel.add(topCardComponent, BorderLayout.CENTER);
         } else {
-            playAreaPanel.add(new JLabel("No card in play."));
+            cardHolder.add(new JLabel("No card in play."));
         }
 
+        playAreaPanel.add(cardHolder, BorderLayout.CENTER);
         playAreaPanel.revalidate();
         playAreaPanel.repaint();
     }
