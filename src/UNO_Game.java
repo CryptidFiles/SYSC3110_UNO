@@ -274,7 +274,7 @@ public class UNO_Game {
      * @param p The current player whose turn it is
      * @return boolean, true if he has any card in his hand that is playable, false other wise
      */
-    private boolean playableHand(Player p) {
+    public boolean hasPlayableHand(Player p) {
         for (Card c : p.getHand()) {
             if(c.playableOnTop(topCard())) {
                 return true;
@@ -507,4 +507,21 @@ public class UNO_Game {
         return playPile.size();
     }
 
+    /**
+     * Checks whether a card can be legally played on the top card of the play pile.
+     *
+     * @param card The card the player wants to play
+     * @return true if playable based on UNO rules, false otherwise
+     */
+    public boolean isPlayable(Card card) {
+        if (card == null || playPile.isEmpty()) return false;
+
+        Card top = topCard();
+
+        // Wilds are always playable
+        if (card.getColor() == CardColor.WILD) return true;
+
+        // Match by color or type/value
+        return card.getColor() == top.getColor() || card.getType() == top.getType();
+    }
 }

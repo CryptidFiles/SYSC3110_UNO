@@ -58,13 +58,16 @@ public class UNO_Frame extends JFrame implements UNO_View{
         model = new UNO_Game(numPlayers, playerNames);
         controller = new UNO_Controller(model, this);
 
+        model.startNewRound();
+        updateGameState();
+
     }
 
     public void initializeUI() {
         // Set up the main window
         setTitle("UNO Flip!");
         setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
-        setSize(800, 600);
+        setSize(900, 600);
         setLocationRelativeTo(null); // Center the window
 
         // Initialize panels
@@ -112,15 +115,15 @@ public class UNO_Frame extends JFrame implements UNO_View{
         centerPanel.setBackground(playAreaPanel.getBackground());
 
         // Draw deck placeholder
-        JLabel drawDeckLabel = new JLabel("DRAW DECK", SwingConstants.CENTER);
-        drawDeckLabel.setFont(new Font("Arial", Font.BOLD, 12));
-        drawDeckLabel.setBorder(BorderFactory.createLineBorder(Color.BLACK, 1));
-        drawDeckLabel.setPreferredSize(new Dimension(100, 150));
-        drawDeckLabel.setOpaque(true);
-        drawDeckLabel.setBackground(Color.DARK_GRAY);
-        drawDeckLabel.setForeground(Color.WHITE);
+        //JLabel drawDeckLabel = new JLabel("DRAW DECK", SwingConstants.CENTER);
+        //drawDeckLabel.setFont(new Font("Arial", Font.BOLD, 12));
+        //drawDeckLabel.setBorder(BorderFactory.createLineBorder(Color.BLACK, 1));
+        //drawDeckLabel.setPreferredSize(new Dimension(100, 150));
+        //drawDeckLabel.setOpaque(true);
+        //drawDeckLabel.setBackground(Color.DARK_GRAY);
+        //drawDeckLabel.setForeground(Color.WHITE);
 
-        centerPanel.add(drawDeckLabel);
+        //centerPanel.add(drawDeckLabel);
         centerPanel.add(topCardLabel);
 
         playAreaPanel.add(centerPanel, BorderLayout.CENTER);
@@ -145,6 +148,9 @@ public class UNO_Frame extends JFrame implements UNO_View{
         add(mainPanel);
     }
 
+    /**
+     * Updates the game's visual state in the GUI.
+     */
     public void updateGameState(){
         Player currentPlayer = model.getCurrentPlayer();
         displayPlayerHand(currentPlayer);
@@ -153,36 +159,78 @@ public class UNO_Frame extends JFrame implements UNO_View{
         updateScores();
     }
 
+    /**
+     * Displays the given player's hand on the GUI.
+     * @param player the Player whose hand is currently being displayed
+     */
     public void displayPlayerHand(Player player){
         playerHandPanel.removeAll();
+        playerHandPanel.add(drawButton, BorderLayout.NORTH);
 
         ArrayList<Card> hand = player.getHand();
         for (int i = 0; i < hand.size(); i++) {
             Card card = hand.get(i);
-            JButton cardButton = new JButton(card.toString());
-            int cardIndex = i;
+            CardComponent cardComp = new CardComponent(card, i, controller);
 
-            // Send event to controller when clicked
-            cardButton.addActionListener(controller);
-            playerHandPanel.add(cardButton);
+            // Highlight playable cards
+            cardComp.setPlayable(model.isPlayable(card));
+
+            playerHandPanel.add(cardComp);
         }
 
         playerHandPanel.revalidate();
         playerHandPanel.repaint();
     }
 
+    /**
+     * Highlights the current player's name in the GUI.
+     */
     public void highlightCurrentPlayer(){
         Player currentPlayer = model.getCurrentPlayer();
         currentPlayerLabel.setText("Current Player: " + currentPlayer.getName());
+        directionLabel.setText("Direction: " + model.getDirection().toString());
 
         playerInfoPanel.setBackground(Color.YELLOW);
     }
 
+    /**
+     * Displays the most recently played card in the play area.
+     * @param card the Card currently on top of the play pile
+     */
     public void showCardPlayed(Card card){
+        playAreaPanel.removeAll();
 
+        if (card != null) {
+            CardComponent topCardComponent = new CardComponent(card, -1, controller);
+            topCardComponent.setPlayable(false); // cannot play the top card
+            playAreaPanel.add(topCardComponent, BorderLayout.CENTER);
+        } else {
+            playAreaPanel.add(new JLabel("No card in play."));
+        }
+
+        playAreaPanel.revalidate();
+        playAreaPanel.repaint();
     }
 
+    /**
+     * Prompts the player to select a color when a wild card is played.
+     */
     public void showWildColorSelection(){
+        String[] colors = {"RED", "BLUE", "GREEN", "YELLOW"};
+        String chosen = (String) JOptionPane.showInputDialog(this,
+                "Choose a color:",
+                "Wild Card Color Selection",
+                JOptionPane.PLAIN_MESSAGE,
+                null,
+                colors,
+                colors[0]);
+
+        if(model.topCard().isLightSideActive){
+
+        }
+        //idk the logic for dealing with wild card after picking colour
+
+
 
     }
 
