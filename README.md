@@ -50,7 +50,10 @@ java UNO_Frame
 - No contributions
 
 **Aryan**
-- No contributions
+- Implemente card subtypes (Flip, Number, Wild, DrawX, Wild Draw): indiviudal behaviours when played and validity of playing on play pile's top card (refactored by Ahmad)
+- Added dark and light mode attributes for preparation of future milestones
+- Implemented flip mechanic of switching light cards to their dark counterparts, and vice versa
+- Implemented the skip player feature present in skip/skip everyone cards
 
 **Atik**
 - Helped implement the main game loop
@@ -69,7 +72,13 @@ java UNO_Frame
 - No contributions
 
 **Aryan**
-- No contributions
+- Maintained a dynamic to-do list and delegated group members deliverables and git operations
+- Modified the UNO_Game (model) to notify the view using collection of UNO_Views
+- Drew draw.io sequence diagrams with approval of finalized diagrams from gorup
+- Corrected the round and winner handling system
+- Created the initial GUI and setup of panels in the frame
+- Created the view representation of cards (i.e. class CardComponent) with associated controller handling when used
+- Performed all manual testing of gameplay
 
 **Atik**
 - Helped implement UNO_Controller class
