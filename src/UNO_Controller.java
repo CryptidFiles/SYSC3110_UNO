@@ -82,8 +82,15 @@ public class UNO_Controller implements ActionListener {
         try{
             model.moveToNextPlayer();
             view.setNextPlayerButtonEnabled(false); //disable until next valid action
+            view.setDrawButtonEnabled(false);
+
             view.displayMessage("Next Player's turn!");
             view.setHandEnabled(true);
+
+            Player current = model.getCurrentPlayer();
+            boolean hasPlayable = model.hasPlayableHand(current);
+
+            view.setDrawButtonEnabled(!hasPlayable);
         } catch (Exception ex) {
             model.notifyMessage("Error moving to next player: " + ex.getMessage());
         }
@@ -101,14 +108,16 @@ public class UNO_Controller implements ActionListener {
 
             // Use the existing drawCard() method which already handles drawing for current player
             Card drawnCard = model.drawCard();
+            view.setDrawButtonEnabled(false);
 
             if (drawnCard != null) {
-                // Model will automatically notify views through observer pattern
-                // The card is already added to player's hand in the model
-                System.out.println(currentPlayer.getName() + " drew a card.");
+                view.displayMessage(currentPlayer.getName() + " drew a card. Press 'Next Player' to continue.");
+                view.setNextPlayerButtonEnabled(true);
+                view.setDrawButtonEnabled(false);
+                view.setHandEnabled(false);
             } else {
                 // Model should handle empty deck scenario through reshuffling
-                System.out.println("No cards available to draw.");
+                view.displayMessage("No cards available to draw. ");
             }
 
         } catch (Exception ex) {
@@ -142,8 +151,9 @@ public class UNO_Controller implements ActionListener {
             }else{
                 if (!model.isWaitingForColorSelection()){
                     view.displayMessage("Card Played successfully! Press 'Next Player' to continue ");
-                    view.setNextPlayerButtonEnabled(true);
                     view.setHandEnabled(false);
+                    view.setDrawButtonEnabled(false);
+                    view.setNextPlayerButtonEnabled(true);
                 }
             }
             // If successful, model will handle game logic and notify views automatically
@@ -152,6 +162,10 @@ public class UNO_Controller implements ActionListener {
             model.notifyMessage("Error playing card: " + ex.getMessage());
             ex.printStackTrace();
         }
+
+        Player currentPlayer = model.getCurrentPlayer();
+        boolean hasPlayable = model.hasPlayableHand(currentPlayer);
+        view.setDrawButtonEnabled(!hasPlayable);
     }
 
     /**

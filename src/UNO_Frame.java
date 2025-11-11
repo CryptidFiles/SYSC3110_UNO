@@ -476,6 +476,10 @@ public class UNO_Frame extends JFrame implements UNO_View{
             }
         }
     }
+
+    public void setDrawButtonEnabled(boolean enabled){
+        drawButton.setEnabled(enabled);
+    }
     /**
      * Returns the button used by players to move to next player
      * This button is accessed by the {@link UNO_Controller} to attach event listeners

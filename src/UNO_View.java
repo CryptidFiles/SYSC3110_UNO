@@ -29,4 +29,5 @@ public interface UNO_View {
     JButton getNextPlayerButton();
     void setEnabled(boolean enabled);
     void setNextPlayerButtonEnabled(boolean enabled);
+    void setDrawButtonEnabled(boolean enabled);
 }
