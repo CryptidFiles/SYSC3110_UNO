@@ -4,7 +4,20 @@ import java.io.File;
 import javax.imageio.ImageIO;
 import javax.swing.*;
 
-// Physical UNO card component with "Use" button
+/**
+ * The CardComponent class represents the visual and interactive
+ * user-interface element of a single UNO card within the game.
+ * Each card component displays the appropriate card image depending on its
+ * active side, shows a green highlight if playable, and provides a "Use" button
+ * to allow the player to play the card directly.
+ *
+ * @author Ahmad El-Jabi 101303269
+ * @author Atik Mahmud 101318070
+ * @author Aryan Singh 101299776
+ * @author Jonathan Gitej 101294584
+ *
+ * @version 2.0, November 10, 2025
+ */
 public class CardComponent extends JPanel {
     private Card card;           // The actual card data from model
     private int cardIndex;       // Position in player's hand
@@ -12,6 +25,13 @@ public class CardComponent extends JPanel {
     private JButton useButton;  //has its own use button
     private BufferedImage cardImage;
 
+    /**
+     * Constructs a new CardComponent for the specified {@link Card}.
+     *
+     * @param card the UNO card data model represented by this component
+     * @param index the index of this card in the player's hand
+     * @param controller the {@link UNO_Controller} responsible for handling user actions
+     */
     public CardComponent(Card card, int index, UNO_Controller controller) {
         this.card = card;
         this.cardIndex = index;
@@ -25,6 +45,12 @@ public class CardComponent extends JPanel {
         setupLayout();
     }
 
+    /**
+     * Initializes the UI elements for this card component, including
+     * the "Use" button and its event handler.
+     *
+     * @param controller the game controller to handle play actions
+     */
     private void initializeComponents(UNO_Controller controller) {
         // Create the "Use" button
         useButton = new JButton("Use");
@@ -37,6 +63,10 @@ public class CardComponent extends JPanel {
         });
     }
 
+    /**
+     * Builds the visual layout of this component, including the image panel and button placement.
+     *
+     */
     private void setupLayout() { //builds what the card looks like visually
         // Main card display panel
         JPanel imagePanel = new JPanel() {
@@ -57,6 +87,11 @@ public class CardComponent extends JPanel {
         updateBorder();
     }
 
+    /**
+     * Draws the card image, border, and highlights on the panel.
+     *
+     * @param g the {@link Graphics} context for drawing
+     */
     private void drawCard(Graphics g) {
         Graphics2D g2 = (Graphics2D) g;
         g2.setRenderingHint(RenderingHints.KEY_INTERPOLATION, RenderingHints.VALUE_INTERPOLATION_BILINEAR);
@@ -100,6 +135,10 @@ public class CardComponent extends JPanel {
     }
 
 
+    /**
+     * Updates the border color to visually indicate whether the card is playable.
+     *
+     */
     private void updateBorder() {
         if (isPlayable) {//if playable then make it green
             setBorder(BorderFactory.createLineBorder(Color.GREEN, 3));
@@ -108,15 +147,30 @@ public class CardComponent extends JPanel {
         }
     }
 
-    // Getters and setters
+
+    /**
+     * Returns the index of this card in the player's hand.
+     *
+     * @return the card's index position
+     */
     public int getCardIndex() {
         return cardIndex;
     }
 
+    /**
+     * Returns the {@link Card} object associated with this component.
+     *
+     * @return {@link Card} the corresponding Card
+     */
     public Card getCard() {
         return card;
     }
 
+    /**
+     * Sets whether this card is playable and updates its visuals accordingly.
+     *
+     * @param playable is to mark this card as playable; false otherwise
+     */
     public void setPlayable(boolean playable) {
         this.isPlayable = playable;
         useButton.setEnabled(playable); //enable button to use
@@ -124,15 +178,30 @@ public class CardComponent extends JPanel {
         repaint();
     }
 
+    /**
+     * Returns the "Use" button component associated with this card.
+     *
+     * @return {@link JButton} the Use button for playing this card
+     */
     public JButton getUseButton() {
         return useButton;
     }
 
 
+    /**
+     * Checks whether this card is currently playable.
+     *
+     * @return boolean. true if playable; false otherwise
+     */
     public boolean isPlayable() {
         return isPlayable;
     }
 
+    /**
+     * Generates the image path based on the card’s color, type, and active side.
+     *
+     * @return the relative file path of the card image
+     */
     private String getImagePath() {
         String sideFolder = card.getActiveSide() ? "light" : "dark";
         String basePath = "assets/" + sideFolder + "/";
@@ -169,6 +238,11 @@ public class CardComponent extends JPanel {
         return basePath + colorFolder + "/" + typeName + ".png";
     }
 
+    /**
+     * Loads the appropriate image for the card
+     * If the image cannot be found, logs a warning message and leaves
+     * the card with a placeholder display.
+     */
     private void loadCardImage() {
         String imagePath = getImagePath();
         try {

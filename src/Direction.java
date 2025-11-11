@@ -7,11 +7,16 @@
  * @author Aryan Singh 101299776
  * @author Jonathan Gitej 101294584
  *
- * @version 1.0
+ * @version 2.0, November 10, 2025
  */
 public enum Direction {
     CLOCKWISE, COUNTERCLOCKWISE;
 
+    /**
+     * Returns textual representation of the current direction
+     *
+     * @return {@link String} textual representation of the current direction, Clockwise ↻ or CounterClockwise ↺
+     */
     @Override
     public String toString() {
         if (this == CLOCKWISE){

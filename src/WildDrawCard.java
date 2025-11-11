@@ -1,4 +1,23 @@
+/**
+ * The WildCard class represents the special dual-sided "Wild Draw" card
+ * in the UNO Flip game.
+ * On the light side, this card acts as a Wild Draw Two, allowing the player
+ * to choose a new color and forcing the next player to draw two cards and lose their turn.
+ * On the dark side, it acts as a Wild Draw Color, where the next player keeps
+ * drawing cards until they draw one that matches the chosen color.
+ * This class extends {@link Card} and implements both sides’ effects
+ *
+ * @author Ahmad El-Jabi 101303269
+ * @author Atik Mahmud 101318070
+ * @author Aryan Singh 101299776
+ * @author Jonathan Gitej 101294584
+ *
+ * @version 2.0, November 10, 2025
+ */
 public class WildDrawCard extends Card {
+    /**
+     * Constructs a WildDrawCard with predefined light and dark side properties.
+     */
     public WildDrawCard() {
         isLightSideActive = true;
         this.lightColor = CardColor.WILD;
@@ -7,6 +26,15 @@ public class WildDrawCard extends Card {
         this.darkType = CardType.DRAW_COLOR;
     }
 
+    /**
+     * Executes the initial action when this card is played.
+     * Since this is a wild card, it first triggers color selection and then
+     * the action effect after the player has chosen a color.
+     *
+     * @param model  the {@link UNO_Game} model managing the game state
+     * @param player the {@link Player} who played the card
+     * @return boolean. always true, as the color selection phase follows immediately
+     */
     @Override
     public boolean action(UNO_Game model, Player player) {
         // Trigger color selection
@@ -63,6 +91,13 @@ public class WildDrawCard extends Card {
         }
     }
 
+    /**
+     * Determines whether this card can be legally played on top of another card.
+     * Wild cards can always be played, regardless of the top card's color or type.
+     *
+     * @param otherCard the {@link Card} currently on top of the play pile
+     * @return boolean. true always
+     */
     @Override
     public boolean playableOnTop(Card otherCard) {
         return true;
