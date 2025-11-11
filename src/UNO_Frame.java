@@ -12,7 +12,7 @@ public class UNO_Frame extends JFrame implements UNO_View{
     private JScrollPane handScrollPane;
     private JButton drawButton; //button to draw a card
     private JLabel currentPlayerLabel; //shows whose turn it is
-    private JLabel directionLabel; //shows turn direction (clockwise or counetrclockwise)
+    private JLabel directionLabel; //shows turn direction (clockwise or counterclockwise)
     private JLabel messageLabel; //shows status or game messages
     private JLabel scoreLabel; //shows player scores
 
