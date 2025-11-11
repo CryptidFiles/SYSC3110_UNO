@@ -30,6 +30,7 @@ public class UNO_Frame extends JFrame implements UNO_View{
     private JLabel topCardLabel; //shows which card is on top of the play pile
     private JScrollPane handScrollPane;
     private JButton drawButton; //button to draw a card
+    private JButton nextPlayerButton; //button to move to next player
     private JLabel currentPlayerLabel; //shows whose turn it is
     private JLabel directionLabel; //shows turn direction (clockwise or counetrclockwise)
     private JLabel messageLabel; //shows status or game messages
@@ -82,12 +83,17 @@ public class UNO_Frame extends JFrame implements UNO_View{
 
         //Set up the GUI, calls helper methods o create and organize the layout, and makes the window visible
         initializeUI();
-        setupLayout();
-        this.setVisible(true);
 
         model = new UNO_Game(numPlayers, playerNames);
         model.addUnoView(this);
         controller = new UNO_Controller(model, this);
+
+        setupLayout();
+        this.setVisible(true);
+
+//        model = new UNO_Game(numPlayers, playerNames);
+//        model.addUnoView(this);
+//        controller = new UNO_Controller(model, this);
 
         model.startNewRound();
         // Initial game state update
@@ -130,6 +136,11 @@ public class UNO_Frame extends JFrame implements UNO_View{
         drawButton.setFont(new Font("Arial", Font.BOLD, 14));
         drawButton.setPreferredSize(new Dimension(120, 40));
 
+        nextPlayerButton =  new JButton("Next Player");
+        nextPlayerButton.setFont(new Font("Arial", Font.BOLD, 14));
+        nextPlayerButton.setPreferredSize(new Dimension(120, 40));
+        nextPlayerButton.setEnabled(false);
+
         currentPlayerLabel = new JLabel("Current: ", SwingConstants.CENTER);
         currentPlayerLabel.setFont(new Font("Arial", Font.BOLD, 14));
 
@@ -145,8 +156,8 @@ public class UNO_Frame extends JFrame implements UNO_View{
         messageLabel.setForeground(Color.BLACK);
 
         // Set up action listeners (will be connected to controller later)
-        drawButton.addActionListener(controller);
-
+        //drawButton.addActionListener(controller);
+        //nextPlayerButton.addActionListener(controller);
         // Style panels
         playerHandPanel.setBackground(new Color(240, 240, 240));
         playerHandPanel.setBorder(BorderFactory.createTitledBorder("Your Hand"));
@@ -184,6 +195,7 @@ public class UNO_Frame extends JFrame implements UNO_View{
         JPanel buttonPanel = new JPanel(new FlowLayout(FlowLayout.CENTER, 20, 10));
         buttonPanel.setBackground(playAreaPanel.getBackground());
         buttonPanel.add(drawButton);
+        buttonPanel.add(nextPlayerButton);
 
         playAreaPanel.add(buttonPanel, BorderLayout.SOUTH);
 
@@ -197,7 +209,11 @@ public class UNO_Frame extends JFrame implements UNO_View{
         mainPanel.add(playerInfoPanel, BorderLayout.NORTH);    // Game info at top
         mainPanel.add(playAreaPanel, BorderLayout.CENTER);     // Play area in middle
         //mainPanel.add(playerHandPanel, BorderLayout.SOUTH);    // Hand at bottom
-        mainPanel.add(handScrollPane, BorderLayout.SOUTH);
+        mainPanel.add(buttonPanel, BorderLayout.SOUTH);
+
+        getContentPane().add(mainPanel,  BorderLayout.CENTER);
+        getContentPane().add(handScrollPane, BorderLayout.SOUTH);
+        //mainPanel.add(handScrollPane, BorderLayout.SOUTH);
 
         // Add main panel to frame
         add(mainPanel);
@@ -432,6 +448,44 @@ public class UNO_Frame extends JFrame implements UNO_View{
         return drawButton;
     }
 
+    /**
+     * Enables or disables the "Next Player" button in the game interface.
+     * This method is used to control when players are allowed to proceed
+     * to the next turn. After a card is played or a card is drawn, this
+     * button becomes enabled; once pressed, it is disabled again until
+     * the next valid action.
+     * @param enabled true to enable "Next player" button, false to disable
+     */
+    public void setNextPlayerButtonEnabled(boolean enabled){
+        nextPlayerButton.setEnabled(enabled);
+    }
+
+    /**
+     * Enables or disables all "Use" buttons in the current player's hand.
+     * This method is typically called after a player plays a card, to prevent
+     * multiple plays in the same turn. It is re-enabled at the start of the
+     * next player’s turn to allow them to play or draw a card.
+     * @param enabled ture to enable all "use" buttons, false to disable them
+     */
+    public void setHandEnabled(boolean enabled){
+        Component[] components = playerHandPanel.getComponents();
+        for (Component component : components) {
+            if (component instanceof CardComponent) {
+                CardComponent cardComponent = (CardComponent) component;
+                cardComponent.getUseButton().setEnabled(enabled);
+            }
+        }
+    }
+    /**
+     * Returns the button used by players to move to next player
+     * This button is accessed by the {@link UNO_Controller} to attach event listeners
+     * and handle moving to next player.
+     *
+     * @return {@link JButton}. The button component representing the next player button
+     */
+    public JButton getNextPlayerButton(){
+        return nextPlayerButton;
+    }
     /**
      * The main entry point for the UNO Flip! game application.
      * Launches the game window and initializes the game by creating

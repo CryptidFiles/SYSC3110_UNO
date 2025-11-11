@@ -304,7 +304,10 @@ public class UNO_Game {
 
             } else {
                 if (!waitingForColorSelection){
-                    moveToNextPlayer(); //otherwise, pass the turn to the next player
+                    notifyMessage("Card played successfully! Press 'Next Player' to continue. ");
+                    for (UNO_View view : views) {
+                        view.getNextPlayerButton().setEnabled(true);
+                    }
                 }
             }
             return true;
@@ -337,9 +340,10 @@ public class UNO_Game {
                 currentPlayer.drawCard(drawnCard);
             }
 
-            // Current player drew a card, so their turn is skipped
-            moveToNextPlayer();
-
+            notifyMessage("Card played successfully! Press 'Next Player' to continue. ");
+            for (UNO_View view : views) {
+                view.getNextPlayerButton().setEnabled(true);
+            }
             // NOTIFY views as player has drawn a card and skipping current player's turn
             notifyViews();
 

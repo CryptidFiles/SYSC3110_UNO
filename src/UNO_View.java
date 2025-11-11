@@ -26,4 +26,7 @@ public interface UNO_View {
     void showRoundWinner(Player player);
     void initiateNewRound();
     JButton getDrawButton();
+    JButton getNextPlayerButton();
+    void setEnabled(boolean enabled);
+    void setNextPlayerButtonEnabled(boolean enabled);
 }

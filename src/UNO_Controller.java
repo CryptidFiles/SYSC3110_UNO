@@ -35,6 +35,7 @@ public class UNO_Controller implements ActionListener {
 
         // Connect draw button to controller
         view.getDrawButton().addActionListener(this);
+        view.getNextPlayerButton().addActionListener(this);
 
         // Starting a new round
         try {
@@ -58,6 +59,9 @@ public class UNO_Controller implements ActionListener {
         if (source == view.getDrawButton()) {
             handleDrawCard();
         }
+        else if (source == view.getNextPlayerButton()) {
+            handleNextPlayer();
+        }
         // Handle card plays from CardComponents
         else if (source instanceof JButton) {
             JButton button = (JButton) source;
@@ -67,6 +71,21 @@ public class UNO_Controller implements ActionListener {
                 CardComponent cardComp = (CardComponent) button.getParent();
                 handleCardPlay(cardComp.getCardIndex());
             }
+        }
+    }
+
+    /**
+     * Confirms the current player's turn and advances to the next player.
+     * Triggered by the "Next Player" button.
+     */
+    private void handleNextPlayer() {
+        try{
+            model.moveToNextPlayer();
+            view.setNextPlayerButtonEnabled(false); //disable until next valid action
+            view.displayMessage("Next Player's turn!");
+            view.setNextPlayerButtonEnabled(true);
+        } catch (Exception ex) {
+            model.notifyMessage("Error moving to next player: " + ex.getMessage());
         }
     }
 
@@ -120,6 +139,12 @@ public class UNO_Controller implements ActionListener {
 
             if (!success) {
                 System.out.println("Invalid move! This card cannot be played on the current top card.");
+            }else{
+                if (!model.isWaitingForColorSelection()){
+                    view.displayMessage("Card Played successfully! Press 'Next Player' to continue ");
+                    view.setNextPlayerButtonEnabled(true);
+                    view.setHandEnabled(false);
+                }
             }
             // If successful, model will handle game logic and notify views automatically
 
