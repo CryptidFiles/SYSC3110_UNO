@@ -47,7 +47,9 @@ java UNO_Frame
 ### Milestone 1
 
 **Ahmad**
-- No contributions
+- Implemented the action() method of the cards, so the cards act as intended
+- Created javadocs for all classes/methods and added comments when necessary to help keep the code understandable
+  
 
 **Aryan**
 - Implemente card subtypes (Flip, Number, Wild, DrawX, Wild Draw): indiviudal behaviours when played and validity of playing on play pile's top card (refactored by Ahmad)
@@ -69,7 +71,10 @@ java UNO_Frame
 ### Milestone 2
 
 **Ahmad**
-- No contributions
+- Helped implement the UNO_Frame class
+- Added the Next Player button
+- Updated all Java docs/comments
+  
 
 **Aryan**
 - Maintained a dynamic to-do list and delegated group members deliverables and git operations
