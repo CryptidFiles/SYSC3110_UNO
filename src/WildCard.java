@@ -9,7 +9,7 @@ import java.util.Scanner;
  * @author Aryan Singh 101299776
  * @author Jonathan Gitej 101294584
  *
- * @version 1.0
+ * @version 2.0, November 10, 2025
  */
 public class WildCard extends Card {
     private Scanner color_input;
@@ -65,7 +65,6 @@ public class WildCard extends Card {
      * @param otherCard The card currently on top of the play pile.
      * @return boolean. true since Wild cards are always playable.
      */
-    // Determine if card can be played on the top of the stack
     @Override
     public boolean playableOnTop(Card otherCard){
         return true;

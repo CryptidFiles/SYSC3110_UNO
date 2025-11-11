@@ -1,19 +1,20 @@
 import java.util.*;
 
 /**
- * Manages the overall UNO Flip gameplay loop and core mechanics.
- * This class handles player setup, deck management, card distribution,
- * turn progression, score tallying, and victory conditions.
- *
- * The UNO_Game class serves as the main controller for the game,
- * coordinating interactions between {@link Player}, {@link Card}, and {@link Deck}.
+ * The UNO_Game class manages the core logic, rules, and state transitions
+ * of the UNO Flip! game.
+ * Acting as the "Model" in the MVC architecture, this class coordinates interactions
+ * between {@link Player}, {@link Card}, and {@link Deck} objects, while notifying
+ * attached {@link UNO_View} observers of state changes. It tracks player turns,
+ * manages decks, enforces gameplay rules, calculates scores, and determines round
+ * and game winners.
  *
  * @author Ahmad El-Jabi 101303269
  * @author Atik Mahmud 101318070
  * @author Aryan Singh 101299776
  * @author Jonathan Gitej 101294584
  *
- * @version 1.0
+ * @version 2.0, November 10, 2025
  */
 public class UNO_Game {
     private ArrayList<Player> players; //a list of all players
@@ -41,7 +42,12 @@ public class UNO_Game {
 
 
     /**
-     * Creates a new UNO game instance, gathers player info, and starts the main loop.
+     * Creates a new UNO Flip! game instance with the specified number of players and names.
+     * Initializes all core data structures including players, decks, direction,
+     * and game state variables.
+     *
+     * @param numPlayers the number of players (2 – 4)
+     * @param playerNames a list of player names in turn order
      */
     public UNO_Game(int numPlayers, ArrayList<String> playerNames) {
         this.players = new ArrayList<>();
@@ -62,78 +68,126 @@ public class UNO_Game {
         }
     }
 
+    /**
+     * Registers a {@link UNO_View} observer to receive updates when game state changes.
+     *
+     * @param view the view instance to add
+     */
     public void addUnoView(UNO_View view){
         views.add(view);
     }
+
+    /**
+     * Removes a previously registered {@link UNO_View} observer.
+     *
+     * @param view the view instance to remove
+     */
     public void removeUnoView(UNO_View view){
         views.remove(view);
     }
 
-    // Notify all views when game state changes
+    /**
+     * Notifies all attached views that the game state has changed.
+     * Called after significant gameplay actions such as playing or drawing a card.
+     */
     protected void notifyViews() {
         for (UNO_View view : views) {
             view.updateGameState();
         }
     }
 
-    // Notify when a specific card is played
+    /**
+     * Notifies all attached views that a specific card has been played.
+     *
+     * @param card the card that was played
+     */
     protected void notifyCardPlayed(Card card) {
         for (UNO_View view : views) {
             view.showCardPlayed(card);
         }
     }
 
-    // Notify when a player wins
+    /**
+     * Notifies all attached views that a player has won the round.
+     *
+     * @param player the player who won the round
+     */
     protected void notifyRoundWinner(Player player) {
         for (UNO_View view : views) {
             view.showRoundWinner(player);
         }
     }
 
-    // Notify when a player wins
+    /**
+     * Notifies all attached views that a player has won the entire game.
+     *
+     * @param player the player who reached the winning score
+     */
     protected void notifyGameWinner(Player player) {
         for (UNO_View view : views) {
             view.showWinner(player);
         }
     }
 
-    // Notify when scores update
+    /**
+     * Notifies all views that player scores have been updated.
+     */
     protected void notifyScoresUpdated() {
         for (UNO_View view : views) {
             view.updateScores();
         }
     }
 
-    // Notify when message should be displayed
+    /**
+     * Sends a custom message to all attached views for display.
+     *
+     * @param message the message to display
+     */
     protected void notifyMessage(String message) {
         for (UNO_View view : views) {
             view.displayMessage(message);
         }
     }
 
+    /**
+     * Notifies all views to prompt the player for wild color selection.
+     */
     protected void notifyWildColorSelection() {
         for (UNO_View view : views) {
             view.showWildColorSelection();
         }
     }
 
-    // Replace with simpler approach:
+    /**
+     * Activates the wild color selection phase and notifies views to prompt the user.
+     */
     public void triggerColorSelection() {
         this.waitingForColorSelection = true;
         notifyWildColorSelection(); // Notify view to show color picker
     }
 
+    /**
+     * Returns whether the game is currently waiting for a wild color selection.
+     *
+     * @return boolean. true if awaiting color selection; false otherwise
+     */
     public boolean isWaitingForColorSelection() {
         return waitingForColorSelection;
     }
 
+    /**
+     * Completes the color selection phase and resumes gameplay.
+     * Notifies all views to refresh their state.
+     */
     public void completeColorSelection() {
         this.waitingForColorSelection = false;
         notifyViews();
     }
 
     /**
-     * Starts a new round - called by controller
+     * Starts a new round of gameplay by resetting decks, distributing cards,
+     * and resetting round status variables.
+     * Called by the controller at the start of each round.
      */
     public void startNewRound() {
         resetDecks();
@@ -263,7 +317,7 @@ public class UNO_Game {
     /**
      * Current player draws a card from the deck. Either voluntary or because they do not have a playable hand
      *
-     * @return Card The drawn card, or null if deck is empty
+     * @return {@link Card} The drawn card, or null if deck is empty
      */
     public Card drawCard() {
         try {
@@ -297,6 +351,10 @@ public class UNO_Game {
     }
 
 
+    /**
+     * Advances the turn to the next player, taking into account skips and direction.
+     * Notifies views after updating the current player index.
+     */
     public void moveToNextPlayer() {
         if (skipCount > 0) {
             processSkip();  // jumps past players
@@ -312,7 +370,7 @@ public class UNO_Game {
     }
 
     /**
-     * @return Card, which is the card on top of the play pile
+     * @return {@link Card}, which is the card on top of the play pile
      */
     public Card topCard() {
         return playPile.peek();
@@ -588,7 +646,7 @@ public class UNO_Game {
      * Checks whether a card can be legally played on the top card of the play pile.
      *
      * @param card The card the player wants to play
-     * @return true if playable based on UNO rules, false otherwise
+     * @return boolean. true if playable based on UNO rules, false otherwise
      */
     public boolean isPlayable(Card card) {
         if (card == null || playPile.isEmpty()) return false;

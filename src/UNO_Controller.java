@@ -2,10 +2,33 @@ import javax.swing.*;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
 
+/**
+ * The UNO_Controller class serves as the main controller in the MVC pattern
+ * for the UNO game
+ * It handles all user interactions from the view, and coordinates updates
+ * between the {@link UNO_Game} model and the {@link UNO_Frame} view.
+ *The controller listens to button events such as "Draw Card" or "Use"
+ * on each {@link CardComponent}, processes them, and delegates the logic
+ * to the model while ensuring proper game flow and state synchronization
+ *
+ * @author Ahmad El-Jabi 101303269
+ * @author Atik Mahmud 101318070
+ * @author Aryan Singh 101299776
+ * @author Jonathan Gitej 101294584
+ *
+ * @version 2.0, November 10, 2025
+ */
 public class UNO_Controller implements ActionListener {
     private UNO_Game model;
     private UNO_Frame view; // Changed to concrete type for button access
 
+    /**
+     * Constructs a new UNO_Controller that connects the game model and view.
+     * It attaches listeners to buttons and triggers the start of a new game round.
+     *
+     * @param model the {@link UNO_Game} model that handles game state and logic
+     * @param view  the {@link UNO_Frame} view that provides the visual interface
+     */
     public UNO_Controller(UNO_Game model, UNO_Frame view) {
         this.model = model;
         this.view = view;
@@ -20,6 +43,13 @@ public class UNO_Controller implements ActionListener {
         }
     }
 
+    /**
+     * Responds to all button click events in the view.
+     * Determines which button was pressed and delegates
+     * the action to the appropriate handler.
+     *
+     * @param e the {@link ActionEvent} triggered by a button press
+     */
     @Override
     public void actionPerformed(ActionEvent e) {
         Object source = e.getSource();
@@ -41,7 +71,9 @@ public class UNO_Controller implements ActionListener {
     }
 
     /**
-     * Handles when a player wants to draw a card
+     * Handles the "Draw Card" button action.
+     * Requests the current player to draw a card from the deck via the model,
+     * and lets the model handle any reshuffling or deck-empty scenarios.
      */
     public void handleDrawCard() {
         try {
@@ -67,7 +99,11 @@ public class UNO_Controller implements ActionListener {
     }
 
     /**
-     * Handles when a player wants to play a card
+     * Handles when a player plays a card.
+     * This method is called either from a card’s “Use” button
+     * or automatically during game actions.
+     *
+     * @param cardIndex the index of the card being played from the player's hand
      */
     public void handleCardPlay(int cardIndex) {
         try {
@@ -93,6 +129,13 @@ public class UNO_Controller implements ActionListener {
         }
     }
 
+    /**
+     * Handles color selection for Wild and Wild Draw cards.
+     * Once a color is chosen by the player, this method applies the selected color
+     * to the top card and executes any special effects
+     *
+     * @param chosenColor the {@link CardColor} selected by the player
+     */
     public void handleWildColorSelection(CardColor chosenColor) {
         try {
             if (!model.isWaitingForColorSelection()) {
@@ -121,6 +164,10 @@ public class UNO_Controller implements ActionListener {
     }
 
 
+    /**
+     * Starts a new game round.
+     * This method resets the deck, players, and board state
+     */
     public void handleNewRound() {
         try {
             model.startNewRound();

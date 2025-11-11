@@ -1,4 +1,17 @@
-
+/**
+ * The Card class serves as an abstract base class representing a dual-sided UNO card.
+ * Each card has a light side and a dark side, each with its own {@link CardColor} and {@link CardType}.
+ * The card can flip between sides and perform actions when played
+ * This class provides core functionality for handling card attributes leaving specific gameplay logic
+ * to be implemented by its subclasses
+ *
+ * @author Ahmad El-Jabi 101303269
+ * @author Atik Mahmud 101318070
+ * @author Aryan Singh 101299776
+ * @author Jonathan Gitej 101294584
+ *
+ * @version 2.0, November 10, 2025
+ */
 abstract public class Card {
     protected boolean isLightSideActive;
 
@@ -9,14 +22,30 @@ abstract public class Card {
     protected CardType lightType;
     protected CardType darkType;
 
-    // Blueprint for acting upon the play of the card
+    /**
+     * Defines the effect or action that this card performs when played.
+     *
+     * @param model  the {@link UNO_Game} model managing the game state
+     * @param player the {@link Player} who played the card
+     * @return boolean. true if the action was successfully performed, false otherwise
+     */
     public abstract boolean action(UNO_Game model, Player player);
 
-    // Determine if card can be played on the top of the card in play pile stack
+
+    /**
+     * Determines whether this card can legally be played on top of another card.
+     *
+     * @param otherCard the {@link Card} currently on top of the play pile
+     * @return boolean. true if this card can be played on top of otherCard, false otherwise
+     */
     public abstract boolean playableOnTop(Card otherCard);
 
 
-    //CardType return the correct type depending on which side is active.
+    /**
+     * Returns the card typeof the currently active side.
+     *
+     * @return the {@link CardType} for the active side, either light or dark
+     */
     public CardType getType() {
         if (isLightSideActive) {
             return lightType;
@@ -25,7 +54,11 @@ abstract public class Card {
         }
     }
 
-    // getColor return the correct color depending on which side is active.
+    /**
+     * Returns the Card color of the currently active side.
+     *
+     * @return the {@link CardColor} for the active side, light or dark
+     */
     public CardColor getColor() {
         if (isLightSideActive) {
             return lightColor;
@@ -34,17 +67,30 @@ abstract public class Card {
         }
     }
 
-    //switches the side of the card
+
+    /**
+     * Flips the card, switching between the light and dark sides.
+     * If the light side is active, it becomes dark, and vice versa.
+     */
     public void flip() {
         isLightSideActive = !isLightSideActive;
     }
 
-    // Returns if the card is currently on light or dark side
+
+    /**
+     * Returns whether the card is currently showing its light side.
+     *
+     * @return boolean. true if the light side is active; false if otherwise (darkside activated)
+     */
     public boolean getActiveSide() {
         return isLightSideActive;
     }
 
-    // Print out card's representation depending on which side is active
+
+    /**
+     * Prints a textual representation of the card to the console.
+     * Prints the color and type of the currently activated side
+     */
     public void printCard(){
         if(isLightSideActive){
             System.out.println(this.lightColor + "  " + this.lightType);

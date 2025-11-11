@@ -3,6 +3,25 @@ import java.awt.*;
 import java.awt.Color;
 import java.util.ArrayList;
 
+/**
+ * The UNO_Frame class represents the main graphical user interface (GUI)
+ * for the UNO Flip! game.
+ * It serves as the concrete implementation of the {@link UNO_View} interface
+ * and forms the “View” in (MVC) architecture.
+ * This class is responsible for visually displaying the game state, player hands,
+ * the play area, and score updates, as well as relaying user input to the
+ * {@link UNO_Controller}.
+ * Through its integration with {@link UNO_Game} (model) and
+ * {@link UNO_Controller} (controller), this class updates the GUI in real time
+ * as the game progresses, ensuring a clear separation between logic and presentation
+ *
+ * @author Ahmad El-Jabi 101303269
+ * @author Atik Mahmud 101318070
+ * @author Aryan Singh 101299776
+ * @author Jonathan Gitej 101294584
+ *
+ * @version 2.0, November 10, 2025
+ */
 public class UNO_Frame extends JFrame implements UNO_View{
     private JPanel mainPanel; //container that holds everything
     private JPanel playerHandPanel; //bottom area showing the players cards
@@ -19,6 +38,14 @@ public class UNO_Frame extends JFrame implements UNO_View{
     private UNO_Game model; //UNO game logic
     private UNO_Controller controller; //listens for buttons or card clicks, and updates the model
 
+    /**
+     * Constructs the main game window for the UNO Flip! application.
+     * This constructor initializes the user interface, prompts the user for
+     * the number of players and their names, and sets up the core MVC connections
+     * between the {@link UNO_Game} model and the {@link UNO_Controller}.
+     * After initializing the layout, it starts a new round and updates
+     * the game state and score display to reflect the initial setup.
+     */
     public UNO_Frame() {
 
         ArrayList<String> playerNames = new ArrayList<>();
@@ -70,6 +97,12 @@ public class UNO_Frame extends JFrame implements UNO_View{
 
     }
 
+    /**
+     * Initializes the main user interface components and panels for the UNO game window.
+     * This method sets up all Swing components (panels, buttons, and labels), applies
+     * layout managers, visual styling (colors, borders, and fonts), and configures
+     * scroll behavior for the player hand area.
+     */
     public void initializeUI() {
         // Set up the main window
         setTitle("UNO Flip!");
@@ -133,6 +166,12 @@ public class UNO_Frame extends JFrame implements UNO_View{
 
     }
 
+    /**
+     * Builds and arranges the layout of all major panels and components in the main game window.
+     * This method positions the player information area, play area, and player hand panel
+     * using layout managers. It ensures that all interface elements are correctly aligned
+     * and visible within the main window.
+     */
     public void setupLayout() {
         // Set up play area (center) ORGANIZES WHERE EVERYTHING GOES ON THE SCREEN
         JPanel centerPanel = new JPanel(new FlowLayout(FlowLayout.CENTER, 50, 20));
@@ -355,6 +394,10 @@ public class UNO_Frame extends JFrame implements UNO_View{
 
     }
 
+    /**
+     * Prompts the user to start a new round after one concludes, or exit the game.
+     * Displays a confirmation dialog asking whether to continue playing.
+     */
     public void initiateNewRound(){
         // Ask if user wants to continue to next round
         int option = JOptionPane.showConfirmDialog(this,
@@ -378,10 +421,24 @@ public class UNO_Frame extends JFrame implements UNO_View{
     }
 
 
+    /**
+     * Returns the button used by players to draw a card from the deck.
+     * This button is accessed by the {@link UNO_Controller} to attach event listeners
+     * and handle draw actions during gameplay.
+     *
+     * @return {@link JButton}. The button component representing the draw button
+     */
     public JButton getDrawButton(){
         return drawButton;
     }
 
+    /**
+     * The main entry point for the UNO Flip! game application.
+     * Launches the game window and initializes the game by creating
+     * a new {@link UNO_Frame} instance.
+     *
+     * @param args command-line arguments (not used)
+     */
     public static void main(String[] args) {
         UNO_Frame frame = new UNO_Frame(); //to create the game
     }
