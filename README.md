@@ -97,3 +97,9 @@ java UNO_Frame
 - Implemented the top card
 - Adjusted some game logic
 - Implemented GUI to follow game logic
+
+---
+
+## Issues
+
+- The resoucre folder assets/ is not included in the jar file, making it not load the images. Please run the program by downloading all files and compile using the given commands.
