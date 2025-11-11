@@ -47,10 +47,15 @@ java UNO_Frame
 ### Milestone 1
 
 **Ahmad**
-- No contributions
+- Implemented the action() method of the cards, so the cards act as intended
+- Created javadocs for all classes/methods and added comments when necessary to help keep the code understandable
+  
 
 **Aryan**
-- No contributions
+- Implemente card subtypes (Flip, Number, Wild, DrawX, Wild Draw): indiviudal behaviours when played and validity of playing on play pile's top card (refactored by Ahmad)
+- Added dark and light mode attributes for preparation of future milestones
+- Implemented flip mechanic of switching light cards to their dark counterparts, and vice versa
+- Implemented the skip player feature present in skip/skip everyone cards
 
 **Atik**
 - Helped implement the main game loop
@@ -66,10 +71,19 @@ java UNO_Frame
 ### Milestone 2
 
 **Ahmad**
-- No contributions
+- Helped implement the UNO_Frame class
+- Added the Next Player button
+- Updated all Java docs/comments
+  
 
 **Aryan**
-- No contributions
+- Maintained a dynamic to-do list and delegated group members deliverables and git operations
+- Modified the UNO_Game (model) to notify the view using collection of UNO_Views
+- Drew draw.io sequence diagrams with approval of finalized diagrams from gorup
+- Corrected the round and winner handling system
+- Created the initial GUI and setup of panels in the frame
+- Created the view representation of cards (i.e. class CardComponent) with associated controller handling when used
+- Performed all manual testing of gameplay
 
 **Atik**
 - Helped implement UNO_Controller class
@@ -83,3 +97,9 @@ java UNO_Frame
 - Implemented the top card
 - Adjusted some game logic
 - Implemented GUI to follow game logic
+
+---
+
+## Issues
+
+- The resoucre folder assets/ is not included in the jar file, making it not load the images. Please run the program by downloading all files and compile using the given commands.
