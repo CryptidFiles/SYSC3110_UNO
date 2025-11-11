@@ -83,7 +83,7 @@ public class UNO_Controller implements ActionListener {
             model.moveToNextPlayer();
             view.setNextPlayerButtonEnabled(false); //disable until next valid action
             view.displayMessage("Next Player's turn!");
-            view.setNextPlayerButtonEnabled(true);
+            view.setHandEnabled(true);
         } catch (Exception ex) {
             model.notifyMessage("Error moving to next player: " + ex.getMessage());
         }
