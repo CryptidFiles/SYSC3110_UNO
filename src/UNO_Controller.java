@@ -42,6 +42,11 @@ public class UNO_Controller implements ActionListener {
             model.startNewRound();
         } catch (Exception ignored) {
         }
+
+        view.setDrawButtonEnabled(false);
+        Player current = model.getCurrentPlayer();
+        boolean hasPlayable = model.hasPlayableHand(current);
+        view.setDrawButtonEnabled(!hasPlayable);
     }
 
     /**
