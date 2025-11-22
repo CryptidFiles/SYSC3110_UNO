@@ -16,8 +16,7 @@ public class Player {
     private ArrayList<Card> hand;
     private int score;
     private AIStrategy aiStrategy;
-    private boolean isAI;
-
+    private boolean isAI; //check if AI
     /**
      * Constructs a new player with the specified name and an empty hand.
      *
