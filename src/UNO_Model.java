@@ -1,4 +1,5 @@
 import java.util.*;
+import javax.swing.Timer;
 
 /**
  * The UNO_Game class manages the core logic, rules, and state transitions
@@ -49,7 +50,7 @@ public class UNO_Model {
      * @param numPlayers the number of players (2 – 4)
      * @param playerNames a list of player names in turn order
      */
-    public UNO_Model(int numPlayers, ArrayList<String> playerNames) {
+    public UNO_Model(int numPlayers, ArrayList<String> playerNames, ArrayList<Boolean> playerIsAI) {
         this.players = new ArrayList<>();
         this.numPlayers = numPlayers;
         this.playDeck = new Deck(); //a new shuffled deck
@@ -63,9 +64,14 @@ public class UNO_Model {
 
         // Initialize players from provided data
         this.numPlayers = numPlayers;
-        for (String name : playerNames) {
-            players.add(new Player(name, false));
+
+        for (int i = 0; i < numPlayers; i++) {
+            players.add(new Player(playerNames.get(i), playerIsAI.get(i)));
         }
+
+        /**for (String name : playerNames) {
+            players.add(new Player(name));
+        }*/
     }
 
     /**
@@ -308,6 +314,13 @@ public class UNO_Model {
                     for (UNO_View view : views) {
                         view.getNextPlayerButton().setEnabled(true);
                     }
+
+                    // BUT disable card playing for AI players
+                    if (currentPlayer.isPlayerAI()) {
+                        for (UNO_View view : views) {
+                            view.setHandEnabled(false); // This disables the "Use" buttons on cards
+                        }
+                    }
                 }
             }
             return true;
@@ -371,7 +384,58 @@ public class UNO_Model {
             }
             notifyViews();  // Only notify once after the move
         }
+
+        // After we have moved to next player which is now set as the current player
+        // If the player is AI, automatically execute their turn
+        Player nextPlayer = getCurrentPlayer();
+        if (nextPlayer.isPlayerAI() && !isRoundOver() && !isGameOver()) {
+            executeAITurn();
+        }
     }
+
+
+    public void executeAITurn() {
+        Player currentPlayer = getCurrentPlayer();
+
+        if (currentPlayer.isPlayerAI() && currentPlayer.getAIStrategy() != null) {
+            AIStrategy strategy = currentPlayer.getAIStrategy();
+
+            // Notify view to show AI "thinking"
+            for (UNO_View view : views) {
+                if (view instanceof UNO_Frame) {
+                    ((UNO_Frame) view).showAITurnIndicator(currentPlayer);
+                }
+            }
+
+            // Execute AI decision with delay of a second
+            Timer timer = new Timer(strategy.getDelayMilliseconds(), e -> {
+                Card topCard = topCard();
+                int cardChoice = strategy.chooseCard(currentPlayer, topCard, this);
+
+                // Show AI's selection
+                for (UNO_View view : views) {
+                    if (view instanceof UNO_Frame) {
+                        Card selectedCard = cardChoice > 0 ? currentPlayer.getHand().get(cardChoice - 1) : null;
+                        ((UNO_Frame) view).showAICardSelection(currentPlayer, cardChoice, selectedCard);
+                    }
+                }
+
+                // Execute the chosen action
+                if (cardChoice == 0) {
+                    drawCard();
+                    moveToNextPlayer();
+                } else {
+                    playCard(cardChoice);
+                    // moveToNextPlayer will be called automatically if no color selection needed
+                }
+            });
+            timer.setRepeats(false);
+            timer.start();
+        }
+    }
+
+
+
 
     /**
      * @return {@link Card}, which is the card on top of the play pile

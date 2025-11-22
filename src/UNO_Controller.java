@@ -62,10 +62,13 @@ public class UNO_Controller implements ActionListener {
 
         // Handle Draw Card button
         if (source == view.getDrawButton()) {
-            handleDrawCard();
+            //handleDrawCard();
+            model.drawCard();
         }
         else if (source == view.getNextPlayerButton()) {
-            handleNextPlayer();
+            //handleNextPlayer();
+            model.moveToNextPlayer();
+            updateDrawButtonState();
         }
         // Handle card plays from CardComponents
         else if (source instanceof JButton) {
@@ -217,5 +220,11 @@ public class UNO_Controller implements ActionListener {
         } catch (Exception ex) {
             model.notifyMessage("Error starting new game: " + ex.getMessage());
         }
+    }
+
+    private void updateDrawButtonState() {
+        Player current = model.getCurrentPlayer();
+        boolean hasPlayable = model.hasPlayableHand(current);
+        view.setDrawButtonEnabled(!hasPlayable && !current.isPlayerAI());
     }
 }

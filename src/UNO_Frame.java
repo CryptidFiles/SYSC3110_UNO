@@ -48,8 +48,10 @@ public class UNO_Frame extends JFrame implements UNO_View{
      * the game state and score display to reflect the initial setup.
      */
     public UNO_Frame() {
-
+        // Player Setup Dialog
         ArrayList<String> playerNames = new ArrayList<>();
+        ArrayList<Boolean> playerIsAI = new ArrayList<>();
+
         int numPlayers = 0;
 
         while (true) {
@@ -78,22 +80,50 @@ public class UNO_Frame extends JFrame implements UNO_View{
             if (name == null || name.trim().isEmpty()) {
                 name = "Player " + i; // default name if user cancels or leaves blank
             }
+
+            int choice = JOptionPane.showConfirmDialog(null, "Should " + name + " be an AI player?", "Player Type", JOptionPane.YES_NO_OPTION );
+            boolean isAI = (choice == JOptionPane.YES_OPTION);
+            if (isAI){
+                name += " (AI)";
+            }
+
             playerNames.add(name.trim());
+            playerIsAI.add(isAI);
         }
+        /**PlayerSetupDialog setupDialog = new PlayerSetupDialog(this);
+        setupDialog.setVisible(true);
+
+        if (!setupDialog.isConfirmed()) {
+            JOptionPane.showMessageDialog(null, "Game setup cancelled.");
+            dispose();
+            return;
+        }
+
+        ArrayList<String> playerNames = setupDialog.getPlayerNames();
+        ArrayList<Boolean> aiSelections = setupDialog.getAISelections();
+        int numPlayers = playerNames.size();*/
 
         //Set up the GUI, calls helper methods o create and organize the layout, and makes the window visible
         initializeUI();
 
-        model = new UNO_Model(numPlayers, playerNames);
+        model = new UNO_Model(numPlayers, playerNames, playerIsAI);
         model.addUnoView(this);
+
+        // Configure AI players - all AI players get BasicAIStrategy
+        ArrayList<Player> players = model.getPlayers();
+        for (int i = 0; i < players.size(); i++) {
+            if (players.get(i).isPlayerAI()) {
+                players.get(i).setAiStrategy(new BasicAIStrategy());
+            }
+        }
+
+        // Show player configuration summary
+        showPlayerConfigurationSummary();
+
         controller = new UNO_Controller(model, this);
 
         setupLayout();
         this.setVisible(true);
-
-//        model = new UNO_Game(numPlayers, playerNames);
-//        model.addUnoView(this);
-//        controller = new UNO_Controller(model, this);
 
         model.startNewRound();
         // Initial game state update
@@ -101,7 +131,35 @@ public class UNO_Frame extends JFrame implements UNO_View{
         // Initial scoreboard update
         updateScores();
 
+
+
+        // Start AI turn if first player is AI
+        Player firstPlayer = model.getCurrentPlayer();
+        if (firstPlayer.isPlayerAI()) {
+            model.executeAITurn();
+        }
     }
+
+    private void showPlayerConfigurationSummary() {
+        StringBuilder summary = new StringBuilder("Game Setup Complete!\n\n");
+        ArrayList<Player> players = model.getPlayers();
+
+        for (Player player : players) {
+            summary.append("• ").append(player.getName());
+            if (!player.isPlayerAI()) {
+                summary.append(" (Human)");
+            }
+            summary.append("\n");
+        }
+
+        displayMessage(summary.toString());
+
+        // Show brief popup
+        JOptionPane.showMessageDialog(this, summary.toString(), "Game Setup", JOptionPane.INFORMATION_MESSAGE);
+    }
+
+
+
 
     /**
      * Initializes the main user interface components and panels for the UNO game window.
@@ -490,6 +548,57 @@ public class UNO_Frame extends JFrame implements UNO_View{
     public JButton getNextPlayerButton(){
         return nextPlayerButton;
     }
+
+
+
+    public void showAITurnIndicator(Player aiPlayer) {
+        String message = aiPlayer.getName() + " (AI) is thinking...";
+        displayMessage(message);
+
+        // Visual indicator
+        messageLabel.setForeground(Color.BLUE);
+        messageLabel.setFont(new Font("Arial", Font.ITALIC, 14));
+    }
+
+    public void showAICardSelection(Player aiPlayer, int cardIndex, Card selectedCard) {
+        if (cardIndex == 0) {
+            displayMessage(aiPlayer.getName() + " draws a card");
+        } else {
+            String cardInfo = selectedCard.getColor() + " " + selectedCard.getType();
+            displayMessage(aiPlayer.getName() + " plays " + cardInfo);
+        }
+
+        // Highlight the selected card briefly
+        if (cardIndex > 0) {
+            highlightSelectedCard(cardIndex - 1); // Convert to 0-based
+        }}
+
+    private void highlightSelectedCard(int cardIndex) {
+        Component[] components = playerHandPanel.getComponents();
+        if (cardIndex >= 0 && cardIndex < components.length) {
+            Component comp = components[cardIndex];
+            if (comp instanceof CardComponent) {
+                CardComponent cardComp = (CardComponent) comp;
+                cardComp.setBorder(BorderFactory.createLineBorder(Color.YELLOW, 4));
+
+                // Reset border after delay
+                Timer timer = new Timer(1000, e -> {
+                    cardComp.setPlayable(cardComp.isPlayable()); // Reset to normal border
+                });
+                timer.setRepeats(false);
+                timer.start();
+            }
+        }
+    }
+
+
+
+
+
+
+
+
+
     /**
      * The main entry point for the UNO Flip! game application.
      * Launches the game window and initializes the game by creating

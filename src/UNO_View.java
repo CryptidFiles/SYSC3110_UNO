@@ -27,7 +27,7 @@ public interface UNO_View {
     void initiateNewRound();
     JButton getDrawButton();
     JButton getNextPlayerButton();
-    void setEnabled(boolean enabled);
+    void setHandEnabled(boolean enabled);
     void setNextPlayerButtonEnabled(boolean enabled);
     void setDrawButtonEnabled(boolean enabled);
 }

@@ -25,9 +25,18 @@ public class Player {
      */
     public Player(String name, boolean isAI) {
         this.name = name;
-        hand = new ArrayList<>();
-        score = 0;
+        this.hand = new ArrayList<>();
+        this.score = 0;
         this.isAI = isAI;
+    }
+
+
+    public Player(String name, boolean isAI, AIStrategy strategy) {
+        this.name = name;
+        this.hand = new ArrayList<>();
+        this.score = 0;
+        this.isAI = isAI;
+        this.aiStrategy = strategy;
     }
 
     /**
@@ -80,49 +89,6 @@ public class Player {
         }
     }
 
-    /**
-     * Handles the player's turn input by displaying their hand and prompting for a card choice.
-     * The player may choose to play a card or draw a new one.
-     *
-     * @param input The {@link Scanner} used to capture player input.
-     * @return int. The chosen card number, or 0 if the player chooses to draw a card.
-     */
-    public void takeTurn(Scanner input) {
-        if(isAI) {
-            takeAITurn();
-        }
-        else{
-            takeHumanTurn(input);
-        }
-    }
-
-    public int takeAITurn() {
-        return 0;
-    }
-
-    public int takeHumanTurn(Scanner input) {
-        printHand();
-        int chosenCard = 0;
-        while (true) {
-            System.out.print("Enter Card Number or draw a card (Enter 0): ");
-            if (input.hasNextInt()) {
-                chosenCard = input.nextInt();
-                if (chosenCard >= 0 && chosenCard <= hand.size()) {
-                    input.nextLine();
-                    break;
-                } else {
-                    System.out.println("Please enter a valid Card Number");
-                }
-            } else {
-                System.out.println("Please enter an integer");
-                input.next();
-            }
-        }
-        return chosenCard;
-
-
-    }
-
 
 
     /**
@@ -168,17 +134,20 @@ public class Player {
         return score;
     }
 
-    /**
-     * Returns the player's total score.
-     *
-     * @return
-     */
+
+    public boolean isPlayerAI() {
+        return isAI;
+    }
+
     public AIStrategy getAIStrategy() {
         return aiStrategy;
     }
 
-    public void setAIStrategy(AIStrategy strategy) {
+    public void setAI(boolean isAI){
+        this.isAI = isAI;
+    }
+
+    public void setAiStrategy(AIStrategy strategy) {
         this.aiStrategy = strategy;
-        this.isAI = true;
     }
 }

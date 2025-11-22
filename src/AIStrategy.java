@@ -17,4 +17,6 @@ public interface AIStrategy {
      * @return The chosen color
      */
     CardColor chooseWildColor(Player player, UNO_Model game);
+
+    int getDelayMilliseconds();
 }

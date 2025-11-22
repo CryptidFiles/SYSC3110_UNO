@@ -1,8 +1,6 @@
+// BasicAIStrategy.java - Keep it simple
 import java.util.*;
 
-/**
- * Basic AI strategy that plays the first valid card found.
- */
 public class BasicAIStrategy implements AIStrategy {
     @Override
     public int chooseCard(Player player, Card topCard, UNO_Model game) {
@@ -26,12 +24,24 @@ public class BasicAIStrategy implements AIStrategy {
         Map<CardColor, Integer> colorCount = new HashMap<>();
         for (Card card : player.getHand()) {
             CardColor color = card.getColor();
-            colorCount.put(color, colorCount.getOrDefault(color, 0) + 1);
+            if (color != CardColor.WILD) {
+                colorCount.put(color, colorCount.getOrDefault(color, 0) + 1);
+            }
+        }
+
+        // If no colored cards, default to RED
+        if (colorCount.isEmpty()) {
+            return CardColor.RED;
         }
 
         return colorCount.entrySet().stream()
                 .max(Map.Entry.comparingByValue())
                 .map(Map.Entry::getKey)
                 .orElse(CardColor.RED);
+    }
+
+    @Override
+    public int getDelayMilliseconds() {
+        return 1000; // 1 second delay for AI "thinking"
     }
 }
