@@ -37,7 +37,7 @@ public class WildCard extends Card {
      * @return boolean. true once a valid color has been selected.
      */
     @Override
-    public boolean action(UNO_Game model, Player player){
+    public boolean action(UNO_Model model, Player player){
         model.triggerColorSelection();
         return true;
     }

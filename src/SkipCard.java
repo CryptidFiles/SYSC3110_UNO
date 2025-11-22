@@ -35,7 +35,7 @@ public class SkipCard extends Card {
      * @return boolean. true after the skip action has been successfully applied.
      */
     @Override
-    public boolean action(UNO_Game model, Player player){
+    public boolean action(UNO_Model model, Player player){
         if (isLightSideActive) {
             // Light side: Regular Skip - skip next player
             Player nextPlayer = model.getNextPlayer(player);

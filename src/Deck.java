@@ -144,7 +144,7 @@ public class Deck {
      * @return {@link Card} The drawn Card, or null if the deck is empty.
      */
     // Method handles drawing a card from it
-    public Card drawCard() {
+    public Card drawCardFromDeck() {
         if (deck.isEmpty()) {
             return null;
         }

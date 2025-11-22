@@ -4,14 +4,14 @@ import static org.junit.Assert.*;
 import java.util.*;
 
 public class UNO_GameTest {
-    private UNO_Game game;
+    private UNO_Model game;
     private Player player1, player2;
     private ArrayList<String> names;
 
     @Before
     public void setUp() {
         names = new ArrayList<>(Arrays.asList("Alice", "Bob"));
-        game = new UNO_Game(2, names);
+        game = new UNO_Model(2, names);
         player1 = game.getPlayers().get(0);
         player2 = game.getPlayers().get(1);
     }
@@ -102,8 +102,8 @@ public class UNO_GameTest {
         Card top = new TestCard(CardColor.RED, CardType.FIVE);
         Card valid = new TestCard(CardColor.RED, CardType.NINE);
         Card invalid = new TestCard(CardColor.BLUE, CardType.SEVEN);
-        player1.drawCard(valid);
-        player1.drawCard(invalid);
+        player1.drawCardToHand(valid);
+        player1.drawCardToHand(invalid);
 
         game.startNewRound();
         game.getPlayDeck().addCard(top);
@@ -174,8 +174,8 @@ public class UNO_GameTest {
     public void testTallyScoresAddsToWinner() {
         Card c1 = new TestCard(CardColor.RED, CardType.FIVE);
         Card c2 = new TestCard(CardColor.BLUE, CardType.SKIP);
-        player2.drawCard(c1);
-        player2.drawCard(c2);
+        player2.drawCardToHand(c1);
+        player2.drawCardToHand(c2);
         int before = player1.getScore();
 
         game.tallyScores(player1);
@@ -203,8 +203,8 @@ public class UNO_GameTest {
     @Test
     public void testGameWinningCondition() {
         player1.addScore(490);
-        player2.drawCard(new TestCard(CardColor.GREEN, CardType.SEVEN));
-        player2.drawCard(new TestCard(CardColor.BLUE, CardType.SKIP));
+        player2.drawCardToHand(new TestCard(CardColor.GREEN, CardType.SEVEN));
+        player2.drawCardToHand(new TestCard(CardColor.BLUE, CardType.SKIP));
         game.tallyScores(player1);
         assertTrue(player1.getScore() >= 490);
     }
@@ -223,7 +223,7 @@ public class UNO_GameTest {
 
         /** Needed to implement the abstract class. No logic implementation here. */
         @Override
-        public boolean action(UNO_Game model, Player player) {
+        public boolean action(UNO_Model model, Player player) {
             return true;
         }
 

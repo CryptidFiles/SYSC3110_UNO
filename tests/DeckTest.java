@@ -41,15 +41,15 @@ public class DeckTest {
     @Test
     public void testDrawCard() {
         int initialSize = deck.getDeck().size();
-        Card drawn = deck.drawCard();
+        Card drawn = deck.drawCardFromDeck();
         assertNotNull(drawn);
         assertEquals(initialSize - 1, deck.getDeck().size());
 
         // Draw all remaining cards
         while (!deck.getDeck().isEmpty()) {
-            deck.drawCard();
+            deck.drawCardFromDeck();
         }
-        assertNull(deck.drawCard()); // Should return null when empty
+        assertNull(deck.drawCardFromDeck()); // Should return null when empty
     }
 
     @Test

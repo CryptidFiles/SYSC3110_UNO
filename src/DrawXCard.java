@@ -10,18 +10,18 @@ public class DrawXCard extends Card {
     }
 
     @Override
-    public boolean action(UNO_Game model, Player player){
+    public boolean action(UNO_Model model, Player player){
         if(isLightSideActive) {
             // Light side: DRAW_ONE - next player draws one card and loses turn
             Player nextPlayer = model.getNextPlayer(player);
 
-            Card card = model.getPlayDeck().drawCard();
+            Card card = model.getPlayDeck().drawCardFromDeck();
             if (card == null) {
                 model.notifyMessage("No more cards left!");
                 return false;
             }
 
-            nextPlayer.drawCard(card);
+            nextPlayer.drawCardToHand(card);
             model.notifyMessage(nextPlayer.getName() + " draws 1 card and loses their turn!");
 
             // Skip the next player's turn
@@ -32,14 +32,14 @@ public class DrawXCard extends Card {
             Player nextPlayer = model.getNextPlayer(player);
 
             for(int i = 0; i < 5; i++){
-                Card card = model.getPlayDeck().drawCard();
+                Card card = model.getPlayDeck().drawCardFromDeck();
 
                 if (card == null) {
                     model.notifyMessage("No more cards left after drawing " + i + " cards!");
                     return false;
                 }
 
-                nextPlayer.drawCard(card);
+                nextPlayer.drawCardToHand(card);
             }
             model.notifyMessage(nextPlayer.getName() + " draws 5 cards and loses their turn!");
 

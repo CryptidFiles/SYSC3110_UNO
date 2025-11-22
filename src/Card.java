@@ -25,11 +25,11 @@ abstract public class Card {
     /**
      * Defines the effect or action that this card performs when played.
      *
-     * @param model  the {@link UNO_Game} model managing the game state
+     * @param model  the {@link UNO_Model} model managing the game state
      * @param player the {@link Player} who played the card
      * @return boolean. true if the action was successfully performed, false otherwise
      */
-    public abstract boolean action(UNO_Game model, Player player);
+    public abstract boolean action(UNO_Model model, Player player);
 
 
     /**

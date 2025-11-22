@@ -16,7 +16,7 @@ import java.util.*;
  *
  * @version 2.0, November 10, 2025
  */
-public class UNO_Game {
+public class UNO_Model {
     private ArrayList<Player> players; //a list of all players
     private int numPlayers; //how many players there are
 
@@ -30,7 +30,7 @@ public class UNO_Game {
     private boolean roundOver; //is this round finished
     private Player roundWinningPlayer; //who won this round
 
-    final int WINNING_SCORE = 500; //first to 500 wins the whole game
+    final int WINNING_SCORE = 200; //first to 500 wins the whole game
 
     private int currentPlayerIndex; //whose turn it is
     private int skipCount; //how many players to skip next time we move turns
@@ -49,7 +49,7 @@ public class UNO_Game {
      * @param numPlayers the number of players (2 – 4)
      * @param playerNames a list of player names in turn order
      */
-    public UNO_Game(int numPlayers, ArrayList<String> playerNames) {
+    public UNO_Model(int numPlayers, ArrayList<String> playerNames) {
         this.players = new ArrayList<>();
         this.numPlayers = numPlayers;
         this.playDeck = new Deck(); //a new shuffled deck
@@ -64,7 +64,7 @@ public class UNO_Game {
         // Initialize players from provided data
         this.numPlayers = numPlayers;
         for (String name : playerNames) {
-            players.add(new Player(name));
+            players.add(new Player(name, false));
         }
     }
 
@@ -218,9 +218,9 @@ public class UNO_Game {
             player.clearHand();
             for (int i = 0; i < 7; i++) { //deals 7 cards to each player
                 try {
-                    Card c = playDeck.drawCard();
+                    Card c = playDeck.drawCardFromDeck();
                     if (c == null) throw new NoSuchElementException("Deck is empty while distributing cards");
-                    player.drawCard(c);
+                    player.drawCardToHand(c);
                 } catch (Exception e) {
                     notifyMessage("Error dealing cards: " + e.getMessage());
                 }
@@ -231,7 +231,7 @@ public class UNO_Game {
         try {
             Card firstCard;
             do {
-                firstCard = playDeck.drawCard();
+                firstCard = playDeck.drawCardFromDeck();
 
                 // If it's an action card, put it back and shuffle
                 if (firstCard != null && firstCard.getType().isActionCard()) {
@@ -335,9 +335,9 @@ public class UNO_Game {
             }
 
             //draw the card and give it to the current player
-            Card drawnCard = playDeck.drawCard();
+            Card drawnCard = playDeck.drawCardFromDeck();
             if (drawnCard != null) {
-                currentPlayer.drawCard(drawnCard);
+                currentPlayer.drawCardToHand(drawnCard);
             }
 
             notifyMessage("Card played successfully! Press 'Next Player' to continue. ");

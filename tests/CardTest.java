@@ -20,7 +20,7 @@ public class CardTest {
         }
 
         @Override
-        public boolean action(UNO_Game model, Player player) {
+        public boolean action(UNO_Model model, Player player) {
             return true; // simple stub
         }
 

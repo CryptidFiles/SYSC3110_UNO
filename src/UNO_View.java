@@ -5,7 +5,7 @@ import javax.swing.*;
  * representation (View) in the UNO game’s (MVC) architecture.
  * It specifies the methods that any concrete view (such as {@link UNO_Frame})
  * must implement to display game state updates, handle user interactions,
- * and reflect changes triggered by the {@link UNO_Game} model.
+ * and reflect changes triggered by the {@link UNO_Model} model.
  *
  * @author Ahmad El-Jabi 101303269
  * @author Atik Mahmud 101318070

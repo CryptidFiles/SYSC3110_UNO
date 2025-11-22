@@ -6,7 +6,7 @@ import java.awt.event.ActionListener;
  * The UNO_Controller class serves as the main controller in the MVC pattern
  * for the UNO game
  * It handles all user interactions from the view, and coordinates updates
- * between the {@link UNO_Game} model and the {@link UNO_Frame} view.
+ * between the {@link UNO_Model} model and the {@link UNO_Frame} view.
  *The controller listens to button events such as "Draw Card" or "Use"
  * on each {@link CardComponent}, processes them, and delegates the logic
  * to the model while ensuring proper game flow and state synchronization
@@ -19,17 +19,17 @@ import java.awt.event.ActionListener;
  * @version 2.0, November 10, 2025
  */
 public class UNO_Controller implements ActionListener {
-    private UNO_Game model;
+    private UNO_Model model;
     private UNO_Frame view; // Changed to concrete type for button access
 
     /**
      * Constructs a new UNO_Controller that connects the game model and view.
      * It attaches listeners to buttons and triggers the start of a new game round.
      *
-     * @param model the {@link UNO_Game} model that handles game state and logic
+     * @param model the {@link UNO_Model} model that handles game state and logic
      * @param view  the {@link UNO_Frame} view that provides the visual interface
      */
-    public UNO_Controller(UNO_Game model, UNO_Frame view) {
+    public UNO_Controller(UNO_Model model, UNO_Frame view) {
         this.model = model;
         this.view = view;
 
@@ -145,8 +145,6 @@ public class UNO_Controller implements ActionListener {
                 System.err.println("No current player found.");
                 return;
             }
-
-            System.out.println("Attempting to play card index: " + cardIndex + " for player: " + currentPlayer.getName());
 
             // Validate and play the card through the model
             boolean success = model.playCard(cardIndex);

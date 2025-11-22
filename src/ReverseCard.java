@@ -35,7 +35,7 @@ public class ReverseCard extends Card {
      * @return boolean. true once the direction has been successfully flipped.
      */
     @Override
-    public boolean action(UNO_Game model, Player player){
+    public boolean action(UNO_Model model, Player player){
         // Special case for 2 players: reverse acts as skip
         if (model.getPlayers().size() == 2) {
             model.notifyMessage("Reverse card with 2 players - skipping opponent!");

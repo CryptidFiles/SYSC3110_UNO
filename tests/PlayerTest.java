@@ -22,11 +22,11 @@ public class PlayerTest {
 
     @Before
     public void setUp() {
-        player = new Player("Alice");
+        player = new Player("Alice", false);
         // Minimal dummy card for testing
         dummyCard = new Card() {
             @Override
-            public boolean action(UNO_Game model, Player player) { return true; }
+            public boolean action(UNO_Model model, Player player) { return true; }
             @Override
             public boolean playableOnTop(Card otherCard) { return true; }
         };
@@ -50,7 +50,7 @@ public class PlayerTest {
      */
     @Test
     public void testDrawCard() {
-        player.drawCard(dummyCard);
+        player.drawCardToHand(dummyCard);
         assertEquals(1, player.handSize());
         assertTrue(player.getHand().contains(dummyCard));
     }
@@ -60,7 +60,7 @@ public class PlayerTest {
      */
     @Test
     public void testPlayCard() {
-        player.drawCard(dummyCard);
+        player.drawCardToHand(dummyCard);
         Card played = player.playCard(1);
         assertEquals(dummyCard, played);
     }
@@ -70,7 +70,7 @@ public class PlayerTest {
      */
     @Test
     public void testRemoveCard() {
-        player.drawCard(dummyCard);
+        player.drawCardToHand(dummyCard);
         player.removeCard(1);
         assertEquals(0, player.handSize());
     }
@@ -80,7 +80,7 @@ public class PlayerTest {
      */
     @Test
     public void testClearHand() {
-        player.drawCard(dummyCard);
+        player.drawCardToHand(dummyCard);
         player.clearHand();
         assertEquals(0, player.handSize());
     }
@@ -90,7 +90,7 @@ public class PlayerTest {
      */
     @Test
     public void testGetHand() {
-        player.drawCard(dummyCard);
+        player.drawCardToHand(dummyCard);
         ArrayList<Card> hand = player.getHand();
         assertEquals(1, hand.size());
         assertTrue(hand.contains(dummyCard));
@@ -102,7 +102,7 @@ public class PlayerTest {
     @Test
     public void testHandSize() {
         assertEquals(0, player.handSize());
-        player.drawCard(dummyCard);
+        player.drawCardToHand(dummyCard);
         assertEquals(1, player.handSize());
     }
 

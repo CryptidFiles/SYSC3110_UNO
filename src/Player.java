@@ -44,7 +44,7 @@ public class Player {
      *
      * @param drawnCard The Card drawn and added to the player's hand.
      */
-    public void drawCard(Card drawnCard) {
+    public void drawCardToHand(Card drawnCard) {
         hand.add(drawnCard);
     }
 
@@ -87,7 +87,20 @@ public class Player {
      * @param input The {@link Scanner} used to capture player input.
      * @return int. The chosen card number, or 0 if the player chooses to draw a card.
      */
-    public int takeTurn(Scanner input) {
+    public void takeTurn(Scanner input) {
+        if(isAI) {
+            takeAITurn();
+        }
+        else{
+            takeHumanTurn(input);
+        }
+    }
+
+    public int takeAITurn() {
+        return 0;
+    }
+
+    public int takeHumanTurn(Scanner input) {
         printHand();
         int chosenCard = 0;
         while (true) {
@@ -106,7 +119,11 @@ public class Player {
             }
         }
         return chosenCard;
+
+
     }
+
+
 
     /**
      * Removes all cards from the player's hand.

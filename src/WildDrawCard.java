@@ -31,12 +31,12 @@ public class WildDrawCard extends Card {
      * Since this is a wild card, it first triggers color selection and then
      * the action effect after the player has chosen a color.
      *
-     * @param model  the {@link UNO_Game} model managing the game state
+     * @param model  the {@link UNO_Model} model managing the game state
      * @param player the {@link Player} who played the card
      * @return boolean. always true, as the color selection phase follows immediately
      */
     @Override
-    public boolean action(UNO_Game model, Player player) {
+    public boolean action(UNO_Model model, Player player) {
         // Trigger color selection
         model.triggerColorSelection();
         return true; // Draw action will happen after color selection
@@ -45,7 +45,7 @@ public class WildDrawCard extends Card {
     /**
      * Executes the draw action after color is chosen
      */
-    public void executeDrawAction(CardColor chosenColor, boolean isLightSide, UNO_Game model, Player player) {
+    public void executeDrawAction(CardColor chosenColor, boolean isLightSide, UNO_Model model, Player player) {
         if (isLightSide) {
             this.lightColor = chosenColor;
             this.darkColor = chosenColor.getDarkCounterpart();
@@ -55,9 +55,9 @@ public class WildDrawCard extends Card {
             model.notifyMessage(nextPlayer.getName() + " draws 2 cards and lost a turn!");
 
             for(int i = 0; i < 2; i++){
-                Card card = model.getPlayDeck().drawCard();
+                Card card = model.getPlayDeck().drawCardFromDeck();
                 if (card == null) break;
-                nextPlayer.drawCard(card);
+                nextPlayer.drawCardToHand(card);
             }
 
             model.addSkip(1); // Skip the next player
@@ -72,14 +72,14 @@ public class WildDrawCard extends Card {
             int cardsDrawn = 0;
 
             while (!foundColor) {
-                Card drawnCard = model.getPlayDeck().drawCard();
+                Card drawnCard = model.getPlayDeck().drawCardFromDeck();
                 if (drawnCard == null) {
                     model.notifyMessage("No more cards in deck!");
                     break;
                 }
 
                 cardsDrawn++;
-                nextPlayer.drawCard(drawnCard);
+                nextPlayer.drawCardToHand(drawnCard);
 
                 if (drawnCard.getColor() == this.darkColor) {
                     foundColor = true;

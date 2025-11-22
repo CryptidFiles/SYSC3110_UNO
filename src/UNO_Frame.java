@@ -11,7 +11,7 @@ import java.util.ArrayList;
  * This class is responsible for visually displaying the game state, player hands,
  * the play area, and score updates, as well as relaying user input to the
  * {@link UNO_Controller}.
- * Through its integration with {@link UNO_Game} (model) and
+ * Through its integration with {@link UNO_Model} (model) and
  * {@link UNO_Controller} (controller), this class updates the GUI in real time
  * as the game progresses, ensuring a clear separation between logic and presentation
  *
@@ -36,14 +36,14 @@ public class UNO_Frame extends JFrame implements UNO_View{
     private JLabel messageLabel; //shows status or game messages
     private JLabel scoreLabel; //shows player scores
 
-    private UNO_Game model; //UNO game logic
+    private UNO_Model model; //UNO game logic
     private UNO_Controller controller; //listens for buttons or card clicks, and updates the model
 
     /**
      * Constructs the main game window for the UNO Flip! application.
      * This constructor initializes the user interface, prompts the user for
      * the number of players and their names, and sets up the core MVC connections
-     * between the {@link UNO_Game} model and the {@link UNO_Controller}.
+     * between the {@link UNO_Model} model and the {@link UNO_Controller}.
      * After initializing the layout, it starts a new round and updates
      * the game state and score display to reflect the initial setup.
      */
@@ -84,7 +84,7 @@ public class UNO_Frame extends JFrame implements UNO_View{
         //Set up the GUI, calls helper methods o create and organize the layout, and makes the window visible
         initializeUI();
 
-        model = new UNO_Game(numPlayers, playerNames);
+        model = new UNO_Model(numPlayers, playerNames);
         model.addUnoView(this);
         controller = new UNO_Controller(model, this);
 
@@ -250,7 +250,7 @@ public class UNO_Frame extends JFrame implements UNO_View{
             playerHandPanel.add(cardComp);
         }
 
-        //rebuild and repain the hand area so the new cards actually show
+        //rebuild and repaint the hand area so the new cards actually show
         playerHandPanel.revalidate();
         playerHandPanel.repaint();
     }
