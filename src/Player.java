@@ -15,16 +15,19 @@ public class Player {
     private String name;
     private ArrayList<Card> hand;
     private int score;
+    private AIStrategy aiStrategy;
+    private boolean isAI;
 
     /**
      * Constructs a new player with the specified name and an empty hand.
      *
      * @param name The name of the player.
      */
-    public Player(String name) {
+    public Player(String name, boolean isAI) {
         this.name = name;
         hand = new ArrayList<>();
         score = 0;
+        this.isAI = isAI;
     }
 
     /**
@@ -146,5 +149,19 @@ public class Player {
      */
     public int getScore() {
         return score;
+    }
+
+    /**
+     * Returns the player's total score.
+     *
+     * @return
+     */
+    public AIStrategy getAIStrategy() {
+        return aiStrategy;
+    }
+
+    public void setAIStrategy(AIStrategy strategy) {
+        this.aiStrategy = strategy;
+        this.isAI = true;
     }
 }
