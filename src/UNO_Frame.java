@@ -50,6 +50,8 @@ public class UNO_Frame extends JFrame implements UNO_View{
     public UNO_Frame() {
 
         ArrayList<String> playerNames = new ArrayList<>();
+        ArrayList<Boolean> playerIsAI = new ArrayList<>();
+
         int numPlayers = 0;
 
         while (true) {
@@ -78,13 +80,21 @@ public class UNO_Frame extends JFrame implements UNO_View{
             if (name == null || name.trim().isEmpty()) {
                 name = "Player " + i; // default name if user cancels or leaves blank
             }
+
+            int choice = JOptionPane.showConfirmDialog(null, "Should " + name + " be an AI player?", "Player Type", JOptionPane.YES_NO_OPTION );
+            boolean isAI = (choice == JOptionPane.YES_OPTION);
+            if (isAI){
+                name += " the AI";
+            }
+
             playerNames.add(name.trim());
+            playerIsAI.add(isAI);
         }
 
         //Set up the GUI, calls helper methods o create and organize the layout, and makes the window visible
         initializeUI();
 
-        model = new UNO_Game(numPlayers, playerNames);
+        model = new UNO_Game(numPlayers, playerNames, playerIsAI);
         model.addUnoView(this);
         controller = new UNO_Controller(model, this);
 
@@ -477,6 +487,12 @@ public class UNO_Frame extends JFrame implements UNO_View{
         }
     }
 
+    /**
+     * Enables or disables the Draw button in the game interface.
+     * This is used to control when players are allowed to draw a card.
+     *
+     * @param enabled true to enable the Draw button, false to disable it
+     */
     public void setDrawButtonEnabled(boolean enabled){
         drawButton.setEnabled(enabled);
     }

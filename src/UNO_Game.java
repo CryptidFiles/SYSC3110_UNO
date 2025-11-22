@@ -42,14 +42,15 @@ public class UNO_Game {
 
 
     /**
-     * Creates a new UNO Flip! game instance with the specified number of players and names.
+     * Creates a new UNO Flip! game instance with the specified number of players and names, and whether they're AI or not.
      * Initializes all core data structures including players, decks, direction,
      * and game state variables.
      *
      * @param numPlayers the number of players (2 – 4)
      * @param playerNames a list of player names in turn order
+     * @param playerIsAI   a parallel list indicating whether each player is an AI
      */
-    public UNO_Game(int numPlayers, ArrayList<String> playerNames) {
+    public UNO_Game(int numPlayers, ArrayList<String> playerNames, ArrayList<Boolean> playerIsAI) {
         this.players = new ArrayList<>();
         this.numPlayers = numPlayers;
         this.playDeck = new Deck(); //a new shuffled deck
@@ -63,8 +64,8 @@ public class UNO_Game {
 
         // Initialize players from provided data
         this.numPlayers = numPlayers;
-        for (String name : playerNames) {
-            players.add(new Player(name));
+        for (int i = 0; i < numPlayers; i++) {
+            players.add(new Player(playerNames.get(i), playerIsAI.get(i)));
         }
     }
 

@@ -15,7 +15,7 @@ public class Player {
     private String name;
     private ArrayList<Card> hand;
     private int score;
-    private AIStrategy aiStrategy;
+    //private AIStrategy aiStrategy;
     private boolean isAI; //check if AI
     /**
      * Constructs a new player with the specified name and an empty hand.
@@ -27,6 +27,19 @@ public class Player {
         hand = new ArrayList<>();
         score = 0;
         this.isAI = isAI;
+    }
+
+    /**
+     * Creates a new player with the given name.
+     * This version of the constructor exists to support older parts of the code that create players without
+     * specifying whether they are human or AI.
+     * When this constructor is used, the player is automatically treated as a
+     * human player
+     *
+     * @param name the display name of the player
+     */
+    public Player(String name) {
+        this(name, false);
     }
 
     /**
@@ -155,12 +168,21 @@ public class Player {
      *
      * @return
      */
-    public AIStrategy getAIStrategy() {
-        return aiStrategy;
-    }
+//    public AIStrategy getAIStrategy() {
+//        return aiStrategy;
+//    }
+//
+//    public void setAIStrategy(AIStrategy strategy) {
+//        this.aiStrategy = strategy;
+//        this.isAI = true;
+//    }
 
-    public void setAIStrategy(AIStrategy strategy) {
-        this.aiStrategy = strategy;
-        this.isAI = true;
+    /**
+     *  Returns whether this player is controlled by an AI or not.
+     *
+     * @return boolean. true if player is AI, false otherwise
+     */
+    public boolean isAI() {
+        return isAI;
     }
 }
