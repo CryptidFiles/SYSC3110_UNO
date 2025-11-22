@@ -22,7 +22,7 @@ public class PlayerTest {
 
     @Before
     public void setUp() {
-        player = new Player("Alice");
+        player = new Player("Alice", false);
         // Minimal dummy card for testing
         dummyCard = new Card() {
             @Override
