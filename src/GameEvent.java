@@ -8,6 +8,7 @@ public class GameEvent {
     public enum EventType {
         GAME_STATE_CHANGED,      // General state update
         CARD_PLAYED,             // A card was played
+        CARD_DRAWN,              // A card was voluntarily drawn
         ROUND_WON,               // Round ended with winner
         GAME_WON,                // Game ended with winner
         MESSAGE,                 // Status message to display

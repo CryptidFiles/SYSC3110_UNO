@@ -38,6 +38,8 @@ public class UNO_Model {
 
     private boolean waitingForColorSelection; // For wild card implementations
 
+    private boolean hasActedThisTurn; //true once player has played/drawn this turn
+
     // Game state attributes
     private GameEvent.EventType lastEventType;
     private String statusMessage;
@@ -67,12 +69,13 @@ public class UNO_Model {
         this.roundOver = false;
         this.skipCount = 0;
         this.currentPlayerIndex = 0;
+        this.hasActedThisTurn = false;
         views = new ArrayList<>();
 
         // Initialize players from provided data
         this.numPlayers = numPlayers;
         for (int i = 0; i < numPlayers; i++) {
-            players.add(new Player(playerNames.get(i), playerIsAI.get(i), new BasicAIStrategy()));
+            players.add(new Player(playerNames.get(i), playerIsAI.get(i), new BasicAIStrategy(1500)));
         }
 
         // Initialize new event tracking fields
@@ -81,9 +84,6 @@ public class UNO_Model {
         this.shouldEnableNextPlayer = false;
         this.shouldEnableDrawButton = false;
         this.lastPlayedCard = null;
-
-        // Initiate the game
-        startNewRound();
     }
 
     /**
@@ -106,6 +106,8 @@ public class UNO_Model {
 
     // Replace all notify methods with this single method
     protected void notifyViews() {
+        System.out.println(lastEventType);
+
         GameEvent event = new GameEvent(
                 lastEventType,
                 getCurrentPlayer(),        // currentPlayer
@@ -177,7 +179,11 @@ public class UNO_Model {
      */
     public void completeColorSelection() {
         this.waitingForColorSelection = false;
+        this.hasActedThisTurn = true; // Important: mark that the player has acted
+
         prepareEvent(GameEvent.EventType.GAME_STATE_CHANGED, null);
+        shouldEnableNextPlayer = true; // Enable next player button
+        shouldEnableDrawButton = false; // Disable draw button
         notifyViews();
     }
 
@@ -195,6 +201,7 @@ public class UNO_Model {
         roundOver = false; //round just got activated
         roundWinningPlayer = null; //no winners yet
         skipCount = 0;
+        hasActedThisTurn = false;
 
         // Update the game state
         prepareEvent(GameEvent.EventType.GAME_STATE_CHANGED, "New round started!");
@@ -265,12 +272,16 @@ public class UNO_Model {
                 return false;
             }
 
-            Card chosenCard = currentPlayer.playCard(cardIndex);
+            Card chosenCard = currentPlayer.playCardInHand(cardIndex);
             playPile.push(chosenCard);
             currentPlayer.removeCard(cardIndex);
 
-            // Execute card action
+            // Execute card's action
             chosenCard.action(this, currentPlayer);
+
+            // The card action was valid and player acted this turn
+            hasActedThisTurn = true;
+
 
             // Set up card played event
             lastEventType = GameEvent.EventType.CARD_PLAYED;
@@ -278,24 +289,9 @@ public class UNO_Model {
             shouldEnableNextPlayer = !waitingForColorSelection;
             shouldEnableDrawButton = false;
 
-            // Check for round win
-            if (currentPlayer.handSize() == 0) {
-                roundWinningPlayer = currentPlayer;
-                roundOver = true;
-                tallyScores(roundWinningPlayer);
 
-                prepareEvent(GameEvent.EventType.ROUND_WON,
-                        roundWinningPlayer.getName() + " wins this round!");
-                lastPlayedCard = null; // Use top card for display
-
-                if (roundWinningPlayer.getScore() >= WINNING_SCORE) {
-                    gameWinningPlayer = roundWinningPlayer;
-                    gameOver = true;
-                    prepareEvent(GameEvent.EventType.GAME_WON, null);
-                } else {
-                    prepareEvent(GameEvent.EventType.MESSAGE, "Starting new round!");
-                }
-            }
+            // Check for round or game win
+            checkForWin(currentPlayer);
 
             notifyViews();
             return true;
@@ -306,6 +302,31 @@ public class UNO_Model {
             return false;
         }
     }
+
+
+    public void checkForWin(Player currentPlayer) {
+        if (currentPlayer.handSize() == 0) {
+            roundWinningPlayer = currentPlayer;
+            roundOver = true;
+            tallyScores(roundWinningPlayer);
+
+
+            prepareEvent(GameEvent.EventType.ROUND_WON,
+                    roundWinningPlayer.getName() + " wins this round!");
+            lastPlayedCard = null; // Use top card for display
+
+            if (roundWinningPlayer.getScore() >= WINNING_SCORE) {
+                gameWinningPlayer = roundWinningPlayer;
+                gameOver = true;
+                prepareEvent(GameEvent.EventType.GAME_WON, null);
+            } else {
+                //prepareEvent(GameEvent.EventType.MESSAGE, "Starting new round!");
+            }
+
+            notifyViews();
+        }
+    }
+
 
 
     /**
@@ -331,10 +352,10 @@ public class UNO_Model {
             if (drawnCard != null) {
                 currentPlayer.drawCardToHand(drawnCard);
             }
+            hasActedThisTurn = true;
 
             // NOTIFY views as player has drawn a card and skipping current player's turn
-            prepareEvent(GameEvent.EventType.GAME_STATE_CHANGED,
-                    "Card drawn! Press 'Next Player' to continue.");
+            prepareEvent(GameEvent.EventType.CARD_DRAWN,"Card drawn by " + currentPlayer.getName() + " ! Press 'Next Player' to continue.");
             shouldEnableNextPlayer = true;
             shouldEnableDrawButton = false;
 
@@ -365,17 +386,21 @@ public class UNO_Model {
             } else {
                 currentPlayerIndex = (currentPlayerIndex - 1 + players.size()) % players.size();
             }
-            notifyViews();  // Only notify once after the move
         }
 
-        // After we have moved to next player
+        lastEventType = GameEvent.EventType.PLAYER_CHANGED;
+        notifyViews();
+
+        // After we have moved to next player  COME BACK TO
         Player newPlayer = getCurrentPlayer();
         boolean hasPlayableHand = hasPlayableHand(newPlayer);
 
-        prepareEvent(GameEvent.EventType.PLAYER_CHANGED, null);
         shouldEnableNextPlayer = false; // Always false when switching players
         shouldEnableDrawButton = !hasPlayableHand && !newPlayer.isPlayerAI();
 
+        hasActedThisTurn = false;
+        //prepareEvent(GameEvent.EventType.PLAYER_CHANGED, "It's " + newPlayer.getName() + " turn");
+        statusMessage = "It's " + newPlayer.getName() + " turn";
         notifyViews();
 
         if (newPlayer.isPlayerAI() && !isRoundOver() && !isGameOver()) {
@@ -397,26 +422,87 @@ public class UNO_Model {
                 }
             }
 
-            // Execute AI decision with delay of a second
+            // Execute AI decision with a delay
             Timer timer = new Timer(strategy.getDelayMilliseconds(), e -> {
-                Card topCard = topCard();
-                int cardChoice = strategy.chooseCard(currentPlayer, topCard, this);
+                System.out.println("AI is waiting for color selection: " + waitingForColorSelection);
 
-                // Show AI's selection
-                for (UNO_View view : views) {
-                    if (view instanceof UNO_Frame) {
-                        Card selectedCard = cardChoice > 0 ? currentPlayer.getHand().get(cardChoice - 1) : null;
-                        ((UNO_Frame) view).showAICardSelection(currentPlayer, cardChoice, selectedCard);
+                // Check if we're waiting for color selection from a previous wild card play
+                if (waitingForColorSelection) {
+                    // AI automatically chooses a color
+                    Card topCard = topCard();
+                    boolean isLightSide = topCard.isLightSideActive;
+                    CardColor chosenColor = strategy.chooseWildColor(currentPlayer, isLightSide);
+
+                    // Apply the color selection
+                    if (topCard instanceof WildCard) {
+                        WildCard wildCard = (WildCard) topCard;
+                        wildCard.applyChosenColor(chosenColor, isLightSide);
+                        completeColorSelection();
+
+                        // Show AI's color selection
+                        for (UNO_View view : views) {
+                            if (view instanceof UNO_Frame) {
+                                ((UNO_Frame) view).showAIColorSelection(currentPlayer, chosenColor);
+                            }
+                        }
+
+                        // Check if AI won after playing the wild card
+                        checkForWin(currentPlayer);
+
+                        if (!roundOver) {
+                            // Move to next player after color selection only if round didn't end
+                            Timer nextTurnTimer = new Timer(1000, e2 -> moveToNextPlayer());
+                            nextTurnTimer.setRepeats(false);
+                            nextTurnTimer.start();
+                        }
+
+                    } else if (topCard instanceof WildDrawCard) {
+                        WildDrawCard wildDrawCard = (WildDrawCard) topCard;
+                        wildDrawCard.executeDrawAction(chosenColor, isLightSide, this, currentPlayer);
+                        completeColorSelection();
+
+                        // Show AI's color selection
+                        for (UNO_View view : views) {
+                            if (view instanceof UNO_Frame) {
+                                ((UNO_Frame) view).showAIColorSelection(currentPlayer, chosenColor);
+                            }
+                        }
+
+                        checkForWin(currentPlayer);
+
+                        // moveToNextPlayer is handled by addSkip() in the card logic
                     }
-                }
-
-                // Execute the chosen action
-                if (cardChoice == 0) {
-                    drawCard();
-                    moveToNextPlayer();
                 } else {
-                    playCard(cardChoice);
-                    // moveToNextPlayer will be called automatically if no color selection needed
+                    // Normal AI turn - choose and play/draw card
+                    Card topCard = topCard();
+                    int cardChoice = strategy.chooseCard(currentPlayer, topCard, this);
+
+                    // Show AI's selection
+                    for (UNO_View view : views) {
+                        if (view instanceof UNO_Frame) {
+                            Card selectedCard = cardChoice > 0 ? currentPlayer.getHand().get(cardChoice - 1) : null;
+                            ((UNO_Frame) view).showAICardSelection(currentPlayer, cardChoice, selectedCard);
+                        }
+                    }
+
+                    // Execute the chosen action
+                    if (cardChoice == 0) {
+                        drawCard();
+
+                        // Check if drawing a card somehow won the round (unlikely but possible)
+                        checkForWin(currentPlayer);
+                        if (!roundOver) {
+                            moveToNextPlayer();
+                        }
+                    } else {
+                        playCard(cardChoice);
+
+                        // playCard now calls checkForWin internally
+                        // If playing the card triggers color selection, handle it in the next iteration
+                        if (!waitingForColorSelection && !roundOver) {
+                            // moveToNextPlayer will be called automatically if no color selection needed and round didn't end
+                        }
+                    }
                 }
             });
             timer.setRepeats(false);
@@ -469,7 +555,7 @@ public class UNO_Model {
      */
     public boolean validMove(Player p, int i) { //returns true if players card matches type or color of the top card in play Pile
         try {
-            return p.playCard(i).playableOnTop(topCard());
+            return p.playCardInHand(i).playableOnTop(topCard());
         } catch (Exception e) {
             prepareEvent(GameEvent.EventType.MESSAGE, "Error validating top card: " + e.getMessage());
             notifyViews();
@@ -567,6 +653,7 @@ public class UNO_Model {
             }
 
             skipCount = 0;  // Reset skip count after processing
+            hasActedThisTurn = false;
             notifyViews();   // Notify views once after all skips are processed
         }
     }
@@ -724,5 +811,14 @@ public class UNO_Model {
 
         // Match by color or type/value
         return card.getColor() == top.getColor() || card.getType() == top.getType();
+    }
+
+
+    /**
+     * Returns whether the player acted, whether drew a card or played then it has acted, otherwise false
+     * @return boolean. true if has acted, false otherwise
+     */
+    public boolean hasActedThisTurn() {
+        return hasActedThisTurn;
     }
 }

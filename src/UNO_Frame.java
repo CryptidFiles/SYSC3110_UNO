@@ -110,6 +110,9 @@ public class UNO_Frame extends JFrame implements UNO_View{
 
         // Set up controller
         controller = new UNO_Controller(model, this);
+        // Set up action listeners (will be connected to controller later)
+        drawButton.addActionListener(controller);
+        nextPlayerButton.addActionListener(controller);
 
         setupLayout();
         this.setVisible(true);
@@ -197,9 +200,7 @@ public class UNO_Frame extends JFrame implements UNO_View{
         messageLabel.setFont(new Font("Arial", Font.BOLD, 14));
         messageLabel.setForeground(Color.BLACK);
 
-        // Set up action listeners (will be connected to controller later)
-        drawButton.addActionListener(controller);
-        nextPlayerButton.addActionListener(controller);
+
 
         // Style panels
         playerHandPanel.setBackground(new Color(240, 240, 240));
@@ -280,6 +281,14 @@ public class UNO_Frame extends JFrame implements UNO_View{
                 displayMessage(event.getMessage());
                 setHandEnabled(false);
                 setNextPlayerButtonEnabled(true);
+                System.out.println("NEXT PLAYER IS ENABLED");
+                break;
+
+            case CARD_DRAWN:
+                displayMessage(event.getMessage());
+                setHandEnabled(false);
+                setNextPlayerButtonEnabled(true);
+                System.out.println("NEXT PLAYER IS ENABLED");
                 break;
 
             case PLAYER_CHANGED:
@@ -294,7 +303,13 @@ public class UNO_Frame extends JFrame implements UNO_View{
             case ROUND_WON:
                 showRoundWinner(event.getCurrentPlayer());
                 updateScores();
-                initiateNewRound();
+
+                // Use a timer to delay the new round initiation slightly
+                Timer roundTimer = new Timer(1000, e -> {
+                    initiateNewRound();
+                });
+                roundTimer.setRepeats(false);
+                roundTimer.start();
                 break;
 
             case GAME_WON:
@@ -306,6 +321,9 @@ public class UNO_Frame extends JFrame implements UNO_View{
                 break;
 
             case COLOR_SELECTION_NEEDED:
+                // Disable hand immediately when color selection is needed
+                setHandEnabled(false);
+                setDrawButtonEnabled(false);
                 showWildColorSelection();
                 break;
 
@@ -314,8 +332,11 @@ public class UNO_Frame extends JFrame implements UNO_View{
                 break;
 
             case DIRECTION_FLIPPED:
-                updateDirectionDisplay((Direction) event.getData("direction"));
-                displayMessage(event.getMessage());
+                Direction dir2 = (Direction) event.getData("direction");
+                if (dir2 != null) {
+                    updateDirectionDisplay(dir2);
+                    displayMessage(event.getMessage());
+                }
                 break;
         }
     }
@@ -332,9 +353,15 @@ public class UNO_Frame extends JFrame implements UNO_View{
             showCardPlayed(topCard);
         }
 
+        // Set draw button
+        boolean hasPlayable = model.hasPlayableHand(currentPlayer);
+        boolean canDraw = !hasPlayable && !model.hasActedThisTurn();
+        drawButton.setEnabled(canDraw);
+
         // Handle additional data
-        if (event.getData("enableNextPlayer") != null) {
-            setNextPlayerButtonEnabled(event.getBooleanData("enableNextPlayer"));
+        //System.out.println(event.isEnableNextPlayer());
+        if (event.isEnableNextPlayer()) {
+            setNextPlayerButtonEnabled(true);
         }
     }
 
@@ -358,7 +385,12 @@ public class UNO_Frame extends JFrame implements UNO_View{
             CardComponent cardComp = new CardComponent(card, i + 1, controller);
 
             // Highlight playable cards
-            cardComp.setPlayable(model.isPlayable(card));
+            boolean playable = model.isPlayable(card);
+            cardComp.setPlayable(playable);
+            cardComp.getUseButton().setEnabled(playable);
+            if (!playable){
+                cardComp.getUseButton().setForeground(Color.GRAY);
+            }
 
             playerHandPanel.add(cardComp);
         }
@@ -504,6 +536,8 @@ public class UNO_Frame extends JFrame implements UNO_View{
      * @param player The player who one that round
      */
     public void showRoundWinner(Player player) {
+        System.out.println(player.getName() + " win the game with " + player.getScore() + " points!");
+
         if (player == null){
             return;
         }
@@ -601,9 +635,8 @@ public class UNO_Frame extends JFrame implements UNO_View{
     }
 
 
-
     public void showAITurnIndicator(Player aiPlayer) {
-        String message = aiPlayer.getName() + " (AI) is thinking...";
+        String message = aiPlayer.getName() + " is thinking...";
         displayMessage(message);
 
         // Visual indicator
@@ -622,12 +655,30 @@ public class UNO_Frame extends JFrame implements UNO_View{
         // Highlight the selected card briefly
         if (cardIndex > 0) {
             highlightSelectedCard(cardIndex - 1); // Convert to 0-based
-        }}
+        }
+    }
+
+    public void showAIColorSelection(Player aiPlayer, CardColor chosenColor) {
+        String message = aiPlayer.getName() + " chooses " + chosenColor + " color!";
+        displayMessage(message);
+
+        // Visual indicator
+        messageLabel.setForeground(Color.MAGENTA);
+        messageLabel.setFont(new Font("Arial", Font.BOLD, 14));
+
+        // Reset formatting after delay
+        Timer timer = new Timer(2000, e -> {
+            messageLabel.setForeground(Color.BLACK);
+            messageLabel.setFont(new Font("Arial", Font.BOLD, 14));
+        });
+        timer.setRepeats(false);
+        timer.start();
+    }
 
     private void highlightSelectedCard(int cardIndex) {
         Component[] components = playerHandPanel.getComponents();
-        if (cardIndex >= 0 && cardIndex < components.length) {
-            Component comp = components[cardIndex];
+        if (cardIndex > 0 && cardIndex < components.length) {
+            Component comp = components[cardIndex + 1];
             if (comp instanceof CardComponent) {
                 CardComponent cardComp = (CardComponent) comp;
                 cardComp.setBorder(BorderFactory.createLineBorder(Color.YELLOW, 4));

@@ -1,6 +1,7 @@
 import javax.swing.*;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
+import java.util.*;
 
 /**
  * The UNO_Controller class serves as the main controller in the MVC pattern
@@ -39,6 +40,10 @@ public class UNO_Controller implements ActionListener {
         } catch (Exception ignored) {
         }
 
+        // Connect draw button to controller
+        //view.getDrawButton().addActionListener(this);
+        //view.getNextPlayerButton().addActionListener(this);
+
         view.setNextPlayerButtonEnabled(false);
         view.setDrawButtonEnabled(false);
 
@@ -61,13 +66,15 @@ public class UNO_Controller implements ActionListener {
         // Handle Draw Card button
         if (source == view.getDrawButton()) {
             model.drawCard();
+
             // Disable draw button after drawing
             view.setDrawButtonEnabled(false);
         }
         else if (source == view.getNextPlayerButton()) {
+            System.out.println("Next Player button clicked!");
             model.moveToNextPlayer();
-            // Disable next player button after use
             view.setNextPlayerButtonEnabled(false);
+            System.out.println("Next Player button disabled");
         }
         // Handle card plays from CardComponents
         else if (source instanceof JButton) {
@@ -75,22 +82,31 @@ public class UNO_Controller implements ActionListener {
 
             if (button.getParent() instanceof CardComponent) {
                 CardComponent cardComp = (CardComponent) button.getParent();
-                int cardIndex = cardComp.getCardIndex();
-                model.playCard(cardIndex);
+                Card cardToPlay = cardComp.getCard();
+
+                // Find the current index of this card in the player's hand
+                Player currentPlayer = model.getCurrentPlayer();
+                int cardIndex = findCardIndex(currentPlayer, cardToPlay);
+
+                if (cardIndex != -1) {
+                    model.playCard(cardIndex);
+                    view.setDrawButtonEnabled(false);
+                }
             }
         }
-        // Update button states
-        updateButtonStates();
     }
 
-    private void updateButtonStates() {
-        Player current = model.getCurrentPlayer();
-        boolean hasPlayable = model.hasPlayableHand(current);
-
-        // Only enable draw button if player has no playable cards AND it's not AI
-        view.setDrawButtonEnabled(!hasPlayable && !current.isPlayerAI());
-
-        // NOTE FOR OURSELVES: Next player button should only be enabled by model events
+    /**
+     * Finds the current index of a card in the player's hand
+     */
+    private int findCardIndex(Player player, Card card) {
+        ArrayList<Card> hand = player.getHand();
+        for (int i = 0; i < hand.size(); i++) {
+            if (hand.get(i) == card) { // Reference comparison for exact match
+                return i + 1; // Return 1-based index for model
+            }
+        }
+        return -1; // Card not found
     }
 
 
@@ -114,6 +130,12 @@ public class UNO_Controller implements ActionListener {
                 WildCard wildCard = (WildCard) topCard;
                 wildCard.applyChosenColor(chosenColor, model.topCard().isLightSideActive);
                 model.completeColorSelection();
+
+                // Disable the hand after color selection
+                view.setHandEnabled(false);
+                view.setDrawButtonEnabled(false);
+                view.setNextPlayerButtonEnabled(true);
+
                 //model.moveToNextPlayer(); // Normal turn progression after wild card
 
             } else if (topCard instanceof WildDrawCard) {
@@ -121,6 +143,12 @@ public class UNO_Controller implements ActionListener {
                 Player currentPlayer = model.getCurrentPlayer();
                 wildDrawCard.executeDrawAction(chosenColor, model.topCard().isLightSideActive, model, currentPlayer);
                 model.completeColorSelection();
+
+                // Disable the hand after color selection
+                view.setHandEnabled(false);
+                view.setDrawButtonEnabled(false);
+                view.setNextPlayerButtonEnabled(true);
+
                 // moveToNextPlayer is handled by addSkip() in the card logic
             }
         } catch (Exception ex) {

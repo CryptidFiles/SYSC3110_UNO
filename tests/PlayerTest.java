@@ -59,9 +59,9 @@ public class PlayerTest {
      * Tests playCard() returns the correct card.
      */
     @Test
-    public void testPlayCard() {
+    public void testPlayCardInHand() {
         player.drawCardToHand(dummyCard);
-        Card played = player.playCard(1);
+        Card played = player.playCardInHand(1);
         assertEquals(dummyCard, played);
     }
 

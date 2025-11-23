@@ -63,7 +63,7 @@ public class Player {
      * @param cardNumber The 1-based position of the card in the player's hand.
      * @return {@link Card}. The selected Card.
      */
-    public Card playCard(int cardNumber) {
+    public Card playCardInHand(int cardNumber) {
         return hand.get(cardNumber - 1);
     }
 

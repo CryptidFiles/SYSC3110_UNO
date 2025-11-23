@@ -20,10 +20,10 @@ public enum Direction {
     @Override
     public String toString() {
         if (this == CLOCKWISE){
-            return "Clockwise ↻";
+            return "Clockwise ==>";
         }
         else{
-            return "Counter Clockwise ↺";
+            return "Counter Clockwise <==";
         }
     }
 
