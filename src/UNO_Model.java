@@ -416,7 +416,8 @@ public class UNO_Model {
         this.waitingForColorSelection = false;
         this.hasActedThisTurn = true; // Important: mark that the player has acted
 
-        prepareEvent(GameEvent.EventType.GAME_STATE_CHANGED, null);
+
+        prepareEvent(GameEvent.EventType.COLOR_SELECTION_COMPLETE, "Color selected!");
         shouldEnableNextPlayer = true; // Enable next player button
         shouldEnableDrawButton = false; // Disable draw button
         notifyViews();
@@ -477,6 +478,15 @@ public class UNO_Model {
             prepareEvent(GameEvent.EventType.CARD_DRAWN,"Card drawn by " + currentPlayer.getName() + " ! Press 'Next Player' to continue.");
             shouldEnableNextPlayer = true;
             shouldEnableDrawButton = false;
+
+            // If AI drew, automatically progress after a delay
+            /**if (currentPlayer.isPlayerAI()) {
+                shouldEnableNextPlayer = false; // Don't show Next Player button for AI
+                // Auto-progress after delay
+                Timer aiProgressTimer = new Timer(1500, e -> moveToNextPlayer());
+                aiProgressTimer.setRepeats(false);
+                aiProgressTimer.start();
+            }*/
 
             notifyViews();
             return drawnCard;
@@ -645,21 +655,12 @@ public class UNO_Model {
 
             // Execute AI decision with a delay
             Timer timer = new Timer(strategy.getDelayMilliseconds(), e -> {
-                // 1. Play a card by grabbing the strategy's getCardIndex
-                // 2. Play the card or draw the card depending on the index
-                // 3. If the card played is an instance of wild card have special programming
                 Card topCard = topCard();
                 int cardChoiceIndex = strategy.chooseCard(currentPlayer, topCard, this);
 
                 // No playable cards so AI draw
                 if (cardChoiceIndex == 0) {
                     drawCard();
-
-                    // Check if drawing a card somehow won the round (unlikley but signals future error if premature win)
-                    checkForWin(currentPlayer);
-                    if (!roundOver) {
-                        moveToNextPlayer();
-                    }
                 }
 
                 if(cardChoiceIndex > 0){
@@ -681,109 +682,6 @@ public class UNO_Model {
             timer.start();
         }
     }
-
-/**
-    public void executeAITurn() {
-        Player currentPlayer = getCurrentPlayer();
-
-        if (currentPlayer.isPlayerAI() && currentPlayer.getAIStrategy() != null) {
-            AIStrategy strategy = currentPlayer.getAIStrategy();
-
-            // Notify view to show AI "thinking"
-            for (UNO_View view : views) {
-                if (view instanceof UNO_Frame) {
-                    ((UNO_Frame) view).showAITurnIndicator(currentPlayer);
-                }
-            }
-
-            // Execute AI decision with a delay
-            Timer timer = new Timer(strategy.getDelayMilliseconds(), e -> {
-                System.out.println("AI is waiting for color selection: " + waitingForColorSelection);
-
-                // Check if we're waiting for color selection from a previous wild card play
-                if (waitingForColorSelection) {
-                    // AI automatically chooses a color
-                    Card topCard = topCard();
-                    boolean isLightSide = topCard.isLightSideActive;
-                    CardColor chosenColor = strategy.chooseWildColor(currentPlayer, isLightSide);
-
-                    // Apply the color selection
-                    if (topCard instanceof WildCard) {
-                        WildCard wildCard = (WildCard) topCard;
-                        wildCard.applyChosenColor(chosenColor, isLightSide);
-                        completeColorSelection();
-
-                        // Show AI's color selection
-                        for (UNO_View view : views) {
-                            if (view instanceof UNO_Frame) {
-                                ((UNO_Frame) view).showAIColorSelection(currentPlayer, chosenColor);
-                            }
-                        }
-
-                        // Check if AI won after playing the wild card
-                        checkForWin(currentPlayer);
-
-                        if (!roundOver) {
-                            // Move to next player after color selection only if round didn't end
-                            Timer nextTurnTimer = new Timer(1000, e2 -> moveToNextPlayer());
-                            nextTurnTimer.setRepeats(false);
-                            nextTurnTimer.start();
-                        }
-
-                    } else if (topCard instanceof WildDrawCard) {
-                        WildDrawCard wildDrawCard = (WildDrawCard) topCard;
-                        wildDrawCard.executeDrawAction(chosenColor, isLightSide, this, currentPlayer);
-                        completeColorSelection();
-
-                        // Show AI's color selection
-                        for (UNO_View view : views) {
-                            if (view instanceof UNO_Frame) {
-                                ((UNO_Frame) view).showAIColorSelection(currentPlayer, chosenColor);
-                            }
-                        }
-
-                        checkForWin(currentPlayer);
-
-                        // moveToNextPlayer is handled by addSkip() in the card logic
-                    }
-                } else {
-                    // Normal AI turn - choose and play/draw card
-                    Card topCard = topCard();
-                    int cardChoice = strategy.chooseCard(currentPlayer, topCard, this);
-
-                    // Show AI's selection
-                    for (UNO_View view : views) {
-                        if (view instanceof UNO_Frame) {
-                            Card selectedCard = cardChoice > 0 ? currentPlayer.getHand().get(cardChoice - 1) : null;
-                            ((UNO_Frame) view).showAICardSelection(currentPlayer, cardChoice, selectedCard);
-                        }
-                    }
-
-                    // Execute the chosen action
-                    if (cardChoice == 0) {
-                        drawCard();
-
-                        // Check if drawing a card somehow won the round (unlikely but possible)
-                        checkForWin(currentPlayer);
-                        if (!roundOver) {
-                            moveToNextPlayer();
-                        }
-                    } else {
-                        playCard(cardChoice);
-
-                        // playCard now calls checkForWin internally
-                        // If playing the card triggers color selection, handle it in the next iteration
-                        if (!waitingForColorSelection && !roundOver) {
-                            // moveToNextPlayer will be called automatically if no color selection needed and round didn't end
-                        }
-                    }
-                }
-            });
-            timer.setRepeats(false);
-            timer.start();
-        }
-    }*/
-
 
     /**
      * Returns whether the game is over.

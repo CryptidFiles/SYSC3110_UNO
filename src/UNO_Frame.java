@@ -1,6 +1,7 @@
 import javax.swing.*;
 import java.awt.*;
 import java.awt.Color;
+import java.awt.Toolkit;
 import java.util.ArrayList;
 
 /**
@@ -120,11 +121,11 @@ public class UNO_Frame extends JFrame implements UNO_View{
     }
 
     private void showPlayerConfigurationSummary() {
-        StringBuilder summary = new StringBuilder("Game Setup Complete!\n\n");
+        StringBuilder summary = new StringBuilder("Game Setup Complete!\t\n\n");
         ArrayList<Player> players = model.getPlayers();
 
         for (Player player : players) {
-            summary.append("• ").append(player.getName());
+            summary.append("•").append(player.getName());
             if (!player.isPlayerAI()) {
                 summary.append(" (Human)");
             }
@@ -150,7 +151,14 @@ public class UNO_Frame extends JFrame implements UNO_View{
         // Set up the main window
         setTitle("UNO Flip!");
         setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
-        setSize(900, 600);
+
+        Toolkit tk = Toolkit.getDefaultToolkit();
+        int xSize = ((int) tk.getScreenSize().getWidth() - 100);
+        int ySize = ((int) tk.getScreenSize().getHeight() - 100);
+        setSize(xSize,ySize);
+        setUndecorated(false);
+
+        //setSize(900, 600);
         setLocationRelativeTo(null); // Center the window
 
         // Initialize panels
@@ -280,6 +288,7 @@ public class UNO_Frame extends JFrame implements UNO_View{
                 displayMessage(event.getMessage());
                 setHandEnabled(false);
                 setNextPlayerButtonEnabled(true);
+                setDrawButtonEnabled(false);
                 System.out.println("NEXT PLAYER IS ENABLED");
                 break;
 
@@ -323,6 +332,14 @@ public class UNO_Frame extends JFrame implements UNO_View{
                 showWildColorSelection(event);
                 break;
 
+            case COLOR_SELECTION_COMPLETE:
+                // Disable the hand after color selection
+                setHandEnabled(false);
+                setDrawButtonEnabled(false);
+                setNextPlayerButtonEnabled(true);
+                displayMessage(event.getMessage());
+                break;
+
             case SCORES_UPDATED:
                 updateScores();
                 break;
@@ -355,7 +372,7 @@ public class UNO_Frame extends JFrame implements UNO_View{
         drawButton.setEnabled(canDraw);
 
         // Handle additional data
-        //System.out.println(event.isEnableNextPlayer());
+        System.out.println(event.isEnableNextPlayer());
         if (event.isEnableNextPlayer()) {
             setNextPlayerButtonEnabled(true);
         }
@@ -511,19 +528,19 @@ public class UNO_Frame extends JFrame implements UNO_View{
         if (model == null || scoreLabel == null) {
             return;
         }
-        String score = "Scores: ";
+        StringBuilder score = new StringBuilder("Scores: ");
 
         ArrayList<Player> players = model.getPlayers();
         for (int i = 0; i < players.size(); i++) {
             Player currentPlayer = players.get(i);
-            score += currentPlayer.getName() + ": " + currentPlayer.getScore() + " ";
+            score.append(currentPlayer.getName()).append(": ").append(currentPlayer.getScore()).append(" ");
 
             if (i != players.size() - 1) {
-                score += " | ";
+                score.append(" | ");
             }
         }
 
-        scoreLabel.setText(score);
+        scoreLabel.setText(score.toString());
 
         playerInfoPanel.revalidate();
         playerInfoPanel.repaint();

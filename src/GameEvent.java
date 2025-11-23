@@ -6,17 +6,18 @@ import java.util.Map;
  */
 public class GameEvent {
     public enum EventType {
-        GAME_STATE_CHANGED,      // General state update
-        CARD_PLAYED,             // A card was played
-        CARD_DRAWN,              // A card was voluntarily drawn
-        ROUND_WON,               // Round ended with winner
-        GAME_WON,                // Game ended with winner
-        AI_THINKING,             // Show unique message and delay for AI thinking
-        MESSAGE,                 // Status message to display
-        COLOR_SELECTION_NEEDED,  // Wild card color selection
-        PLAYER_CHANGED,          // Current player changed
-        DIRECTION_FLIPPED,       // Play direction changed
-        SCORES_UPDATED           // Scores were updated
+        GAME_STATE_CHANGED,        // General state update
+        CARD_PLAYED,               // A card was played
+        CARD_DRAWN,                // A card was voluntarily drawn
+        ROUND_WON,                 // Round ended with winner
+        GAME_WON,                  // Game ended with winner
+        AI_THINKING,               // Show unique message and delay for AI thinking
+        MESSAGE,                   // Status message to display
+        COLOR_SELECTION_NEEDED,    // Wild card color selection
+        COLOR_SELECTION_COMPLETE, // Wild card color selection completed
+        PLAYER_CHANGED,            // Current player changed
+        DIRECTION_FLIPPED,         // Play direction changed
+        SCORES_UPDATED             // Scores were updated
     }
 
     private final EventType type;

@@ -131,11 +131,6 @@ public class UNO_Controller implements ActionListener {
                 wildCard.applyChosenColor(chosenColor, model.topCard().isLightSideActive);
                 model.completeColorSelection();
 
-                // Disable the hand after color selection
-                view.setHandEnabled(false);
-                view.setDrawButtonEnabled(false);
-                view.setNextPlayerButtonEnabled(true);
-
                 //model.moveToNextPlayer(); // Normal turn progression after wild card
 
             } else if (topCard instanceof WildDrawCard) {
@@ -144,15 +139,11 @@ public class UNO_Controller implements ActionListener {
                 wildDrawCard.executeDrawAction(chosenColor, model.topCard().isLightSideActive, model, currentPlayer);
                 model.completeColorSelection();
 
-                // Disable the hand after color selection
-                view.setHandEnabled(false);
-                view.setDrawButtonEnabled(false);
-                view.setNextPlayerButtonEnabled(true);
-
                 // moveToNextPlayer is handled by addSkip() in the card logic
             }
         } catch (Exception ex) {
             model.prepareEvent(GameEvent.EventType.MESSAGE, "Error playing card: " + ex.getMessage());
+            model.notifyViews();
         }
     }
 
@@ -171,9 +162,4 @@ public class UNO_Controller implements ActionListener {
         }
     }
 
-    private void updateDrawButtonState() {
-        Player current = model.getCurrentPlayer();
-        boolean hasPlayable = model.hasPlayableHand(current);
-        view.setDrawButtonEnabled(!hasPlayable && !current.isPlayerAI());
-    }
 }
