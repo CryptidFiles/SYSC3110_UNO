@@ -7,11 +7,13 @@ public class UNO_GameTest {
     private UNO_Model game;
     private Player player1, player2;
     private ArrayList<String> names;
+    private ArrayList<Boolean> playerIsAI;
 
     @Before
     public void setUp() {
         names = new ArrayList<>(Arrays.asList("Alice", "Bob"));
-        game = new UNO_Model(2, names);
+        playerIsAI = new ArrayList<>(Arrays.asList(false, false));
+        game = new UNO_Model(2, names, playerIsAI);
         player1 = game.getPlayers().get(0);
         player2 = game.getPlayers().get(1);
     }

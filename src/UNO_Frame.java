@@ -97,14 +97,6 @@ public class UNO_Frame extends JFrame implements UNO_View{
         model = new UNO_Model(numPlayers, playerNames, playerIsAI);
         model.addUnoView(this);
 
-        // Configure AI players - all AI players get BasicAIStrategy
-        /**ArrayList<Player> players = model.getPlayers();
-        for (int i = 0; i < players.size(); i++) {
-            if (players.get(i).isPlayerAI()) {
-                players.get(i).setAiStrategy(new BasicAIStrategy());
-            }
-        }*/
-
         // Show player configuration summary
         showPlayerConfigurationSummary();
 
@@ -120,11 +112,11 @@ public class UNO_Frame extends JFrame implements UNO_View{
         // Initial scoreboard update
         updateScores();
 
-        // Start AI turn if first player is AI
+        /** Start AI turn if first player is AI
         Player firstPlayer = model.getCurrentPlayer();
         if (firstPlayer.isPlayerAI()) {
             model.executeAITurn();
-        }
+        }*/
     }
 
     private void showPlayerConfigurationSummary() {
@@ -294,7 +286,7 @@ public class UNO_Frame extends JFrame implements UNO_View{
             case PLAYER_CHANGED:
                 highlightCurrentPlayer(event.getCurrentPlayer());
                 showCardPlayed(event.getCard());
-                Direction dir = (Direction) event.getData("direction");
+                Direction dir = event.getDirection();
                 if (dir != null) {
                     updateDirectionDisplay(dir);
                 }
@@ -316,6 +308,10 @@ public class UNO_Frame extends JFrame implements UNO_View{
                 showWinner(event.getWinningPlayer());
                 break;
 
+            case AI_THINKING:
+                showAITurnIndicator(event.getCurrentPlayer());
+                break;
+
             case MESSAGE:
                 displayMessage(event.getMessage());
                 break;
@@ -324,7 +320,7 @@ public class UNO_Frame extends JFrame implements UNO_View{
                 // Disable hand immediately when color selection is needed
                 setHandEnabled(false);
                 setDrawButtonEnabled(false);
-                showWildColorSelection();
+                showWildColorSelection(event);
                 break;
 
             case SCORES_UPDATED:
@@ -332,9 +328,9 @@ public class UNO_Frame extends JFrame implements UNO_View{
                 break;
 
             case DIRECTION_FLIPPED:
-                Direction dir2 = (Direction) event.getData("direction");
-                if (dir2 != null) {
-                    updateDirectionDisplay(dir2);
+                dir = event.getDirection();
+                if (dir != null) {
+                    updateDirectionDisplay(dir);
                     displayMessage(event.getMessage());
                 }
                 break;
@@ -437,8 +433,10 @@ public class UNO_Frame extends JFrame implements UNO_View{
     /**
      * Prompts the player to select a color when a wild card is played.
      */
-    public void showWildColorSelection(){
-        Card topCard = model.topCard();
+    public void showWildColorSelection(GameEvent event){
+        Card topCard = event.getCard();
+        Player currentPlayer = event.getCurrentPlayer();
+
         if (topCard instanceof WildCard || topCard instanceof WildDrawCard) {
             boolean isLightSide = topCard.isLightSideActive;
 
@@ -449,23 +447,49 @@ public class UNO_Frame extends JFrame implements UNO_View{
                 colors = new String[]{"TEAL", "ORANGE", "PURPLE", "PINK"};
             }
 
-            String chosen = (String) JOptionPane.showInputDialog(this,
-                    "Choose a color:",
-                    "Wild Card Color Selection",
-                    JOptionPane.PLAIN_MESSAGE,
-                    null,
-                    colors,
-                    colors[0]);
+            // Manually ask the real players for wild card selection
+            if(!currentPlayer.isPlayerAI()) {
+                String chosen = (String) JOptionPane.showInputDialog(this,
+                        "Choose a color:",
+                        "Wild Card Color Selection",
+                        JOptionPane.PLAIN_MESSAGE,
+                        null,
+                        colors,
+                        colors[0]);
 
-            if (chosen != null) {
-                try {
-                    CardColor chosenColor = CardColor.valueOf(chosen);
-                    controller.handleWildColorSelection(chosenColor);
-                } catch (IllegalArgumentException e) {
-                    displayMessage("Invalid color selection!");
+                if (chosen != null) {
+                    try {
+                        CardColor chosenColor = CardColor.valueOf(chosen);
+                        controller.handleWildColorSelection(chosenColor);
+                    } catch (IllegalArgumentException e) {
+                        displayMessage("Invalid color selection!");
+                    }
                 }
+            } else {
+                // Automatically select the colour for Ai bots based of strategy
+                CardColor chosenAIWildColor = event.getWildColorChoice();
+                controller.handleWildColorSelection(chosenAIWildColor);
+                showAIColorSelection(currentPlayer, chosenAIWildColor);
+
             }
         }
+    }
+
+    public void showAIColorSelection(Player aiPlayer, CardColor chosenColor) {
+        String message = aiPlayer.getName() + " chooses " + chosenColor + " color!";
+        displayMessage(message);
+
+        // Visual indicator
+        messageLabel.setForeground(Color.MAGENTA);
+        messageLabel.setFont(new Font("Arial", Font.BOLD, 14));
+
+        // Reset formatting after delay
+        Timer timer = new Timer(2000, e -> {
+            messageLabel.setForeground(Color.BLACK);
+            messageLabel.setFont(new Font("Arial", Font.BOLD, 14));
+        });
+        timer.setRepeats(false);
+        timer.start();
     }
 
     /**
@@ -658,22 +682,7 @@ public class UNO_Frame extends JFrame implements UNO_View{
         }
     }
 
-    public void showAIColorSelection(Player aiPlayer, CardColor chosenColor) {
-        String message = aiPlayer.getName() + " chooses " + chosenColor + " color!";
-        displayMessage(message);
 
-        // Visual indicator
-        messageLabel.setForeground(Color.MAGENTA);
-        messageLabel.setFont(new Font("Arial", Font.BOLD, 14));
-
-        // Reset formatting after delay
-        Timer timer = new Timer(2000, e -> {
-            messageLabel.setForeground(Color.BLACK);
-            messageLabel.setFont(new Font("Arial", Font.BOLD, 14));
-        });
-        timer.setRepeats(false);
-        timer.start();
-    }
 
     private void highlightSelectedCard(int cardIndex) {
         Component[] components = playerHandPanel.getComponents();

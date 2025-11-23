@@ -37,6 +37,7 @@ public class UNO_Model {
     private int skipCount; //how many players to skip next time we move turns
 
     private boolean waitingForColorSelection; // For wild card implementations
+    private CardColor wildColorChoice;
 
     private boolean hasActedThisTurn; //true once player has played/drawn this turn
 
@@ -70,6 +71,7 @@ public class UNO_Model {
         this.skipCount = 0;
         this.currentPlayerIndex = 0;
         this.hasActedThisTurn = false;
+        this.wildColorChoice = CardColor.WILD;
         views = new ArrayList<>();
 
         // Initialize players from provided data
@@ -116,7 +118,8 @@ public class UNO_Model {
                 statusMessage,             // message
                 direction,                 // direction
                 shouldEnableNextPlayer,    // enableNextPlayer
-                shouldEnableDrawButton     // enableDrawButton
+                shouldEnableDrawButton,    // enableDrawButton
+                wildColorChoice            // choice of color for wild card (automatic cases like AI)
         );
 
         for (UNO_View view : views) {
@@ -140,7 +143,6 @@ public class UNO_Model {
         lastPlayedCard = null;
     }
 
-
     /**
      * Sets up event for a specific type and message
      */
@@ -157,35 +159,6 @@ public class UNO_Model {
         notifyViews();
     }
 
-
-    /**
-     * Returns whether the game is waiting for color selection
-     */
-    public boolean isWaitingForColorSelection() {
-        return waitingForColorSelection;
-    }
-
-    /**
-     * Activates the wild color selection phase
-     */
-    public void triggerColorSelection() {
-        this.waitingForColorSelection = true;
-        prepareEvent(GameEvent.EventType.COLOR_SELECTION_NEEDED, null);
-        notifyViews();
-    }
-
-    /**
-     * Completes the color selection phase
-     */
-    public void completeColorSelection() {
-        this.waitingForColorSelection = false;
-        this.hasActedThisTurn = true; // Important: mark that the player has acted
-
-        prepareEvent(GameEvent.EventType.GAME_STATE_CHANGED, null);
-        shouldEnableNextPlayer = true; // Enable next player button
-        shouldEnableDrawButton = false; // Disable draw button
-        notifyViews();
-    }
 
 
     /**
@@ -207,7 +180,15 @@ public class UNO_Model {
         prepareEvent(GameEvent.EventType.GAME_STATE_CHANGED, "New round started!");
         shouldEnableDrawButton = !hasPlayableHand(getCurrentPlayer());
         notifyViews();
+
+        // Start AI turn if first player is AI
+        Player firstPlayer = getCurrentPlayer();
+        if (firstPlayer.isPlayerAI()) {
+            executeAITurn();
+        }
     }
+
+
 
     /**
      * Reinitialize the draw deck and clears the play pile for a new round.
@@ -257,6 +238,65 @@ public class UNO_Model {
         }
     }
 
+    /**
+     * Returns the draw deck used for gameplay.
+     *
+     * @return Deck The active deck
+     */
+    public Deck getPlayDeck() {
+        return playDeck;
+    }
+
+    /**
+     * Returns the play pile used for gameplay.
+     *
+     * @return Deck The active deck
+     */
+    public Stack<Card> getPlayPile() {
+        return playPile;
+    }
+
+    /**
+     * Returns the number of cards in the play pile.
+     *
+     * @return int Number of cards in play pile
+     */
+    public int getPlayPileSize() {
+        return playPile.size();
+    }
+
+
+    /**
+     * Rebuilds the draw deck from the play pile while preserving the current top discard.
+     */
+    private void reshuffleDrawingDeck(){
+        if (playPile.size() <= 1) {
+            return; // Not enough cards to reshuffle (need at least 2: one to keep, one to reshuffle)
+        }
+
+        // removes and saves the top card of the play pile
+        Card topCard = playPile.pop();
+
+        // Add all remaining play pile cards back to the deck
+        while (!playPile.isEmpty()) {
+            Card card = playPile.pop();
+            playDeck.addCard(card);
+        }
+
+        // Shuffle the deck
+        playDeck.shuffle();
+
+        // Put the saved top card back on the play pile
+        playPile.push(topCard);
+
+    }
+
+    /**
+     * @return {@link Card}, which is the card on top of the play pile
+     */
+    public Card topCard() {
+        return playPile.peek();
+    }
 
     /**
      * Attempts to play a card for the current player.
@@ -272,7 +312,7 @@ public class UNO_Model {
                 return false;
             }
 
-            Card chosenCard = currentPlayer.playCardInHand(cardIndex);
+            Card chosenCard = currentPlayer.getCardInHand(cardIndex);
             playPile.push(chosenCard);
             currentPlayer.removeCard(cardIndex);
 
@@ -303,30 +343,109 @@ public class UNO_Model {
         }
     }
 
-
-    public void checkForWin(Player currentPlayer) {
-        if (currentPlayer.handSize() == 0) {
-            roundWinningPlayer = currentPlayer;
-            roundOver = true;
-            tallyScores(roundWinningPlayer);
-
-
-            prepareEvent(GameEvent.EventType.ROUND_WON,
-                    roundWinningPlayer.getName() + " wins this round!");
-            lastPlayedCard = null; // Use top card for display
-
-            if (roundWinningPlayer.getScore() >= WINNING_SCORE) {
-                gameWinningPlayer = roundWinningPlayer;
-                gameOver = true;
-                prepareEvent(GameEvent.EventType.GAME_WON, null);
-            } else {
-                //prepareEvent(GameEvent.EventType.MESSAGE, "Starting new round!");
-            }
-
+    /**
+     * Determines whether the chosen card can be legally played on the current top card of the play Pile.
+     *
+     * @param p The player attempting the move.
+     * @param  i The index of the chosen card in the player's hand.
+     * @return boolean. true if the card is playable; false otherwise.
+     */
+    public boolean validMove(Player p, int i) { //returns true if players card matches type or color of the top card in play Pile
+        try {
+            return p.getCardInHand(i).playableOnTop(topCard());
+        } catch (Exception e) {
+            prepareEvent(GameEvent.EventType.MESSAGE, "Error validating top card: " + e.getMessage());
             notifyViews();
+            return false;
         }
     }
 
+    /**
+     * Checks whether the player has at least one card that can be played on the top card.
+     *
+     * @param p The current player whose turn it is
+     * @return boolean, true if he has any card in his hand that is playable, false otherwise
+     */
+    public boolean hasPlayableHand(Player p) {
+        for (Card c : p.getHand()) {
+            if(c.playableOnTop(topCard())) {
+                return true;
+            }
+        }
+        return false;
+    }
+
+    /**
+     * Checks whether a card can be legally played on the top card of the play pile.
+     *
+     * @param card The card the player wants to play
+     * @return boolean. true if playable based on UNO rules, false otherwise
+     */
+    public boolean isPlayable(Card card) {
+        if (card == null || playPile.isEmpty()) return false;
+
+        Card top = topCard();
+
+        // Wilds are always playable
+        if (card.getColor() == CardColor.WILD) return true;
+
+        // Match by color or type/value
+        return card.getColor() == top.getColor() || card.getType() == top.getType();
+    }
+
+    /**
+     * Returns whether the game is waiting for color selection
+     */
+    public boolean isWaitingForColorSelection() {
+        return waitingForColorSelection;
+    }
+
+    /**
+     * Activates the wild color selection phase
+     */
+    public void triggerColorSelection() {
+        this.waitingForColorSelection = true;
+        prepareEvent(GameEvent.EventType.COLOR_SELECTION_NEEDED, null);
+        notifyViews();
+    }
+
+    /**
+     * Completes the color selection phase
+     */
+    public void completeColorSelection() {
+        this.waitingForColorSelection = false;
+        this.hasActedThisTurn = true; // Important: mark that the player has acted
+
+        prepareEvent(GameEvent.EventType.GAME_STATE_CHANGED, null);
+        shouldEnableNextPlayer = true; // Enable next player button
+        shouldEnableDrawButton = false; // Disable draw button
+        notifyViews();
+    }
+
+
+    /**
+     * Flips all cards (play pile, draw deck, and hands) to the opposite light/dark side.
+     */
+    public void flipGameSide() {
+        // Flip all cards in play pile (discard pile)
+        for (Card card : playPile) {
+            card.flip();
+        }
+
+        // Flip all cards in draw pile
+        for (Card card : playDeck.getDeck()) {
+            card.flip();
+        }
+
+        // Flip all cards in players' hands
+        for (Player player : players) {
+            for (Card card : player.getHand()) {
+                card.flip();
+            }
+        }
+        prepareEvent(GameEvent.EventType.GAME_STATE_CHANGED, "Game side flipped!");
+        notifyViews();
+    }
 
 
     /**
@@ -369,6 +488,71 @@ public class UNO_Model {
     }
 
 
+
+    /**
+     * Returns all players in the game.
+     *
+     * @return ArrayList<Player> List of all players
+     */
+    public ArrayList<Player> getPlayers() {
+        return players;
+    }
+
+
+    /**
+     * Returns the current player.
+     *
+     * @return {@link Player} The current player
+     */
+    public Player getCurrentPlayer() {
+        return players.get(currentPlayerIndex);
+    }
+
+    /**
+     * Returns the next player in turn order based on the current direction.
+     *
+     * @param currentPlayer The player whose successor is requested.
+     * @return {@link Player}, the next Player in order.
+     */
+    public Player getNextPlayer(Player currentPlayer) {
+        int currentPlayerIndex = players.indexOf(currentPlayer); //gets the index of the current player
+        int nextIndex;
+
+        if (getDirection() == Direction.CLOCKWISE) {
+            nextIndex = (currentPlayerIndex + 1) % players.size();
+        } else {
+            nextIndex = (currentPlayerIndex - 1 + players.size()) % players.size();
+        }
+
+        return players.get(nextIndex); //returns the player based on their index that was set by (nextindex)
+    }
+
+
+
+    /**
+     * Returns the current direction of play.
+     *
+     * @return {@link Direction}. The current direction
+     */
+    public Direction getDirection() {
+        return direction;
+    }
+
+    /**
+     * Toggles the direction of play between clockwise and counterclockwise.
+     */
+    public void flipDirection() {
+        if (direction == Direction.CLOCKWISE){
+            direction = Direction.COUNTERCLOCKWISE;
+        }else{
+            direction = Direction.CLOCKWISE;
+        }
+        prepareEvent(GameEvent.EventType.DIRECTION_FLIPPED,
+                "Direction flipped to " + direction + "!");
+        notifyViews();
+    }
+
+
     /**
      * Advances the turn to the next player, taking into account skips and direction.
      * Notifies views after updating the current player index.
@@ -408,7 +592,97 @@ public class UNO_Model {
         }
     }
 
+    /**
+     * Increases the number of players to skip on the next skip processing.
+     *
+     * @param count The number of players to skip
+     */
+    public void addSkip(int count) {
+        this.skipCount += count;
+    }
 
+    /**
+     * Schedules a skip for all other players on the next skip processing.
+     */
+    public void skipAllPlayers() {
+        // Skip all other players
+        this.skipCount = players.size() - 1;
+    }
+
+    /**
+     * Applies pending skips by advancing the current turn index, then clears the skip count.
+     */
+    public void processSkip() {
+        if (skipCount > 0) {
+            // Calculate the final position directly based on skip count and direction
+            if (direction == Direction.CLOCKWISE) {
+                // Skip N players means advance by (N + 1) positions
+                // +1 to get to the first player to skip, +N to skip all of them
+                currentPlayerIndex = (currentPlayerIndex + skipCount + 1) % players.size();
+            } else {
+                // Counter-clockwise: go backwards by (N + 1) positions
+                currentPlayerIndex = (currentPlayerIndex - skipCount - 1 + players.size()) % players.size();
+            }
+
+            skipCount = 0;  // Reset skip count after processing
+            hasActedThisTurn = false;
+            notifyViews();   // Notify views once after all skips are processed
+        }
+    }
+
+
+
+    public void executeAITurn() {
+        Player currentPlayer = getCurrentPlayer();
+
+        if (currentPlayer.isPlayerAI() && currentPlayer.getAIStrategy() != null) {
+            AIStrategy strategy = currentPlayer.getAIStrategy();
+
+            // Notify view to show AI "thinking"
+            prepareEvent(GameEvent.EventType.AI_THINKING, null);
+            notifyViews();
+
+
+            // Execute AI decision with a delay
+            Timer timer = new Timer(strategy.getDelayMilliseconds(), e -> {
+                // 1. Play a card by grabbing the strategy's getCardIndex
+                // 2. Play the card or draw the card depending on the index
+                // 3. If the card played is an instance of wild card have special programming
+                Card topCard = topCard();
+                int cardChoiceIndex = strategy.chooseCard(currentPlayer, topCard, this);
+
+                // No playable cards so AI draw
+                if (cardChoiceIndex == 0) {
+                    drawCard();
+
+                    // Check if drawing a card somehow won the round (unlikley but signals future error if premature win)
+                    checkForWin(currentPlayer);
+                    if (!roundOver) {
+                        moveToNextPlayer();
+                    }
+                }
+
+                if(cardChoiceIndex > 0){
+                    Card chosenCard = currentPlayer.getCardInHand(cardChoiceIndex);
+
+                    // If AI is playing a wild card, choose a color in advance for view to update on
+                    if(chosenCard instanceof WildCard || chosenCard instanceof WildDrawCard){
+                        wildColorChoice = strategy.chooseWildColor(currentPlayer, topCard.isLightSideActive);
+                    } else {
+                        wildColorChoice = null;
+                    }
+
+                    playCard(cardChoiceIndex);
+                }
+
+
+            });
+            timer.setRepeats(false);
+            timer.start();
+        }
+    }
+
+/**
     public void executeAITurn() {
         Player currentPlayer = getCurrentPlayer();
 
@@ -508,74 +782,66 @@ public class UNO_Model {
             timer.setRepeats(false);
             timer.start();
         }
-    }
-
-
-
-
-    /**
-     * @return {@link Card}, which is the card on top of the play pile
-     */
-    public Card topCard() {
-        return playPile.peek();
-    }
-
-    /**
-     * Rebuilds the draw deck from the play pile while preserving the current top discard.
-     */
-    private void reshuffleDrawingDeck(){
-        if (playPile.size() <= 1) {
-            return; // Not enough cards to reshuffle (need at least 2: one to keep, one to reshuffle)
-        }
-
-        // removes and saves the top card of the play pile
-        Card topCard = playPile.pop();
-
-        // Add all remaining play pile cards back to the deck
-        while (!playPile.isEmpty()) {
-            Card card = playPile.pop();
-            playDeck.addCard(card);
-        }
-
-        // Shuffle the deck
-        playDeck.shuffle();
-
-        // Put the saved top card back on the play pile
-        playPile.push(topCard);
-
-    }
+    }*/
 
 
     /**
-     * Determines whether the chosen card can be legally played on the current top card of the play Pile.
+     * Returns whether the game is over.
      *
-     * @param p The player attempting the move.
-     * @param  i The index of the chosen card in the player's hand.
-     * @return boolean. true if the card is playable; false otherwise.
+     * @return boolean true if game is over
      */
-    public boolean validMove(Player p, int i) { //returns true if players card matches type or color of the top card in play Pile
-        try {
-            return p.playCardInHand(i).playableOnTop(topCard());
-        } catch (Exception e) {
-            prepareEvent(GameEvent.EventType.MESSAGE, "Error validating top card: " + e.getMessage());
-            notifyViews();
-            return false;
-        }
+    public boolean isGameOver() {
+        return gameOver;
     }
 
     /**
-     * Checks whether the player has at least one card that can be played on the top card.
+     * Returns whether the current round is over.
      *
-     * @param p The current player whose turn it is
-     * @return boolean, true if he has any card in his hand that is playable, false otherwise
+     * @return boolean true if round is over
      */
-    public boolean hasPlayableHand(Player p) {
-        for (Card c : p.getHand()) {
-            if(c.playableOnTop(topCard())) {
-                return true;
+    public boolean isRoundOver() {
+        return roundOver;
+    }
+
+    public void checkForWin(Player currentPlayer) {
+        if (currentPlayer.handSize() == 0) {
+            roundWinningPlayer = currentPlayer;
+            roundOver = true;
+            tallyScores(roundWinningPlayer);
+
+
+            prepareEvent(GameEvent.EventType.ROUND_WON,
+                    roundWinningPlayer.getName() + " wins this round!");
+            lastPlayedCard = null; // Use top card for display
+
+            if (roundWinningPlayer.getScore() >= WINNING_SCORE) {
+                gameWinningPlayer = roundWinningPlayer;
+                gameOver = true;
+                prepareEvent(GameEvent.EventType.GAME_WON, null);
+            } else {
+                //prepareEvent(GameEvent.EventType.MESSAGE, "Starting new round!");
             }
+
+            notifyViews();
         }
-        return false;
+    }
+
+    /**
+     * Returns the round winning player.
+     *
+     * @return Player The round winner, or null if round not over
+     */
+    public Player getRoundWinningPlayer() {
+        return roundWinningPlayer;
+    }
+
+    /**
+     * Returns the game winning player.
+     *
+     * @return Player The game winner, or null if game not over
+     */
+    public Player getGameWinningPlayer() {
+        return gameWinningPlayer;
     }
 
 
@@ -600,218 +866,12 @@ public class UNO_Model {
         notifyViews();
     }
 
-    /**
-     * Returns the next player in turn order based on the current direction.
-     *
-     * @param currentPlayer The player whose successor is requested.
-     * @return {@link Player}, the next Player in order.
-     */
-    public Player getNextPlayer(Player currentPlayer) {
-        int currentPlayerIndex = players.indexOf(currentPlayer); //gets the index of the current player
-        int nextIndex;
-
-        if (getDirection() == Direction.CLOCKWISE) {
-            nextIndex = (currentPlayerIndex + 1) % players.size();
-        } else {
-            nextIndex = (currentPlayerIndex - 1 + players.size()) % players.size();
-        }
-
-        return players.get(nextIndex); //returns the player based on their index that was set by (nextindex)
-    }
-
-
-    /**
-     * Increases the number of players to skip on the next skip processing.
-     *
-     * @param count The number of players to skip
-     */
-    public void addSkip(int count) {
-        this.skipCount += count;
-    }
-
-    /**
-     * Schedules a skip for all other players on the next skip processing.
-     */
-    public void skipAllPlayers() {
-        // Skip all other players
-        this.skipCount = players.size() - 1;
-    }
-
-    /**
-     * Applies pending skips by advancing the current turn index, then clears the skip count.
-     */
-    public void processSkip() {
-        if (skipCount > 0) {
-            // Calculate the final position directly based on skip count and direction
-            if (direction == Direction.CLOCKWISE) {
-                // Skip N players means advance by (N + 1) positions
-                // +1 to get to the first player to skip, +N to skip all of them
-                currentPlayerIndex = (currentPlayerIndex + skipCount + 1) % players.size();
-            } else {
-                // Counter-clockwise: go backwards by (N + 1) positions
-                currentPlayerIndex = (currentPlayerIndex - skipCount - 1 + players.size()) % players.size();
-            }
-
-            skipCount = 0;  // Reset skip count after processing
-            hasActedThisTurn = false;
-            notifyViews();   // Notify views once after all skips are processed
-        }
-    }
-
-
-
-
-    /**
-     * Returns the current direction of play.
-     *
-     * @return {@link Direction}. The current direction
-     */
-    public Direction getDirection() {
-        return direction;
-    }
-
-    /**
-     * Toggles the direction of play between clockwise and counterclockwise.
-     */
-    public void flipDirection() {
-        if (direction == Direction.CLOCKWISE){
-            direction = Direction.COUNTERCLOCKWISE;
-        }else{
-            direction = Direction.CLOCKWISE;
-        }
-        prepareEvent(GameEvent.EventType.DIRECTION_FLIPPED,
-                "Direction flipped to " + direction + "!");
-        notifyViews();
-    }
-
-    /**
-     * Flips all cards (play pile, draw deck, and hands) to the opposite light/dark side.
-     */
-    public void flipGameSide() {
-        // Flip all cards in play pile (discard pile)
-        for (Card card : playPile) {
-            card.flip();
-        }
-
-        // Flip all cards in draw pile
-        for (Card card : playDeck.getDeck()) {
-            card.flip();
-        }
-
-        // Flip all cards in players' hands
-        for (Player player : players) {
-            for (Card card : player.getHand()) {
-                card.flip();
-            }
-        }
-        prepareEvent(GameEvent.EventType.GAME_STATE_CHANGED, "Game side flipped!");
-        notifyViews();
-    }
 
 
 
 
 
-    // Getters for view and controller access
 
-    /**
-     * Returns the current player.
-     *
-     * @return {@link Player} The current player
-     */
-    public Player getCurrentPlayer() {
-        return players.get(currentPlayerIndex);
-    }
-
-    /**
-     * Returns all players in the game.
-     *
-     * @return ArrayList<Player> List of all players
-     */
-    public ArrayList<Player> getPlayers() {
-        return players;
-    }
-
-    /**
-     * Returns whether the game is over.
-     *
-     * @return boolean true if game is over
-     */
-    public boolean isGameOver() {
-        return gameOver;
-    }
-
-    /**
-     * Returns whether the current round is over.
-     *
-     * @return boolean true if round is over
-     */
-    public boolean isRoundOver() {
-        return roundOver;
-    }
-
-    /**
-     * Returns the round winning player.
-     *
-     * @return Player The round winner, or null if round not over
-     */
-    public Player getRoundWinningPlayer() {
-        return roundWinningPlayer;
-    }
-
-    /**
-     * Returns the game winning player.
-     *
-     * @return Player The game winner, or null if game not over
-     */
-    public Player getGameWinningPlayer() {
-        return gameWinningPlayer;
-    }
-
-    /**
-     * Returns the draw deck used for gameplay.
-     *
-     * @return Deck The active deck
-     */
-    public Deck getPlayDeck() {
-        return playDeck;
-    }
-
-    /**
-     * Returns the play pile used for gameplay.
-     *
-     * @return Deck The active deck
-     */
-    public Stack<Card> getPlayPile() {
-        return playPile;
-    }
-
-    /**
-     * Returns the number of cards in the play pile.
-     *
-     * @return int Number of cards in play pile
-     */
-    public int getPlayPileSize() {
-        return playPile.size();
-    }
-
-    /**
-     * Checks whether a card can be legally played on the top card of the play pile.
-     *
-     * @param card The card the player wants to play
-     * @return boolean. true if playable based on UNO rules, false otherwise
-     */
-    public boolean isPlayable(Card card) {
-        if (card == null || playPile.isEmpty()) return false;
-
-        Card top = topCard();
-
-        // Wilds are always playable
-        if (card.getColor() == CardColor.WILD) return true;
-
-        // Match by color or type/value
-        return card.getColor() == top.getColor() || card.getType() == top.getType();
-    }
 
 
     /**

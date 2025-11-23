@@ -11,6 +11,7 @@ public class GameEvent {
         CARD_DRAWN,              // A card was voluntarily drawn
         ROUND_WON,               // Round ended with winner
         GAME_WON,                // Game ended with winner
+        AI_THINKING,             // Show unique message and delay for AI thinking
         MESSAGE,                 // Status message to display
         COLOR_SELECTION_NEEDED,  // Wild card color selection
         PLAYER_CHANGED,          // Current player changed
@@ -26,11 +27,14 @@ public class GameEvent {
     private final Direction direction;
     private final boolean enableNextPlayer;
     private final boolean enableDrawButton;
+    private final CardColor wildColorChoice;
     private final Map<String, Object> data;
+
+
 
     public GameEvent(EventType type, Player currentPlayer, Player winningPlayer,
                      Card card, String message, Direction direction,
-                     boolean enableNextPlayer, boolean enableDrawButton) {
+                     boolean enableNextPlayer, boolean enableDrawButton, CardColor wildColorChoice) {
         this.type = type;
         this.currentPlayer = currentPlayer;
         this.winningPlayer = winningPlayer;
@@ -39,6 +43,7 @@ public class GameEvent {
         this.direction = direction;
         this.enableNextPlayer = enableNextPlayer;
         this.enableDrawButton = enableDrawButton;
+        this.wildColorChoice = wildColorChoice;
         this.data = new HashMap<>();
     }
 
@@ -51,6 +56,7 @@ public class GameEvent {
     public Direction getDirection() { return direction; }
     public boolean isEnableNextPlayer() { return enableNextPlayer; }
     public boolean isEnableDrawButton() { return enableDrawButton; }
+    public CardColor getWildColorChoice() { return wildColorChoice; }
 
     // Data methods for additional properties
     public Object getData(String key) { return data.get(key); }
