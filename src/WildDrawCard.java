@@ -52,7 +52,8 @@ public class WildDrawCard extends Card {
 
             // Light side: next player picks up two cards
             Player nextPlayer = model.getNextPlayer(player);
-            model.notifyMessage(nextPlayer.getName() + " draws 2 cards and lost a turn!");
+            model.prepareEvent(GameEvent.EventType.MESSAGE, nextPlayer.getName() + " draws 2 cards and lost a turn!");
+            model.notifyViews();
 
             for(int i = 0; i < 2; i++){
                 Card card = model.getPlayDeck().drawCardFromDeck();
@@ -74,7 +75,8 @@ public class WildDrawCard extends Card {
             while (!foundColor) {
                 Card drawnCard = model.getPlayDeck().drawCardFromDeck();
                 if (drawnCard == null) {
-                    model.notifyMessage("No more cards in deck!");
+                    model.prepareEvent(GameEvent.EventType.MESSAGE, "No more cards in deck!");
+                    model.notifyViews();
                     break;
                 }
 
@@ -83,7 +85,8 @@ public class WildDrawCard extends Card {
 
                 if (drawnCard.getColor() == this.darkColor) {
                     foundColor = true;
-                    model.notifyMessage(nextPlayer.getName() + " found the chosen color after drawing " + cardsDrawn + " cards and lost a turn!");
+                    model.prepareEvent(GameEvent.EventType.MESSAGE, nextPlayer.getName() + " found the chosen color after drawing " + cardsDrawn + " cards and lost a turn!");
+                    model.notifyViews();
                 }
             }
 

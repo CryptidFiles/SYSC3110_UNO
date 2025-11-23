@@ -57,10 +57,8 @@ public class CardComponent extends JPanel {
         useButton.setPreferredSize(new Dimension(80, 25));
         useButton.setEnabled(false); // Initially disabled
 
-        // Directly connect to controller - no need for listener list!
-        useButton.addActionListener(e -> {
-            controller.handleCardPlay(cardIndex);
-        });
+        // Add the use button as an action listener
+        useButton.addActionListener(controller);
     }
 
     /**

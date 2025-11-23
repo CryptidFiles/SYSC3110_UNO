@@ -15,19 +15,13 @@ import javax.swing.*;
  * @version 2.0, November 10, 2025
  */
 public interface UNO_View {
-    void updateGameState();
-    void displayPlayerHand(Player player);
-    void highlightCurrentPlayer();
-    void showCardPlayed(Card card);
-    void showWildColorSelection();
-    void displayMessage(String message);
-    void updateScores();
-    void showWinner(Player player);
-    void showRoundWinner(Player player);
-    void initiateNewRound();
+    /**
+     * Single method to handle all game state updates
+     * @param event the game event containing what changed
+     */
+    void handleGameEvent(GameEvent event);
+
+    // Only keep the methods that are truly needed for controller interaction
     JButton getDrawButton();
     JButton getNextPlayerButton();
-    void setHandEnabled(boolean enabled);
-    void setNextPlayerButtonEnabled(boolean enabled);
-    void setDrawButtonEnabled(boolean enabled);
 }

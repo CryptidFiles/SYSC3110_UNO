@@ -33,17 +33,15 @@ public class UNO_Controller implements ActionListener {
         this.model = model;
         this.view = view;
 
-        // Connect draw button to controller
-        view.getDrawButton().addActionListener(this);
-        view.getNextPlayerButton().addActionListener(this);
-
         // Starting a new round
         try {
             model.startNewRound();
         } catch (Exception ignored) {
         }
 
+        view.setNextPlayerButtonEnabled(false);
         view.setDrawButtonEnabled(false);
+
         Player current = model.getCurrentPlayer();
         boolean hasPlayable = model.hasPlayableHand(current);
         view.setDrawButtonEnabled(!hasPlayable);
@@ -62,117 +60,39 @@ public class UNO_Controller implements ActionListener {
 
         // Handle Draw Card button
         if (source == view.getDrawButton()) {
-            //handleDrawCard();
             model.drawCard();
+            // Disable draw button after drawing
+            view.setDrawButtonEnabled(false);
         }
         else if (source == view.getNextPlayerButton()) {
-            //handleNextPlayer();
             model.moveToNextPlayer();
-            updateDrawButtonState();
+            // Disable next player button after use
+            view.setNextPlayerButtonEnabled(false);
         }
         // Handle card plays from CardComponents
         else if (source instanceof JButton) {
             JButton button = (JButton) source;
 
-            // Check if this is a card use button by looking at the parent (button is inside this class)
             if (button.getParent() instanceof CardComponent) {
                 CardComponent cardComp = (CardComponent) button.getParent();
-                handleCardPlay(cardComp.getCardIndex());
+                int cardIndex = cardComp.getCardIndex();
+                model.playCard(cardIndex);
             }
         }
+        // Update button states
+        updateButtonStates();
     }
 
-    /**
-     * Confirms the current player's turn and advances to the next player.
-     * Triggered by the "Next Player" button.
-     */
-    private void handleNextPlayer() {
-        try{
-            model.moveToNextPlayer();
-            view.setNextPlayerButtonEnabled(false); //disable until next valid action
-            view.setDrawButtonEnabled(false);
+    private void updateButtonStates() {
+        Player current = model.getCurrentPlayer();
+        boolean hasPlayable = model.hasPlayableHand(current);
 
-            view.displayMessage("Next Player's turn!");
-            view.setHandEnabled(true);
+        // Only enable draw button if player has no playable cards AND it's not AI
+        view.setDrawButtonEnabled(!hasPlayable && !current.isPlayerAI());
 
-            Player current = model.getCurrentPlayer();
-            boolean hasPlayable = model.hasPlayableHand(current);
-
-            view.setDrawButtonEnabled(!hasPlayable);
-        } catch (Exception ex) {
-            model.notifyMessage("Error moving to next player: " + ex.getMessage());
-        }
+        // NOTE FOR OURSELVES: Next player button should only be enabled by model events
     }
 
-    /**
-     * Handles the "Draw Card" button action.
-     * Requests the current player to draw a card from the deck via the model,
-     * and lets the model handle any reshuffling or deck-empty scenarios.
-     */
-    public void handleDrawCard() {
-        try {
-            Player currentPlayer = model.getCurrentPlayer();
-            if (currentPlayer == null) return;
-
-            // Use the existing drawCard() method which already handles drawing for current player
-            Card drawnCard = model.drawCard();
-            view.setDrawButtonEnabled(false);
-
-            if (drawnCard != null) {
-                view.displayMessage(currentPlayer.getName() + " drew a card. Press 'Next Player' to continue.");
-                view.setNextPlayerButtonEnabled(true);
-                view.setDrawButtonEnabled(false);
-                view.setHandEnabled(false);
-            } else {
-                // Model should handle empty deck scenario through reshuffling
-                view.displayMessage("No cards available to draw. ");
-            }
-
-        } catch (Exception ex) {
-            model.notifyMessage("Error drawing card: " + ex.getMessage());
-            ex.printStackTrace();
-        }
-    }
-
-    /**
-     * Handles when a player plays a card.
-     * This method is called either from a card’s “Use” button
-     * or automatically during game actions.
-     *
-     * @param cardIndex the index of the card being played from the player's hand
-     */
-    public void handleCardPlay(int cardIndex) {
-        try {
-            Player currentPlayer = model.getCurrentPlayer();
-            if (currentPlayer == null) {
-                System.err.println("No current player found.");
-                return;
-            }
-
-            // Validate and play the card through the model
-            boolean success = model.playCard(cardIndex);
-
-            if (!success) {
-                System.out.println("Invalid move! This card cannot be played on the current top card.");
-            }else{
-                if (!model.isWaitingForColorSelection()){
-                    view.displayMessage("Card Played successfully! Press 'Next Player' to continue ");
-                    view.setHandEnabled(false);
-                    view.setDrawButtonEnabled(false);
-                    view.setNextPlayerButtonEnabled(true);
-                }
-            }
-            // If successful, model will handle game logic and notify views automatically
-
-        } catch (Exception ex) {
-            model.notifyMessage("Error playing card: " + ex.getMessage());
-            ex.printStackTrace();
-        }
-
-        Player currentPlayer = model.getCurrentPlayer();
-        boolean hasPlayable = model.hasPlayableHand(currentPlayer);
-        view.setDrawButtonEnabled(!hasPlayable);
-    }
 
     /**
      * Handles color selection for Wild and Wild Draw cards.
@@ -180,7 +100,7 @@ public class UNO_Controller implements ActionListener {
      * to the top card and executes any special effects
      *
      * @param chosenColor the {@link CardColor} selected by the player
-     */
+    */
     public void handleWildColorSelection(CardColor chosenColor) {
         try {
             if (!model.isWaitingForColorSelection()) {
@@ -204,7 +124,7 @@ public class UNO_Controller implements ActionListener {
                 // moveToNextPlayer is handled by addSkip() in the card logic
             }
         } catch (Exception ex) {
-            model.notifyMessage("Error playing card: " + ex.getMessage());
+            model.prepareEvent(GameEvent.EventType.MESSAGE, "Error playing card: " + ex.getMessage());
         }
     }
 
@@ -218,7 +138,8 @@ public class UNO_Controller implements ActionListener {
             model.startNewRound();
             // Model will notify views automatically through observer pattern
         } catch (Exception ex) {
-            model.notifyMessage("Error starting new game: " + ex.getMessage());
+            model.prepareEvent(GameEvent.EventType.MESSAGE, "Error starting new game: " + ex.getMessage());
+            model.notifyViews();
         }
     }
 

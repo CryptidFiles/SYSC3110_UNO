@@ -40,7 +40,8 @@ public class FlipCard extends Card {
         model.flipGameSide();
 
         // Notify view of which side game has been flipped to
-        model.notifyMessage("Game flipped to " + (isLightSideActive ? "LIGHT" : "DARK") + " SIDE");
+        model.prepareEvent(GameEvent.EventType.MESSAGE, "Game flipped to " + (isLightSideActive ? "LIGHT" : "DARK") + " SIDE");
+        model.notifyViews();
         return true;
     }
 

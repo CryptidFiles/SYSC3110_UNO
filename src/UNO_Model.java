@@ -38,8 +38,15 @@ public class UNO_Model {
 
     private boolean waitingForColorSelection; // For wild card implementations
 
-    private List<UNO_View> views;
+    // Game state attributes
+    private GameEvent.EventType lastEventType;
+    private String statusMessage;
+    private boolean shouldEnableNextPlayer;
+    private boolean shouldEnableDrawButton;
+    private Card lastPlayedCard;
 
+    // GUI views that will display changes in the model
+    private List<UNO_View> views;
 
 
     /**
@@ -64,14 +71,19 @@ public class UNO_Model {
 
         // Initialize players from provided data
         this.numPlayers = numPlayers;
-
         for (int i = 0; i < numPlayers; i++) {
-            players.add(new Player(playerNames.get(i), playerIsAI.get(i)));
+            players.add(new Player(playerNames.get(i), playerIsAI.get(i), new BasicAIStrategy()));
         }
 
-        /**for (String name : playerNames) {
-            players.add(new Player(name));
-        }*/
+        // Initialize new event tracking fields
+        this.lastEventType = GameEvent.EventType.GAME_STATE_CHANGED;
+        this.statusMessage = "Game started!";
+        this.shouldEnableNextPlayer = false;
+        this.shouldEnableDrawButton = false;
+        this.lastPlayedCard = null;
+
+        // Initiate the game
+        startNewRound();
     }
 
     /**
@@ -92,103 +104,83 @@ public class UNO_Model {
         views.remove(view);
     }
 
-    /**
-     * Notifies all attached views that the game state has changed.
-     * Called after significant gameplay actions such as playing or drawing a card.
-     */
+    // Replace all notify methods with this single method
     protected void notifyViews() {
+        GameEvent event = new GameEvent(
+                lastEventType,
+                getCurrentPlayer(),        // currentPlayer
+                roundWinningPlayer,        // winningPlayer (could be null)
+                lastPlayedCard != null ? lastPlayedCard : topCard(), // card
+                statusMessage,             // message
+                direction,                 // direction
+                shouldEnableNextPlayer,    // enableNextPlayer
+                shouldEnableDrawButton     // enableDrawButton
+        );
+
         for (UNO_View view : views) {
-            view.updateGameState();
+            view.handleGameEvent(event);
+        }
+
+        if(lastEventType != GameEvent.EventType.MESSAGE){
+            // Reset temporary state if not a message notification
+            resetEventState();
         }
     }
 
     /**
-     * Notifies all attached views that a specific card has been played.
-     *
-     * @param card the card that was played
+     * Resets the temporary event state after notification
      */
-    protected void notifyCardPlayed(Card card) {
-        for (UNO_View view : views) {
-            view.showCardPlayed(card);
-        }
+    private void resetEventState() {
+        lastEventType = GameEvent.EventType.GAME_STATE_CHANGED;
+        statusMessage = null;
+        shouldEnableNextPlayer = false;
+        shouldEnableDrawButton = false;
+        lastPlayedCard = null;
     }
 
+
     /**
-     * Notifies all attached views that a player has won the round.
-     *
-     * @param player the player who won the round
+     * Sets up event for a specific type and message
      */
-    protected void notifyRoundWinner(Player player) {
-        for (UNO_View view : views) {
-            view.showRoundWinner(player);
-        }
+    protected void prepareEvent(GameEvent.EventType type, String message) {
+        this.lastEventType = type;
+        this.statusMessage = message;
     }
 
     /**
-     * Notifies all attached views that a player has won the entire game.
-     *
-     * @param player the player who reached the winning score
-     */
-    protected void notifyGameWinner(Player player) {
-        for (UNO_View view : views) {
-            view.showWinner(player);
-        }
-    }
-
-    /**
-     * Notifies all views that player scores have been updated.
-     */
-    protected void notifyScoresUpdated() {
-        for (UNO_View view : views) {
-            view.updateScores();
-        }
-    }
-
-    /**
-     * Sends a custom message to all attached views for display.
-     *
-     * @param message the message to display
+     * Only updates the game's message box for communication
      */
     protected void notifyMessage(String message) {
-        for (UNO_View view : views) {
-            view.displayMessage(message);
-        }
+        this.statusMessage = message;
+        notifyViews();
     }
 
-    /**
-     * Notifies all views to prompt the player for wild color selection.
-     */
-    protected void notifyWildColorSelection() {
-        for (UNO_View view : views) {
-            view.showWildColorSelection();
-        }
-    }
 
     /**
-     * Activates the wild color selection phase and notifies views to prompt the user.
-     */
-    public void triggerColorSelection() {
-        this.waitingForColorSelection = true;
-        notifyWildColorSelection(); // Notify view to show color picker
-    }
-
-    /**
-     * Returns whether the game is currently waiting for a wild color selection.
-     *
-     * @return boolean. true if awaiting color selection; false otherwise
+     * Returns whether the game is waiting for color selection
      */
     public boolean isWaitingForColorSelection() {
         return waitingForColorSelection;
     }
 
     /**
-     * Completes the color selection phase and resumes gameplay.
-     * Notifies all views to refresh their state.
+     * Activates the wild color selection phase
+     */
+    public void triggerColorSelection() {
+        this.waitingForColorSelection = true;
+        prepareEvent(GameEvent.EventType.COLOR_SELECTION_NEEDED, null);
+        notifyViews();
+    }
+
+    /**
+     * Completes the color selection phase
      */
     public void completeColorSelection() {
         this.waitingForColorSelection = false;
+        prepareEvent(GameEvent.EventType.GAME_STATE_CHANGED, null);
         notifyViews();
     }
+
 
     /**
      * Starts a new round of gameplay by resetting decks, distributing cards,
@@ -205,6 +197,8 @@ public class UNO_Model {
         skipCount = 0;
 
         // Update the game state
+        prepareEvent(GameEvent.EventType.GAME_STATE_CHANGED, "New round started!");
+        shouldEnableDrawButton = !hasPlayableHand(getCurrentPlayer());
         notifyViews();
     }
 
@@ -228,7 +222,8 @@ public class UNO_Model {
                     if (c == null) throw new NoSuchElementException("Deck is empty while distributing cards");
                     player.drawCardToHand(c);
                 } catch (Exception e) {
-                    notifyMessage("Error dealing cards: " + e.getMessage());
+                    prepareEvent(GameEvent.EventType.MESSAGE, "Error dealing cards: " + e.getMessage());
+                    notifyViews();
                 }
             }
         }
@@ -250,9 +245,11 @@ public class UNO_Model {
             // We found a non-action card
             playPile.push(firstCard);
         } catch (Exception e) {
-            notifyMessage("Error initializing first card: " + e.getMessage());
+            prepareEvent(GameEvent.EventType.MESSAGE, "Error initializing first card: " + e.getMessage());
+            notifyViews();
         }
     }
+
 
     /**
      * Attempts to play a card for the current player.
@@ -268,67 +265,48 @@ public class UNO_Model {
                 return false;
             }
 
-            //Take that card from the players hand and put it in the pile
             Card chosenCard = currentPlayer.playCard(cardIndex);
             playPile.push(chosenCard);
             currentPlayer.removeCard(cardIndex);
 
-            // Execute card action (if any)
+            // Execute card action
             chosenCard.action(this, currentPlayer);
 
-            // NOTIFY views since card was selected
-            notifyCardPlayed(chosenCard);
-            notifyViews();
+            // Set up card played event
+            lastEventType = GameEvent.EventType.CARD_PLAYED;
+            lastPlayedCard = chosenCard;
+            shouldEnableNextPlayer = !waitingForColorSelection;
+            shouldEnableDrawButton = false;
 
             // Check for round win
             if (currentPlayer.handSize() == 0) {
                 roundWinningPlayer = currentPlayer;
                 roundOver = true;
-                tallyScores(roundWinningPlayer); //give the roundWinningPlayer points from other player's leftover hands
+                tallyScores(roundWinningPlayer);
 
-                // NOTIFY views as round ended
-                notifyRoundWinner(roundWinningPlayer);
-                notifyScoresUpdated();
+                prepareEvent(GameEvent.EventType.ROUND_WON,
+                        roundWinningPlayer.getName() + " wins this round!");
+                lastPlayedCard = null; // Use top card for display
 
-                // Check for game win
                 if (roundWinningPlayer.getScore() >= WINNING_SCORE) {
                     gameWinningPlayer = roundWinningPlayer;
                     gameOver = true;
-
-                    // NOTIFY views as game ended
-                    notifyGameWinner(gameWinningPlayer);
-
+                    prepareEvent(GameEvent.EventType.GAME_WON, null);
                 } else {
-                    notifyMessage("Starting new round!");
-                    // Start new round if winner hasn't been decided
-                    for (UNO_View view : views) {
-                        view.initiateNewRound();
-                    }
-                }
-
-                notifyViews();
-
-            } else {
-                if (!waitingForColorSelection){
-                    notifyMessage("Card played successfully! Press 'Next Player' to continue. ");
-                    for (UNO_View view : views) {
-                        view.getNextPlayerButton().setEnabled(true);
-                    }
-
-                    // BUT disable card playing for AI players
-                    if (currentPlayer.isPlayerAI()) {
-                        for (UNO_View view : views) {
-                            view.setHandEnabled(false); // This disables the "Use" buttons on cards
-                        }
-                    }
+                    prepareEvent(GameEvent.EventType.MESSAGE, "Starting new round!");
                 }
             }
+
+            notifyViews();
             return true;
+
         } catch (Exception e) {
-            notifyMessage("Error playing card: " + e.getMessage());
+            prepareEvent(GameEvent.EventType.MESSAGE, "Error playing card: " + e.getMessage());
+            notifyViews();
+            return false;
         }
-        return false;
     }
+
 
     /**
      * Current player draws a card from the deck. Either voluntary or because they do not have a playable hand
@@ -347,22 +325,24 @@ public class UNO_Model {
                 }
             }
 
+
             //draw the card and give it to the current player
             Card drawnCard = playDeck.drawCardFromDeck();
             if (drawnCard != null) {
                 currentPlayer.drawCardToHand(drawnCard);
             }
 
-            notifyMessage("Card played successfully! Press 'Next Player' to continue. ");
-            for (UNO_View view : views) {
-                view.getNextPlayerButton().setEnabled(true);
-            }
             // NOTIFY views as player has drawn a card and skipping current player's turn
-            notifyViews();
+            prepareEvent(GameEvent.EventType.GAME_STATE_CHANGED,
+                    "Card drawn! Press 'Next Player' to continue.");
+            shouldEnableNextPlayer = true;
+            shouldEnableDrawButton = false;
 
+            notifyViews();
             return drawnCard;
         } catch (Exception e) {
-            notifyMessage("Error drawing card: " + e.getMessage());
+            prepareEvent(GameEvent.EventType.MESSAGE, "Error drawing card: " + e.getMessage());
+            notifyViews();
             return null;
         }
     }
@@ -373,6 +353,9 @@ public class UNO_Model {
      * Notifies views after updating the current player index.
      */
     public void moveToNextPlayer() {
+        // Reset next player button state BEFORE moving
+        shouldEnableNextPlayer = false;
+
         if (skipCount > 0) {
             processSkip();  // jumps past players
         } else {
@@ -385,10 +368,17 @@ public class UNO_Model {
             notifyViews();  // Only notify once after the move
         }
 
-        // After we have moved to next player which is now set as the current player
-        // If the player is AI, automatically execute their turn
-        Player nextPlayer = getCurrentPlayer();
-        if (nextPlayer.isPlayerAI() && !isRoundOver() && !isGameOver()) {
+        // After we have moved to next player
+        Player newPlayer = getCurrentPlayer();
+        boolean hasPlayableHand = hasPlayableHand(newPlayer);
+
+        prepareEvent(GameEvent.EventType.PLAYER_CHANGED, null);
+        shouldEnableNextPlayer = false; // Always false when switching players
+        shouldEnableDrawButton = !hasPlayableHand && !newPlayer.isPlayerAI();
+
+        notifyViews();
+
+        if (newPlayer.isPlayerAI() && !isRoundOver() && !isGameOver()) {
             executeAITurn();
         }
     }
@@ -481,7 +471,8 @@ public class UNO_Model {
         try {
             return p.playCard(i).playableOnTop(topCard());
         } catch (Exception e) {
-            notifyMessage("Error validating top card: " + e.getMessage());
+            prepareEvent(GameEvent.EventType.MESSAGE, "Error validating top card: " + e.getMessage());
+            notifyViews();
             return false;
         }
     }
@@ -519,6 +510,8 @@ public class UNO_Model {
                 winner.addScore(handPoints);
             }
         }
+        prepareEvent(GameEvent.EventType.SCORES_UPDATED, null);
+        notifyViews();
     }
 
     /**
@@ -599,6 +592,9 @@ public class UNO_Model {
         }else{
             direction = Direction.CLOCKWISE;
         }
+        prepareEvent(GameEvent.EventType.DIRECTION_FLIPPED,
+                "Direction flipped to " + direction + "!");
+        notifyViews();
     }
 
     /**
@@ -621,6 +617,8 @@ public class UNO_Model {
                 card.flip();
             }
         }
+        prepareEvent(GameEvent.EventType.GAME_STATE_CHANGED, "Game side flipped!");
+        notifyViews();
     }
 
 

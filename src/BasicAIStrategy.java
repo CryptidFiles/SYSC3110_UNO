@@ -1,7 +1,10 @@
 // BasicAIStrategy.java - Keep it simple
 import java.util.*;
+import java.util.Random;
 
 public class BasicAIStrategy implements AIStrategy {
+    private Random random = new Random();
+
     @Override
     public int chooseCard(Player player, Card topCard, UNO_Model game) {
         ArrayList<Card> hand = player.getHand();
@@ -18,30 +21,44 @@ public class BasicAIStrategy implements AIStrategy {
         return 0;
     }
 
+    /**
+     * Chooses a color for wild cards based on the AI's hand
+     */
     @Override
-    public CardColor chooseWildColor(Player player, UNO_Model game) {
-        // Choose the most common color in hand
-        Map<CardColor, Integer> colorCount = new HashMap<>();
+    public CardColor chooseWildColor(Player player, boolean isLightSide) {
+        // Count colors in hand to make smart choice
+        int[] colorCounts = new int[8]; // For all possible colors
+
         for (Card card : player.getHand()) {
-            CardColor color = card.getColor();
-            if (color != CardColor.WILD) {
-                colorCount.put(color, colorCount.getOrDefault(color, 0) + 1);
+            if (card.getColor() != CardColor.WILD) {
+                int colorIndex = card.getColor().ordinal();
+                colorCounts[colorIndex]++;
             }
         }
 
-        // If no colored cards, default to RED
-        if (colorCount.isEmpty()) {
-            return CardColor.RED;
+        // Find the most frequent color
+        int maxCount = -1;
+        CardColor bestColor = isLightSide ? CardColor.RED : CardColor.TEAL; // Default
+
+        for (CardColor color : CardColor.values()) {
+            if (color == CardColor.WILD) continue;
+
+            // Filter by light/dark side
+            if (isLightSide && color.isLight()) continue;
+            if (!isLightSide && color.isDark()) continue;
+
+            int count = colorCounts[color.ordinal()];
+            if (count > maxCount) {
+                maxCount = count;
+                bestColor = color;
+            }
         }
 
-        return colorCount.entrySet().stream()
-                .max(Map.Entry.comparingByValue())
-                .map(Map.Entry::getKey)
-                .orElse(CardColor.RED);
+        return bestColor;
     }
 
     @Override
     public int getDelayMilliseconds() {
-        return 1000; // 1 second delay for AI "thinking"
+        return 1500; // 1.5 second delay for AI "thinking"
     }
 }

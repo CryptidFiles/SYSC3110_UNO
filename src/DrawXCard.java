@@ -17,12 +17,14 @@ public class DrawXCard extends Card {
 
             Card card = model.getPlayDeck().drawCardFromDeck();
             if (card == null) {
-                model.notifyMessage("No more cards left!");
+                model.prepareEvent(GameEvent.EventType.MESSAGE, "No more cards left!");
+                model.notifyViews();
                 return false;
             }
 
             nextPlayer.drawCardToHand(card);
-            model.notifyMessage(nextPlayer.getName() + " draws 1 card and loses their turn!");
+            model.prepareEvent(GameEvent.EventType.MESSAGE, nextPlayer.getName() +" draws 1 card and loses their turn!");
+            model.notifyViews();
 
             // Skip the next player's turn
             model.addSkip(1);
@@ -35,13 +37,15 @@ public class DrawXCard extends Card {
                 Card card = model.getPlayDeck().drawCardFromDeck();
 
                 if (card == null) {
-                    model.notifyMessage("No more cards left after drawing " + i + " cards!");
+                    model.prepareEvent(GameEvent.EventType.MESSAGE, "No more cards left after drawing " + i + " cards!");
+                    model.notifyViews();
                     return false;
                 }
 
                 nextPlayer.drawCardToHand(card);
             }
-            model.notifyMessage(nextPlayer.getName() + " draws 5 cards and loses their turn!");
+            model.prepareEvent(GameEvent.EventType.MESSAGE, nextPlayer.getName() + " draws 5 cards and loses their turn!");
+            model.notifyViews();
 
             // Skip the next player's turn
             model.addSkip(1);

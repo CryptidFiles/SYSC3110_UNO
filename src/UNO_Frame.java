@@ -90,18 +90,6 @@ public class UNO_Frame extends JFrame implements UNO_View{
             playerNames.add(name.trim());
             playerIsAI.add(isAI);
         }
-        /**PlayerSetupDialog setupDialog = new PlayerSetupDialog(this);
-        setupDialog.setVisible(true);
-
-        if (!setupDialog.isConfirmed()) {
-            JOptionPane.showMessageDialog(null, "Game setup cancelled.");
-            dispose();
-            return;
-        }
-
-        ArrayList<String> playerNames = setupDialog.getPlayerNames();
-        ArrayList<Boolean> aiSelections = setupDialog.getAISelections();
-        int numPlayers = playerNames.size();*/
 
         //Set up the GUI, calls helper methods o create and organize the layout, and makes the window visible
         initializeUI();
@@ -110,28 +98,24 @@ public class UNO_Frame extends JFrame implements UNO_View{
         model.addUnoView(this);
 
         // Configure AI players - all AI players get BasicAIStrategy
-        ArrayList<Player> players = model.getPlayers();
+        /**ArrayList<Player> players = model.getPlayers();
         for (int i = 0; i < players.size(); i++) {
             if (players.get(i).isPlayerAI()) {
                 players.get(i).setAiStrategy(new BasicAIStrategy());
             }
-        }
+        }*/
 
         // Show player configuration summary
         showPlayerConfigurationSummary();
 
+        // Set up controller
         controller = new UNO_Controller(model, this);
 
         setupLayout();
         this.setVisible(true);
 
-        model.startNewRound();
-        // Initial game state update
-        updateGameState();
         // Initial scoreboard update
         updateScores();
-
-
 
         // Start AI turn if first player is AI
         Player firstPlayer = model.getCurrentPlayer();
@@ -214,8 +198,9 @@ public class UNO_Frame extends JFrame implements UNO_View{
         messageLabel.setForeground(Color.BLACK);
 
         // Set up action listeners (will be connected to controller later)
-        //drawButton.addActionListener(controller);
-        //nextPlayerButton.addActionListener(controller);
+        drawButton.addActionListener(controller);
+        nextPlayerButton.addActionListener(controller);
+
         // Style panels
         playerHandPanel.setBackground(new Color(240, 240, 240));
         playerHandPanel.setBorder(BorderFactory.createTitledBorder("Your Hand"));
@@ -277,14 +262,84 @@ public class UNO_Frame extends JFrame implements UNO_View{
         add(mainPanel);
     }
 
-    /**
-     * Updates the game's visual state in the GUI.
-     */
-    public void updateGameState(){
-        Player currentPlayer = model.getCurrentPlayer();
-        displayPlayerHand(currentPlayer); //to show their hand on screen
-        highlightCurrentPlayer(); //Highlight their turn
-        showCardPlayed(model.topCard()); //show the top of the play pile on the screen
+
+    @Override
+    public void handleGameEvent(GameEvent event) {
+        // Use SwingUtilities to ensure thread safety
+        SwingUtilities.invokeLater(() -> processGameEvent(event));
+    }
+
+    private void processGameEvent(GameEvent event) {
+        switch (event.getType()) {
+            case GAME_STATE_CHANGED:
+                updateGameState(event);
+                break;
+
+            case CARD_PLAYED:
+                showCardPlayed(event.getCard());
+                displayMessage(event.getMessage());
+                setHandEnabled(false);
+                setNextPlayerButtonEnabled(true);
+                break;
+
+            case PLAYER_CHANGED:
+                highlightCurrentPlayer(event.getCurrentPlayer());
+                showCardPlayed(event.getCard());
+                Direction dir = (Direction) event.getData("direction");
+                if (dir != null) {
+                    updateDirectionDisplay(dir);
+                }
+                break;
+
+            case ROUND_WON:
+                showRoundWinner(event.getCurrentPlayer());
+                updateScores();
+                initiateNewRound();
+                break;
+
+            case GAME_WON:
+                showWinner(event.getWinningPlayer());
+                break;
+
+            case MESSAGE:
+                displayMessage(event.getMessage());
+                break;
+
+            case COLOR_SELECTION_NEEDED:
+                showWildColorSelection();
+                break;
+
+            case SCORES_UPDATED:
+                updateScores();
+                break;
+
+            case DIRECTION_FLIPPED:
+                updateDirectionDisplay((Direction) event.getData("direction"));
+                displayMessage(event.getMessage());
+                break;
+        }
+    }
+
+    private void updateGameState(GameEvent event) {
+        Player currentPlayer = event.getCurrentPlayer();
+        if (currentPlayer != null) {
+            displayPlayerHand(currentPlayer);
+            highlightCurrentPlayer(currentPlayer);
+        }
+
+        Card topCard = event.getCard();
+        if (topCard != null) {
+            showCardPlayed(topCard);
+        }
+
+        // Handle additional data
+        if (event.getData("enableNextPlayer") != null) {
+            setNextPlayerButtonEnabled(event.getBooleanData("enableNextPlayer"));
+        }
+    }
+
+    private void updateDirectionDisplay(Direction direction) {
+        directionLabel.setText("Direction: " + direction.toString());
     }
 
     /**
@@ -316,9 +371,7 @@ public class UNO_Frame extends JFrame implements UNO_View{
     /**
      * Highlights the current player's name in the GUI.
      */
-    public void highlightCurrentPlayer(){
-        Player currentPlayer = model.getCurrentPlayer();
-
+    public void highlightCurrentPlayer(Player currentPlayer){
         //update the label text to show that player's name
         currentPlayerLabel.setText("Current Player: " + currentPlayer.getName());
 
@@ -392,7 +445,6 @@ public class UNO_Frame extends JFrame implements UNO_View{
         if (messageLabel != null) {
             messageLabel.setText(message);
         }
-        //        JOptionPane.showMessageDialog(this, message, "UNO Game", JOptionPane.INFORMATION_MESSAGE);
     }
 
     /**
@@ -451,7 +503,6 @@ public class UNO_Frame extends JFrame implements UNO_View{
      *
      * @param player The player who one that round
      */
-    @Override
     public void showRoundWinner(Player player) {
         if (player == null){
             return;

@@ -13,10 +13,10 @@ public interface AIStrategy {
      * Chooses a color when playing a wild card.
      *
      * @param player The AI player
-     * @param game The current game state
+     * @param isLightSide The current game state
      * @return The chosen color
      */
-    CardColor chooseWildColor(Player player, UNO_Model game);
+    CardColor chooseWildColor(Player player, boolean isLightSide);
 
     int getDelayMilliseconds();
 }
