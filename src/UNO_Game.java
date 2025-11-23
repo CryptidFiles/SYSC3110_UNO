@@ -36,7 +36,7 @@ public class UNO_Game {
     private int skipCount; //how many players to skip next time we move turns
 
     private boolean waitingForColorSelection; // For wild card implementations
-
+    private boolean hasActedThisTurn; //true once player has played/drawn this turn
     private List<UNO_View> views;
 
 
@@ -60,6 +60,7 @@ public class UNO_Game {
         this.roundOver = false;
         this.skipCount = 0;
         this.currentPlayerIndex = 0;
+        this.hasActedThisTurn = false;
         views = new ArrayList<>();
 
         // Initialize players from provided data
@@ -198,7 +199,7 @@ public class UNO_Game {
         roundOver = false; //round just got activated
         roundWinningPlayer = null; //no winners yet
         skipCount = 0;
-
+        hasActedThisTurn = false;
         // Update the game state
         notifyViews();
     }
@@ -271,6 +272,8 @@ public class UNO_Game {
             // Execute card action (if any)
             chosenCard.action(this, currentPlayer);
 
+            hasActedThisTurn = true;
+
             // NOTIFY views since card was selected
             notifyCardPlayed(chosenCard);
             notifyViews();
@@ -340,11 +343,12 @@ public class UNO_Game {
             if (drawnCard != null) {
                 currentPlayer.drawCard(drawnCard);
             }
+            hasActedThisTurn = true;
 
-            notifyMessage("Card played successfully! Press 'Next Player' to continue. ");
-            for (UNO_View view : views) {
-                view.getNextPlayerButton().setEnabled(true);
-            }
+            notifyMessage("Card drawn! Press 'Next Player' to continue. ");
+//            for (UNO_View view : views) {
+//                view.getNextPlayerButton().setEnabled(true);
+//            }
             // NOTIFY views as player has drawn a card and skipping current player's turn
             notifyViews();
 
@@ -370,6 +374,7 @@ public class UNO_Game {
             } else {
                 currentPlayerIndex = (currentPlayerIndex - 1 + players.size()) % players.size();
             }
+            hasActedThisTurn = false;
             notifyViews();  // Only notify once after the move
         }
     }
@@ -416,7 +421,8 @@ public class UNO_Game {
      */
     public boolean validMove(Player p, int i) { //returns true if players card matches type or color of the top card in play Pile
         try {
-            return p.playCard(i).playableOnTop(topCard());
+            Card candidate = p.getCard(i);
+            return candidate.playableOnTop(topCard());
         } catch (Exception e) {
             notifyMessage("Error validating top card: " + e.getMessage());
             return false;
@@ -511,6 +517,7 @@ public class UNO_Game {
             }
 
             skipCount = 0;  // Reset skip count after processing
+            hasActedThisTurn = false; //mark the new players turn as fresh
             notifyViews();   // Notify views once after all skips are processed
         }
     }
@@ -663,5 +670,13 @@ public class UNO_Game {
 
         // Match by color or type/value
         return card.getColor() == top.getColor() || card.getType() == top.getType();
+    }
+
+    /**
+     * Returns whether the player acted, whether drew a card or played then it has acted, otherwise false
+     * @return boolean. true if has acted, false otherwise
+     */
+    public boolean hasActedThisTurn() {
+        return hasActedThisTurn;
     }
 }

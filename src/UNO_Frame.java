@@ -237,6 +237,10 @@ public class UNO_Frame extends JFrame implements UNO_View{
         displayPlayerHand(currentPlayer); //to show their hand on screen
         highlightCurrentPlayer(); //Highlight their turn
         showCardPlayed(model.topCard()); //show the top of the play pile on the screen
+
+        boolean hasPlayable = model.hasPlayableHand(currentPlayer);
+        boolean canDraw = !hasPlayable && !model.hasActedThisTurn();
+        drawButton.setEnabled(canDraw);
     }
 
     /**
@@ -255,7 +259,12 @@ public class UNO_Frame extends JFrame implements UNO_View{
             CardComponent cardComp = new CardComponent(card, i + 1, controller);
 
             // Highlight playable cards
-            cardComp.setPlayable(model.isPlayable(card));
+            boolean playable = model.isPlayable(card);
+            cardComp.setPlayable(playable);
+            cardComp.getUseButton().setEnabled(playable);
+            if (!playable){
+                cardComp.getUseButton().setForeground(Color.GRAY);
+            }
 
             playerHandPanel.add(cardComp);
         }

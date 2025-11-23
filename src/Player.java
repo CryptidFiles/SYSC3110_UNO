@@ -185,4 +185,8 @@ public class Player {
     public boolean isAI() {
         return isAI;
     }
+
+    public Card getCard(int index) {
+        return hand.get(index - 1);
+    }
 }

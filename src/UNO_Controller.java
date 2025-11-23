@@ -43,10 +43,10 @@ public class UNO_Controller implements ActionListener {
         } catch (Exception ignored) {
         }
 
-        view.setDrawButtonEnabled(false);
+        //view.setDrawButtonEnabled(false);
         Player current = model.getCurrentPlayer();
         boolean hasPlayable = model.hasPlayableHand(current);
-        view.setDrawButtonEnabled(!hasPlayable);
+        //view.setDrawButtonEnabled(!hasPlayable);
     }
 
     /**
@@ -87,7 +87,7 @@ public class UNO_Controller implements ActionListener {
         try{
             model.moveToNextPlayer();
             view.setNextPlayerButtonEnabled(false); //disable until next valid action
-            view.setDrawButtonEnabled(false);
+            //view.setDrawButtonEnabled(false);
 
             view.displayMessage("Next Player's turn!");
             view.setHandEnabled(true);
@@ -95,7 +95,7 @@ public class UNO_Controller implements ActionListener {
             Player current = model.getCurrentPlayer();
             boolean hasPlayable = model.hasPlayableHand(current);
 
-            view.setDrawButtonEnabled(!hasPlayable);
+            //view.setDrawButtonEnabled(!hasPlayable);
         } catch (Exception ex) {
             model.notifyMessage("Error moving to next player: " + ex.getMessage());
         }
@@ -113,12 +113,12 @@ public class UNO_Controller implements ActionListener {
 
             // Use the existing drawCard() method which already handles drawing for current player
             Card drawnCard = model.drawCard();
-            view.setDrawButtonEnabled(false);
+            //view.setDrawButtonEnabled(false);
 
             if (drawnCard != null) {
                 view.displayMessage(currentPlayer.getName() + " drew a card. Press 'Next Player' to continue.");
                 view.setNextPlayerButtonEnabled(true);
-                view.setDrawButtonEnabled(false);
+                //view.setDrawButtonEnabled(false);
                 view.setHandEnabled(false);
             } else {
                 // Model should handle empty deck scenario through reshuffling
@@ -157,7 +157,7 @@ public class UNO_Controller implements ActionListener {
                 if (!model.isWaitingForColorSelection()){
                     view.displayMessage("Card Played successfully! Press 'Next Player' to continue ");
                     view.setHandEnabled(false);
-                    view.setDrawButtonEnabled(false);
+                    //view.setDrawButtonEnabled(false);
                     view.setNextPlayerButtonEnabled(true);
                 }
             }
@@ -170,7 +170,7 @@ public class UNO_Controller implements ActionListener {
 
         Player currentPlayer = model.getCurrentPlayer();
         boolean hasPlayable = model.hasPlayableHand(currentPlayer);
-        view.setDrawButtonEnabled(!hasPlayable);
+        //view.setDrawButtonEnabled(!hasPlayable);
     }
 
     /**
