@@ -24,6 +24,7 @@ The offical **UNO FLIP!** rules can be found here: https://service.mattel.com/in
 - ✅ Implements **MVC pattern** 
 - ✅ Includes **error handling**, and **JUnit-tested game logic**  
 - ✅ Provides **UML diagrams** and **sequence diagrams** for main gameplay scenarios
+- ✅ Implements **AI Bots** that you can play with
   
 ---
 ## How to Run
@@ -119,7 +120,10 @@ java UNO_Frame
 - 
 
 **Jonathan**
-- U
+- Updated README
+- Updated UML diagram
+- Updated data strucutre explanation
+- Fixed some bugs with the ai bots and the UI
 ---
 
 ## Issues

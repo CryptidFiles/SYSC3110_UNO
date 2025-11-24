@@ -238,7 +238,7 @@ public class UNO_Frame extends JFrame implements UNO_View{
         // Set up control buttons panel
         JPanel buttonPanel = new JPanel(new FlowLayout(FlowLayout.CENTER, 20, 10));
         buttonPanel.setBackground(playAreaPanel.getBackground());
-        buttonPanel.add(drawButton);
+        //buttonPanel.add(drawButton);
         buttonPanel.add(nextPlayerButton);
 
         playAreaPanel.add(buttonPanel, BorderLayout.SOUTH);
@@ -271,6 +271,11 @@ public class UNO_Frame extends JFrame implements UNO_View{
     }
 
     private void processGameEvent(GameEvent event) {
+        if (event.getCurrentPlayer().isPlayerAI()){
+            drawButton.setEnabled(false);
+            nextPlayerButton.setEnabled(false);
+
+        }
         switch (event.getType()) {
             case GAME_STATE_CHANGED:
                 updateGameState(event);
@@ -281,6 +286,7 @@ public class UNO_Frame extends JFrame implements UNO_View{
                 displayMessage(event.getMessage());
                 setHandEnabled(false);
                 setNextPlayerButtonEnabled(true);
+                displayPlayerHand(event.getCurrentPlayer());
                 break;
 
             case CARD_DRAWN:
@@ -288,6 +294,7 @@ public class UNO_Frame extends JFrame implements UNO_View{
                 setHandEnabled(false);
                 setNextPlayerButtonEnabled(true);
                 setDrawButtonEnabled(false);
+                displayPlayerHand(event.getCurrentPlayer());
                 break;
 
             case PLAYER_CHANGED:
@@ -397,7 +404,13 @@ public class UNO_Frame extends JFrame implements UNO_View{
             // Highlight playable cards
             boolean playable = model.isPlayable(card);
             cardComp.setPlayable(playable);
-            cardComp.getUseButton().setEnabled(playable);
+            if(player.isPlayerAI()){
+                cardComp.getUseButton().setEnabled(false);
+            }
+            else {
+                cardComp.getUseButton().setEnabled(playable);
+            }
+
             if (!playable){
                 cardComp.getUseButton().setForeground(Color.GRAY);
             }
