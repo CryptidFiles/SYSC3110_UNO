@@ -3,127 +3,220 @@ import static org.junit.Assert.*;
 import java.util.ArrayList;
 
 /**
- * Unit tests for Player class.
+ * Unit tests for the Player class.
  */
 public class PlayerTest {
 
     private Player player;
-    private Card dummyCard;
 
-    @BeforeClass
-    public static void setUpBeforeClass() {
-        System.out.println("Starting Player tests...");
-    }
+    /**
+     * Simple mock card for isolated testing.
+     */
+    private static class MockCard extends Card {
+        public MockCard() {
+            this.isLightSideActive = true;
+            this.lightColor = CardColor.RED;
+            this.darkColor = CardColor.BLUE;
+            this.lightType = CardType.ONE;
+            this.darkType = CardType.TWO;
+        }
 
-    @AfterClass
-    public static void tearDownAfterClass() {
-        System.out.println("Finished Player tests.");
-    }
+        @Override
+        // No logic implemented here
+        public boolean action(UNO_Model model, Player player) { return false; }
 
-    @Before
-    public void setUp() {
-        player = new Player("Alice", false);
-        // Minimal dummy card for testing
-        dummyCard = new Card() {
-            @Override
-            public boolean action(UNO_Model model, Player player) { return true; }
-            @Override
-            public boolean playableOnTop(Card otherCard) { return true; }
-        };
-    }
-
-    @After
-    public void tearDown() {
-        System.out.println("Test finished.");
+        @Override
+        // No logic implemented here
+        public boolean playableOnTop(Card otherCard) { return false; }
     }
 
     /**
-     * Tests getName() method.
+     * Simple mock AI strategy for isolated testing.
+     */
+    private static class MockStrategy implements AIStrategy {
+
+        private int delay;
+
+        @Override
+        // No logic implemented here
+        public int chooseCard(Player player, Card topCard, UNO_Model game) {
+            return 1;
+        }
+
+        @Override
+        // // No logic implemented here. Always picks RED.
+        public CardColor chooseWildColor(Player aiPlayer, boolean isLightSide) {
+            return CardColor.RED;
+        }
+
+        @Override
+        public int getDelayMilliseconds() {
+            return delay;
+        }
+
+        @Override
+        public void setDelayMilliseconds(int delayMilliseconds) {
+            this.delay = delayMilliseconds;
+        }
+    }
+
+    /**
+     * Runs before each test to create a fresh player.
+     */
+    @Before
+    public void setUp() {
+        player = new Player("John", false);
+        System.out.println("Starting new Player test...");
+    }
+
+    /**
+     * Runs after each test.
+     */
+    @After
+    public void tearDown() {
+        System.out.println("Player test completed.");
+    }
+
+    /**
+     * Tests that getName returns the correct value.
      */
     @Test
     public void testGetName() {
-        assertEquals("Alice", player.getName());
+        assertEquals("John", player.getName());
     }
 
     /**
-     * Tests drawCard() adds a card to the player's hand.
+     * Tests that drawCardToHand adds a card to the hand.
      */
     @Test
-    public void testDrawCard() {
-        player.drawCardToHand(dummyCard);
+    public void testDrawCardToHand() {
+        Card c = new MockCard();
+        player.drawCardToHand(c);
+
         assertEquals(1, player.handSize());
-        assertTrue(player.getHand().contains(dummyCard));
+        assertEquals(c, player.getCardInHand(1));
     }
 
     /**
-     * Tests playCard() returns the correct card.
+     * Tests retrieving a card from hand by index.
      */
     @Test
     public void testGetCardInHand() {
-        player.drawCardToHand(dummyCard);
-        Card played = player.getCardInHand(1);
-        assertEquals(dummyCard, played);
+        Card c = new MockCard();
+        player.drawCardToHand(c);
+
+        Card retrieved = player.getCardInHand(1);
+        assertEquals(c, retrieved);
     }
 
     /**
-     * Tests removeCard() removes the correct card.
+     * Tests removing a card from the hand.
      */
     @Test
     public void testRemoveCard() {
-        player.drawCardToHand(dummyCard);
+        Card c1 = new MockCard();
+        Card c2 = new MockCard();
+
+        player.drawCardToHand(c1);
+        player.drawCardToHand(c2);
+
         player.removeCard(1);
-        assertEquals(0, player.handSize());
+
+        assertEquals(1, player.handSize());
+        assertEquals(c2, player.getCardInHand(1));
     }
 
     /**
-     * Tests clearHand() empties the player's hand.
+     * Tests that clearHand empties the hand.
      */
     @Test
     public void testClearHand() {
-        player.drawCardToHand(dummyCard);
+        player.drawCardToHand(new MockCard());
+        player.drawCardToHand(new MockCard());
+
         player.clearHand();
+
         assertEquals(0, player.handSize());
     }
 
     /**
-     * Tests getHand() returns the correct hand.
+     * Tests that getHand returns the actual hand list.
      */
     @Test
     public void testGetHand() {
-        player.drawCardToHand(dummyCard);
+        player.drawCardToHand(new MockCard());
+
         ArrayList<Card> hand = player.getHand();
         assertEquals(1, hand.size());
-        assertTrue(hand.contains(dummyCard));
     }
 
     /**
-     * Tests handSize() returns the correct number of cards.
+     * Tests that handSize returns the correct count.
      */
     @Test
     public void testHandSize() {
         assertEquals(0, player.handSize());
-        player.drawCardToHand(dummyCard);
+
+        player.drawCardToHand(new MockCard());
         assertEquals(1, player.handSize());
     }
 
     /**
-     * Tests addScore() correctly increments the score.
+     * Tests that addScore increments the score correctly.
      */
     @Test
     public void testAddScore() {
-        assertEquals(0, player.getScore());
-        player.addScore(5);
-        assertEquals(5, player.getScore());
-        player.addScore(3);
-        assertEquals(8, player.getScore());
+        player.addScore(10);
+        player.addScore(20);
+
+        assertEquals(30, player.getScore());
     }
 
     /**
-     * Tests getScore() returns the correct score.
+     * Tests that getScore returns the correct total.
      */
     @Test
     public void testGetScore() {
-        player.addScore(10);
-        assertEquals(10, player.getScore());
+        assertEquals(0, player.getScore());
+
+        player.addScore(7);
+        assertEquals(7, player.getScore());
+    }
+
+    /**
+     * Tests AI flag behavior and setAI.
+     */
+    @Test
+    public void testIsPlayerAI() {
+        assertFalse(player.isPlayerAI());
+
+        player.setAI(true);
+        assertTrue(player.isPlayerAI());
+    }
+
+    /**
+     * Tests setting and retrieving AIStrategy.
+     */
+    @Test
+    public void testSetAndGetAIStrategy() {
+        MockStrategy strategy = new MockStrategy();
+        player.setAiStrategy(strategy);
+
+        assertEquals(strategy, player.getAIStrategy());
+    }
+
+    /**
+     * Tests second constructor that includes an AI strategy.
+     */
+    @Test
+    public void testConstructorWithStrategy() {
+        MockStrategy strategy = new MockStrategy();
+        Player p = new Player("Ronaldo", true, strategy);
+
+        assertEquals("Ronaldo", p.getName());
+        assertTrue(p.isPlayerAI());
+        assertEquals(strategy, p.getAIStrategy());
+        assertEquals(0, p.handSize());
+        assertEquals(0, p.getScore());
     }
 }

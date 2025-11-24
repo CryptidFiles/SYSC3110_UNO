@@ -94,16 +94,4 @@ public class CardTest {
         testCard.flip();
         assertFalse(testCard.getActiveSide());
     }
-
-    /**
-     * Test printCard() method prints the correct representation.
-     */
-    @Test
-    public void testPrintCard() {
-        System.out.println("Expected: RED  NUMBER");
-        testCard.printCard(); // manually verify console output
-        testCard.flip();
-        System.out.println("Expected: BLUE  SKIP");
-        testCard.printCard(); // manually verify console output
-    }
 }

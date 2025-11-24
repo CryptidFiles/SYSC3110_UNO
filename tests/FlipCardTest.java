@@ -33,11 +33,11 @@ public class FlipCardTest {
      */
     @Test
     public void testConstructorSetsColorsAndTypes() {
-        assertEquals(CardColor.BLUE, flipCard.lightColor);
-        assertEquals(CardColor.TEAL, flipCard.darkColor);
-        assertEquals(CardType.FLIP, flipCard.lightType);
-        assertEquals(CardType.DARK_FLIP, flipCard.darkType);
-        assertTrue(flipCard.isLightSideActive);
+        assertEquals(CardColor.BLUE, flipCard.getColor());      // light side active
+        assertEquals(CardType.FLIP, flipCard.getType());
+        flipCard.flip();
+        assertEquals(CardColor.TEAL, flipCard.getColor());      // dark side active
+        assertEquals(CardType.DARK_FLIP, flipCard.getType());
     }
 
     /**
@@ -75,10 +75,10 @@ public class FlipCardTest {
      */
     @Test
     public void testManualLightDarkSideToggle() {
-        assertTrue(flipCard.isLightSideActive);
-        flipCard.isLightSideActive = false;
-        assertFalse(flipCard.isLightSideActive);
-        flipCard.isLightSideActive = true;
-        assertTrue(flipCard.isLightSideActive);
+        assertTrue(flipCard.getActiveSide());
+        flipCard.flip();
+        assertFalse(flipCard.getActiveSide());
+        flipCard.flip();
+        assertTrue(flipCard.getActiveSide());
     }
 }

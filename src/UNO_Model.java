@@ -754,14 +754,6 @@ public class UNO_Model {
         notifyViews();
     }
 
-
-
-
-
-
-
-
-
     /**
      * Returns whether the player acted, whether drew a card or played then it has acted, otherwise false
      * @return boolean. true if has acted, false otherwise

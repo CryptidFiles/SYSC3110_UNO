@@ -1,9 +1,12 @@
 import org.junit.Before;
 import org.junit.Test;
+
+import javax.swing.*;
+
 import static org.junit.Assert.*;
 import java.util.*;
 
-public class UNO_GameTest {
+public class UNO_ModelTest {
     private UNO_Model game;
     private Player player1, player2;
     private ArrayList<String> names;
@@ -46,6 +49,8 @@ public class UNO_GameTest {
      */
     @Test
     public void testDirectionFlip() {
+        game.startNewRound();
+
         assertEquals(Direction.CLOCKWISE, game.getDirection());
         game.flipDirection();
         assertEquals(Direction.COUNTERCLOCKWISE, game.getDirection());
@@ -102,15 +107,18 @@ public class UNO_GameTest {
     @Test
     public void testValidMoveTrueAndFalse() {
         Card top = new TestCard(CardColor.RED, CardType.FIVE);
+        game.startNewRound();
+        game.getPlayPile().clear();
+        game.getPlayPile().push(top);
+
         Card valid = new TestCard(CardColor.RED, CardType.NINE);
         Card invalid = new TestCard(CardColor.BLUE, CardType.SEVEN);
+
         player1.drawCardToHand(valid);
         player1.drawCardToHand(invalid);
 
-        game.startNewRound();
-        game.getPlayDeck().addCard(top);
-        assertTrue(valid.playableOnTop(top));
-        assertFalse(invalid.playableOnTop(top));
+        assertTrue(game.validMove(player1, player1.handSize() - 1));
+        assertFalse(game.validMove(player1, player1.handSize()));
     }
 
     /**
@@ -119,12 +127,13 @@ public class UNO_GameTest {
     @Test
     public void testIsPlayableConditions() {
         Card top = new TestCard(CardColor.YELLOW, CardType.THREE);
+        game.startNewRound();
+        game.getPlayPile().clear();
+        game.getPlayPile().push(top);
+
         Card sameColor = new TestCard(CardColor.YELLOW, CardType.NINE);
         Card sameType = new TestCard(CardColor.RED, CardType.THREE);
         Card wild = new TestCard(CardColor.WILD, CardType.WILD);
-
-        game.startNewRound();
-        game.getPlayPile().add(top);
 
         assertTrue(game.isPlayable(sameColor));
         assertTrue(game.isPlayable(sameType));
@@ -174,16 +183,21 @@ public class UNO_GameTest {
      */
     @Test
     public void testTallyScoresAddsToWinner() {
+        game.startNewRound(); // This is to avoid the EmptyStackException
+
+        // Remove all random cards to get a predictable score
+        player2.getHand().clear();
+
         Card c1 = new TestCard(CardColor.RED, CardType.FIVE);
         Card c2 = new TestCard(CardColor.BLUE, CardType.SKIP);
         player2.drawCardToHand(c1);
         player2.drawCardToHand(c2);
-        int before = player1.getScore();
+
+        int expected = c1.getType().getPointValue() + c2.getType().getPointValue();
 
         game.tallyScores(player1);
 
-        assertTrue(player1.getScore() > before);
-        assertEquals(0, player2.getScore());
+        assertEquals(expected, player1.getScore());
     }
 
     /**
@@ -204,6 +218,8 @@ public class UNO_GameTest {
      */
     @Test
     public void testGameWinningCondition() {
+        game.startNewRound(); // This is to avoid the EmptyStackException
+
         player1.addScore(490);
         player2.drawCardToHand(new TestCard(CardColor.GREEN, CardType.SEVEN));
         player2.drawCardToHand(new TestCard(CardColor.BLUE, CardType.SKIP));
@@ -234,5 +250,85 @@ public class UNO_GameTest {
         public boolean playableOnTop(Card otherCard) {
             return this.getColor() == otherCard.getColor() || this.getType() == otherCard.getType();
         }
+    }
+
+    /** A test only AI strategy that returns predetermined decisions to make AI behavior predictable in unit tests. */
+    private static class TestAIStrategy implements AIStrategy {
+        int delay;
+        int cardToPlay;
+
+        TestAIStrategy(int cardToPlay, int delay) {
+            this.cardToPlay = cardToPlay;
+            this.delay = delay;
+        }
+
+        @Override
+        public int chooseCard(Player player, Card topCard, UNO_Model game) {
+            return cardToPlay;
+        }
+
+        @Override
+        public CardColor chooseWildColor(Player aiPlayer, boolean isLightSide) {
+            return CardColor.RED;
+        }
+
+        @Override
+        public int getDelayMilliseconds() {
+            return delay;
+        }
+
+        @Override
+        public void setDelayMilliseconds(int delayMilliseconds) {
+            this.delay = delayMilliseconds;
+        }
+    }
+
+    /** Waits briefly then flushes the EDT so Swing timer actions complete before assertions run. */
+    private void waitForTimer() {
+        try {
+            Thread.sleep(500); // guarantee timer event scheduled
+            SwingUtilities.invokeAndWait(() -> {}); // flush events
+        } catch (Exception e) {
+            e.printStackTrace();
+        }
+    }
+
+    /**
+     * Test for executeAITurn()
+     */
+    @Test
+    public void testExecuteAITurnPlaysCard() {
+        ArrayList<String> names = new ArrayList<>(Arrays.asList("AI", "Bob"));
+        ArrayList<Boolean> isAI = new ArrayList<>(Arrays.asList(true, false));
+
+        UNO_Model game = new UNO_Model(2, names, isAI);
+
+        Player ai = game.getPlayers().get(0);
+
+        // Remove random cards
+        ai.getHand().clear();
+
+        // Add two controlled cards
+        Card top = new TestCard(CardColor.RED, CardType.THREE);
+        game.getPlayPile().clear();
+        game.getPlayPile().push(top);
+
+        Card toPlay = new TestCard(CardColor.RED, CardType.FIVE);
+        ai.drawCardToHand(toPlay);
+
+        // Give AI strategy that always chooses card index 1
+        ai.setAiStrategy(new TestAIStrategy(1, 0));
+
+        // Run AI turn
+        game.executeAITurn();
+
+        // Force Swing Timer action to run
+        waitForTimer();
+
+        // The card should now be on the play pile
+        assertEquals(toPlay, game.topCard());
+
+        // AI should have played its only card
+        assertEquals(0, ai.handSize());
     }
 }
