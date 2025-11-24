@@ -77,7 +77,7 @@ public class UNO_Model {
         // Initialize players from provided data
         this.numPlayers = numPlayers;
         for (int i = 0; i < numPlayers; i++) {
-            players.add(new Player(playerNames.get(i), playerIsAI.get(i), new AdvancedAIStrategy(1500)));
+            players.add(new Player(playerNames.get(i), playerIsAI.get(i), new BasicAIStrategy(1500)));
         }
 
         // Initialize new event tracking fields
