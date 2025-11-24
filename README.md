@@ -98,6 +98,28 @@ java UNO_Frame
 - Adjusted some game logic
 - Implemented GUI to follow game logic
 
+
+### Milestone 3
+
+**Ahmad**
+- 
+  
+
+**Aryan**
+- After TA discussion regarding milestone 2's feedback on missing event model. Changed the MVC to not use an deprecated Observer pattern
+  but instead utilizing one notifyViews() method in the model that creates a GameEvent (event object) that packages all relevant info
+  while not needing to know how the view actually implements it.
+- Milestone 2 feedback on UNO_Controller class handling game logic in methods handleWildColorSelection, handleCardPlay, and handleDrawCard
+  has now been removed or reduced. I made a "thinner" controller that makes calls to the model mainly now.
+- Implemented the AI strategy interface and coded a basic strategy implementation which has the rules of placing the first valid card (otherwise
+  draw) and choosing a color for wild cards based on which color appears most frequently
+- Implemented the handling of AI turns to automatically make decisions based on its assigned strategy
+  
+**Atik**
+- 
+
+**Jonathan**
+- U
 ---
 
 ## Issues
