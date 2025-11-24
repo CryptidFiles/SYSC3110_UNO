@@ -103,7 +103,9 @@ java UNO_Frame
 ### Milestone 3
 
 **Ahmad**
-- 
+- Fixed some bugs related to the draw card and next player buttons being enabled/disabled when they shouldn't have been enabled/disabled,
+- Developed the UI popup for choosing whether a player is AI and integrated the logic that marks players as AI in the game model.
+- Added missing Javadocs and comments
   
 
 **Aryan**
