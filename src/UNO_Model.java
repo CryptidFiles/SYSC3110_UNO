@@ -15,7 +15,7 @@ import javax.swing.Timer;
  * @author Aryan Singh 101299776
  * @author Jonathan Gitej 101294584
  *
- * @version 2.0, November 10, 2025
+ * @version 3.0, November 24, 2025
  */
 public class UNO_Model {
     private ArrayList<Player> players; //a list of all players
@@ -106,7 +106,12 @@ public class UNO_Model {
         views.remove(view);
     }
 
-    // Replace all notify methods with this single method
+    /**
+     * Notifies all registered observers of a game state update.
+     * Constructs a {@link GameEvent} containing the latest state information
+     * and sends it to each view. After notifying, temporary event fields are reset
+     * unless the event type is MESSAGE.
+     */
     protected void notifyViews() {
 
         GameEvent event = new GameEvent(
@@ -395,6 +400,7 @@ public class UNO_Model {
 
     /**
      * Returns whether the game is waiting for color selection
+     * @return true if color selection is required before play continues
      */
     public boolean isWaitingForColorSelection() {
         return waitingForColorSelection;
@@ -632,7 +638,11 @@ public class UNO_Model {
     }
 
 
-
+    /**
+     * Executes the AI player's turn using its assigned {@link AIStrategy}.
+     * Displays an AI thinking animation, determines a move (draw or play),
+     * and executes the corresponding action after a timed delay
+     */
     public void executeAITurn() {
         Player currentPlayer = getCurrentPlayer();
 
@@ -692,6 +702,13 @@ public class UNO_Model {
         return roundOver;
     }
 
+    /**
+     * Checks whether the current player has emptied their hand and won the round.
+     * If so, round status is updated, scores are tallied, and views are notified.
+     * If the player's total score reaches the winning threshold, the entire game ends.
+     *
+     * @param currentPlayer the player whose hand is being checked for zero cards
+     */
     public void checkForWin(Player currentPlayer) {
         if (currentPlayer.handSize() == 0) {
             roundWinningPlayer = currentPlayer;
@@ -756,6 +773,7 @@ public class UNO_Model {
 
     /**
      * Returns whether the player acted, whether drew a card or played then it has acted, otherwise false
+     *
      * @return boolean. true if has acted, false otherwise
      */
     public boolean hasActedThisTurn() {

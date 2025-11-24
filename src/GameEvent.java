@@ -3,6 +3,13 @@ import java.util.Map;
 
 /**
  * Represents a game state change event that gets passed from Model to View.
+ *
+ * @author Ahmad El-Jabi 101303269
+ * @author Atik Mahmud 101318070
+ * @author Aryan Singh 101299776
+ * @author Jonathan Gitej 101294584
+ *
+ * @version 3.0, November 24, 2025
  */
 public class GameEvent {
     public enum EventType {
