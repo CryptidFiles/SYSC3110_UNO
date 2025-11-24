@@ -219,8 +219,8 @@ public class CardComponent extends JPanel {
 
         // Map special names
         String typeName = switch (card.getType()) {
-            case ONE, WILD, DARK_WILD -> "0";
-            case TWO, DRAW_TWO, DRAW_COLOR -> "1";
+            case ONE -> "0";
+            case TWO -> "1";
             case THREE -> "2";
             case FOUR -> "3";
             case FIVE -> "4";
@@ -232,6 +232,8 @@ public class CardComponent extends JPanel {
             case FLIP, DARK_FLIP -> "9";
             case SKIP, SKIP_EVERYONE -> "11";
             case LIGHT_REVERSE, DARK_REVERSE -> "12";
+            case WILD, DARK_WILD-> "15";
+            case DRAW_TWO, DRAW_COLOR -> "16";
         };
         return basePath + colorFolder + "/" + typeName + ".png";
     }
