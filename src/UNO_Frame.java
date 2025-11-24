@@ -286,6 +286,7 @@ public class UNO_Frame extends JFrame implements UNO_View{
                 displayMessage(event.getMessage());
                 setHandEnabled(false);
                 setNextPlayerButtonEnabled(true);
+                displayPlayerHand(event.getCurrentPlayer());
                 break;
 
             case CARD_DRAWN:
@@ -293,7 +294,7 @@ public class UNO_Frame extends JFrame implements UNO_View{
                 setHandEnabled(false);
                 setNextPlayerButtonEnabled(true);
                 setDrawButtonEnabled(false);
-
+                displayPlayerHand(event.getCurrentPlayer());
                 break;
 
             case PLAYER_CHANGED:
