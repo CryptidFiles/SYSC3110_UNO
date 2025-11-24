@@ -40,10 +40,6 @@ public class UNO_Controller implements ActionListener {
         } catch (Exception ignored) {
         }
 
-        // Connect draw button to controller
-        //view.getDrawButton().addActionListener(this);
-        //view.getNextPlayerButton().addActionListener(this);
-
         view.setNextPlayerButtonEnabled(false);
         view.setDrawButtonEnabled(false);
 
@@ -131,15 +127,12 @@ public class UNO_Controller implements ActionListener {
                 wildCard.applyChosenColor(chosenColor, model.topCard().isLightSideActive);
                 model.completeColorSelection();
 
-                //model.moveToNextPlayer(); // Normal turn progression after wild card
-
             } else if (topCard instanceof WildDrawCard) {
                 WildDrawCard wildDrawCard = (WildDrawCard) topCard;
                 Player currentPlayer = model.getCurrentPlayer();
                 wildDrawCard.executeDrawAction(chosenColor, model.topCard().isLightSideActive, model, currentPlayer);
                 model.completeColorSelection();
 
-                // moveToNextPlayer is handled by addSkip() in the card logic
             }
         } catch (Exception ex) {
             model.prepareEvent(GameEvent.EventType.MESSAGE, "Error playing card: " + ex.getMessage());

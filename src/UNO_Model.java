@@ -31,7 +31,7 @@ public class UNO_Model {
     private boolean roundOver; //is this round finished
     private Player roundWinningPlayer; //who won this round
 
-    final int WINNING_SCORE = 200; //first to 500 wins the whole game
+    final int WINNING_SCORE = 500; //first to 500 wins the whole game
 
     private int currentPlayerIndex; //whose turn it is
     private int skipCount; //how many players to skip next time we move turns
@@ -77,7 +77,7 @@ public class UNO_Model {
         // Initialize players from provided data
         this.numPlayers = numPlayers;
         for (int i = 0; i < numPlayers; i++) {
-            players.add(new Player(playerNames.get(i), playerIsAI.get(i), new BasicAIStrategy(1500)));
+            players.add(new Player(playerNames.get(i), playerIsAI.get(i), new AdvancedAIStrategy(1500)));
         }
 
         // Initialize new event tracking fields
@@ -108,12 +108,11 @@ public class UNO_Model {
 
     // Replace all notify methods with this single method
     protected void notifyViews() {
-        System.out.println(lastEventType);
 
         GameEvent event = new GameEvent(
                 lastEventType,
                 getCurrentPlayer(),        // currentPlayer
-                roundWinningPlayer,        // winningPlayer (could be null)
+                gameWinningPlayer,        // winningPlayer (could be null)
                 lastPlayedCard != null ? lastPlayedCard : topCard(), // card
                 statusMessage,             // message
                 direction,                 // direction
@@ -174,6 +173,7 @@ public class UNO_Model {
         roundOver = false; //round just got activated
         roundWinningPlayer = null; //no winners yet
         skipCount = 0;
+        direction = Direction.CLOCKWISE; // reset to the default rotation direction
         hasActedThisTurn = false;
 
         // Update the game state
@@ -479,15 +479,6 @@ public class UNO_Model {
             shouldEnableNextPlayer = true;
             shouldEnableDrawButton = false;
 
-            // If AI drew, automatically progress after a delay
-            /**if (currentPlayer.isPlayerAI()) {
-                shouldEnableNextPlayer = false; // Don't show Next Player button for AI
-                // Auto-progress after delay
-                Timer aiProgressTimer = new Timer(1500, e -> moveToNextPlayer());
-                aiProgressTimer.setRepeats(false);
-                aiProgressTimer.start();
-            }*/
-
             notifyViews();
             return drawnCard;
         } catch (Exception e) {
@@ -712,12 +703,11 @@ public class UNO_Model {
                     roundWinningPlayer.getName() + " wins this round!");
             lastPlayedCard = null; // Use top card for display
 
+            // Check after the round points are distributed if there is a winner
             if (roundWinningPlayer.getScore() >= WINNING_SCORE) {
                 gameWinningPlayer = roundWinningPlayer;
                 gameOver = true;
                 prepareEvent(GameEvent.EventType.GAME_WON, null);
-            } else {
-                //prepareEvent(GameEvent.EventType.MESSAGE, "Starting new round!");
             }
 
             notifyViews();

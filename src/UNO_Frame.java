@@ -281,7 +281,6 @@ public class UNO_Frame extends JFrame implements UNO_View{
                 displayMessage(event.getMessage());
                 setHandEnabled(false);
                 setNextPlayerButtonEnabled(true);
-                System.out.println("NEXT PLAYER IS ENABLED");
                 break;
 
             case CARD_DRAWN:
@@ -289,7 +288,6 @@ public class UNO_Frame extends JFrame implements UNO_View{
                 setHandEnabled(false);
                 setNextPlayerButtonEnabled(true);
                 setDrawButtonEnabled(false);
-                System.out.println("NEXT PLAYER IS ENABLED");
                 break;
 
             case PLAYER_CHANGED:
@@ -372,7 +370,6 @@ public class UNO_Frame extends JFrame implements UNO_View{
         drawButton.setEnabled(canDraw);
 
         // Handle additional data
-        System.out.println(event.isEnableNextPlayer());
         if (event.isEnableNextPlayer()) {
             setNextPlayerButtonEnabled(true);
         }
@@ -483,7 +480,7 @@ public class UNO_Frame extends JFrame implements UNO_View{
                     }
                 }
             } else {
-                // Automatically select the colour for Ai bots based of strategy
+                // Automatically select the colour for AI bots based of strategy
                 CardColor chosenAIWildColor = event.getWildColorChoice();
                 controller.handleWildColorSelection(chosenAIWildColor);
                 showAIColorSelection(currentPlayer, chosenAIWildColor);
@@ -556,7 +553,7 @@ public class UNO_Frame extends JFrame implements UNO_View{
             return;
         }
 
-        String winnerMessage = player.getName() + " win the game with " + player.getScore() + " points!";
+        String winnerMessage = player.getName() + " wins the game with " + player.getScore() + " points!";
         displayMessage(winnerMessage);
         messageLabel.setForeground(Color.RED);
 
@@ -569,6 +566,7 @@ public class UNO_Frame extends JFrame implements UNO_View{
         playerHandPanel.removeAll();
         playerHandPanel.revalidate();
         playerHandPanel.repaint();
+
     }
 
     /**
@@ -577,8 +575,6 @@ public class UNO_Frame extends JFrame implements UNO_View{
      * @param player The player who one that round
      */
     public void showRoundWinner(Player player) {
-        System.out.println(player.getName() + " win the game with " + player.getScore() + " points!");
-
         if (player == null){
             return;
         }
