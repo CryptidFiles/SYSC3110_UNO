@@ -16,7 +16,7 @@ import javax.swing.*;
  * @author Aryan Singh 101299776
  * @author Jonathan Gitej 101294584
  *
- * @version 2.0, November 10, 2025
+ * @version 3.0, November 24, 2025
  */
 public class CardComponent extends JPanel {
     private Card card;           // The actual card data from model

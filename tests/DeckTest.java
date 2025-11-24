@@ -71,12 +71,23 @@ public class DeckTest {
 
     @Test
     public void testShuffle() {
-        ArrayList<Card> copyBeforeShuffle = new ArrayList<>(deck.getDeck());
-        deck.shuffle();
-        ArrayList<Card> copyAfterShuffle = deck.getDeck();
+        ArrayList<Card> before = new ArrayList<>(deck.getDeck());
 
-        // Same cards remain, but order may change
-        assertEquals(copyBeforeShuffle.size(), copyAfterShuffle.size());
-        assertTrue(copyAfterShuffle.containsAll(copyBeforeShuffle));
+        deck.shuffle();
+
+        ArrayList<Card> after = new ArrayList<>(deck.getDeck());
+
+        assertEquals(before.size(), after.size());
+        assertTrue(after.containsAll(before));
+
+        //This will ensure that the order of the card is not the same.
+        boolean sameOrder = true;
+        for (int i = 0; i < before.size(); i++) {
+            if (before.get(i) != after.get(i)) {
+                sameOrder = false;
+                break;
+            }
+        }
+        assertFalse(sameOrder);
     }
 }

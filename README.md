@@ -123,7 +123,7 @@ java UNO_Frame
 - Updated README
 - Updated UML diagram
 - Updated data strucutre explanation
-- Fixed some bugs with the ai bots and the UI
+- Fixed bugs with the ai bots and the UI
 ---
 
 ## Issues

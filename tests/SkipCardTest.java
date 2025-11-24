@@ -33,11 +33,12 @@ public class SkipCardTest {
      */
     @Test
     public void testConstructorSetsColorsAndTypes() {
-        assertEquals(CardColor.YELLOW, skipCard.lightColor);
-        assertEquals(CardColor.ORANGE, skipCard.darkColor);
-        assertEquals(CardType.SKIP, skipCard.lightType);
-        assertEquals(CardType.SKIP_EVERYONE, skipCard.darkType);
-        assertTrue(skipCard.isLightSideActive);
+        assertEquals(CardColor.YELLOW, skipCard.getColor());
+        assertEquals(CardType.SKIP, skipCard.getType());
+
+        skipCard.flip();
+        assertEquals(CardColor.ORANGE, skipCard.getColor());
+        assertEquals(CardType.SKIP_EVERYONE, skipCard.getType());
     }
 
     /**
@@ -75,10 +76,9 @@ public class SkipCardTest {
      */
     @Test
     public void testManualLightDarkSideToggle() {
-        assertTrue(skipCard.isLightSideActive);
-        skipCard.isLightSideActive = false;
-        assertFalse(skipCard.isLightSideActive);
-        skipCard.isLightSideActive = true;
-        assertTrue(skipCard.isLightSideActive);
+        skipCard.flip();
+        assertFalse(skipCard.getActiveSide());
+        skipCard.flip();
+        assertTrue(skipCard.getActiveSide());
     }
 }

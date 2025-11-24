@@ -30,11 +30,14 @@ public class DrawXCardTest {
 
     @Test
     public void testConstructorSetsColorsAndTypes() {
-        assertEquals(CardColor.RED, drawCard.lightColor);
-        assertEquals(CardColor.PINK, drawCard.darkColor);
-        assertEquals(CardType.DRAW_ONE, drawCard.lightType);
-        assertEquals(CardType.DRAW_FIVE, drawCard.darkType);
-        assertTrue(drawCard.isLightSideActive);
+        assertEquals(CardColor.RED, drawCard.getColor());
+        assertEquals(CardType.DRAW_ONE, drawCard.getType());
+
+        //Testing the functionality of flip() here.
+        drawCard.flip();
+
+        assertEquals(CardColor.PINK, drawCard.getColor());
+        assertEquals(CardType.DRAW_FIVE, drawCard.getType());
     }
 
     @Test

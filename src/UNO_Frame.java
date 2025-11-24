@@ -21,7 +21,7 @@ import java.util.ArrayList;
  * @author Aryan Singh 101299776
  * @author Jonathan Gitej 101294584
  *
- * @version 2.0, November 10, 2025
+ * @version 3.0, November 24, 2025
  */
 public class UNO_Frame extends JFrame implements UNO_View{
     private JPanel mainPanel; //container that holds everything
@@ -120,6 +120,12 @@ public class UNO_Frame extends JFrame implements UNO_View{
         }*/
     }
 
+    /**
+     * Displays a summary of all configured players after game setup is completed.
+     * This method lists each player's name and whether they are human or AI.
+     * The summary is shown both in the message area of the GUI and through
+     * a confirmation dialog popup prior to starting the game.
+     */
     private void showPlayerConfigurationSummary() {
         StringBuilder summary = new StringBuilder("Game Setup Complete!\t\n\n");
         ArrayList<Player> players = model.getPlayers();
@@ -270,6 +276,14 @@ public class UNO_Frame extends JFrame implements UNO_View{
         SwingUtilities.invokeLater(() -> processGameEvent(event));
     }
 
+    /**
+     * This method acts as the central event handler and updates the GUI
+     * based on the specific event type. It performs actions such as updating
+     * the displayed hand, showing played cards, prompting color selection,
+     * updating scores, and managing AI interactions.
+     *
+     * @param event the game event containing updated state information
+     */
     private void processGameEvent(GameEvent event) {
         if (event.getCurrentPlayer().isPlayerAI()){
             drawButton.setEnabled(false);
@@ -359,6 +373,14 @@ public class UNO_Frame extends JFrame implements UNO_View{
         }
     }
 
+    /**
+     * Updates the GUI to reflect the current overall game state.
+     * This method refreshes the current player's hand, highlights the
+     * active player, updates whether the player may draw, and handles
+     * any additional UI state contained in the game event.
+     *
+     * @param event the event containing updated game state details
+     */
     private void updateGameState(GameEvent event) {
         Player currentPlayer = event.getCurrentPlayer();
         if (currentPlayer != null) {
@@ -382,6 +404,12 @@ public class UNO_Frame extends JFrame implements UNO_View{
         }
     }
 
+    /**
+     * Updates the on-screen indicator showing the current turn direction
+     * (clockwise or counter-clockwise).
+     *
+     * @param direction the new turn direction
+     */
     private void updateDirectionDisplay(Direction direction) {
         directionLabel.setText("Direction: " + direction.toString());
     }
@@ -502,6 +530,14 @@ public class UNO_Frame extends JFrame implements UNO_View{
         }
     }
 
+    /**
+     * Displays a temporary visual message indicating the color chosen
+     * automatically by an AI player when resolving a wild card.
+     * Highlights the message label and restores the formatting after a delay.
+     *
+     * @param aiPlayer the AI player who selected the color
+     * @param chosenColor the color the AI has chosen
+     */
     public void showAIColorSelection(Player aiPlayer, CardColor chosenColor) {
         String message = aiPlayer.getName() + " chooses " + chosenColor + " color!";
         displayMessage(message);
@@ -670,6 +706,12 @@ public class UNO_Frame extends JFrame implements UNO_View{
         }
     }
 
+    /**
+     * Enables or disables the Draw Card button.
+     * Used by the controller and game logic to control when drawing is valid.
+     *
+     * @param enabled true to enable the draw button, false to disable it
+     */
     public void setDrawButtonEnabled(boolean enabled){
         drawButton.setEnabled(enabled);
     }
@@ -685,6 +727,12 @@ public class UNO_Frame extends JFrame implements UNO_View{
     }
 
 
+    /**
+     * Displays a visual indicator and status message showing that an AI
+     * player is currently thinking and selecting an action.
+     *
+     * @param aiPlayer the AI player whose turn is being processed
+     */
     public void showAITurnIndicator(Player aiPlayer) {
         String message = aiPlayer.getName() + " is thinking...";
         displayMessage(message);
@@ -694,6 +742,15 @@ public class UNO_Frame extends JFrame implements UNO_View{
         messageLabel.setFont(new Font("Arial", Font.ITALIC, 14));
     }
 
+    /**
+     * Displays a message describing the action chosen by an AI player,
+     * including whether it drew a card or played a specific card.
+     * If a card is played, the selected card is briefly highlighted.
+     *
+     * @param aiPlayer the AI player making the selection
+     * @param cardIndex index of the selected card (0 indicates drawing a card)
+     * @param selectedCard the card played, or null if drawing
+     */
     public void showAICardSelection(Player aiPlayer, int cardIndex, Card selectedCard) {
         if (cardIndex == 0) {
             displayMessage(aiPlayer.getName() + " draws a card");
@@ -709,7 +766,13 @@ public class UNO_Frame extends JFrame implements UNO_View{
     }
 
 
-
+    /**
+     * Briefly highlights a card in the player's hand to visually indicate
+     * which card an AI player chose to play. The highlight is removed after
+     * a short delay.
+     *
+     * @param cardIndex the index of the card to highlight (0-based)
+     */
     private void highlightSelectedCard(int cardIndex) {
         Component[] components = playerHandPanel.getComponents();
         if (cardIndex > 0 && cardIndex < components.length) {

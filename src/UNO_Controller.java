@@ -17,7 +17,7 @@ import java.util.*;
  * @author Aryan Singh 101299776
  * @author Jonathan Gitej 101294584
  *
- * @version 2.0, November 10, 2025
+ * @version 3.0, November 24, 2025
  */
 public class UNO_Controller implements ActionListener {
     private UNO_Model model;
@@ -92,8 +92,14 @@ public class UNO_Controller implements ActionListener {
         }
     }
 
+
     /**
-     * Finds the current index of a card in the player's hand
+     * Searches the current player's hand to locate the index of the specified card.
+     * This method compares card references to ensure the exact card instance is matched.
+     *
+     * @param player the player whose hand is being searched
+     * @param card   the card instance to locate in the player's hand
+     * @return the index of the card if found, or -1 if the card is not present
      */
     private int findCardIndex(Player player, Card card) {
         ArrayList<Card> hand = player.getHand();

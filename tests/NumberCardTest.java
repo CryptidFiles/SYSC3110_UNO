@@ -33,11 +33,13 @@ public class NumberCardTest {
      */
     @Test
     public void testConstructorSetsColorsAndTypes() {
-        assertEquals(CardColor.YELLOW, numberCard.lightColor);
-        assertEquals(CardColor.ORANGE, numberCard.darkColor);
-        assertEquals(CardType.ONE, numberCard.lightType);
-        assertEquals(CardType.ONE, numberCard.darkType);
-        assertTrue(numberCard.isLightSideActive);
+        assertEquals(CardColor.YELLOW, numberCard.getColor());
+        assertEquals(CardType.ONE, numberCard.getType());
+
+        numberCard.flip();
+
+        assertEquals(CardColor.ORANGE, numberCard.getColor());
+        assertEquals(CardType.ONE, numberCard.getType());
     }
 
     /**
@@ -72,10 +74,10 @@ public class NumberCardTest {
      */
     @Test
     public void testManualLightDarkSideToggle() {
-        assertTrue(numberCard.isLightSideActive);
-        numberCard.isLightSideActive = false;
-        assertFalse(numberCard.isLightSideActive);
-        numberCard.isLightSideActive = true;
-        assertTrue(numberCard.isLightSideActive);
+        assertTrue(numberCard.getActiveSide());
+        numberCard.flip();
+        assertFalse(numberCard.getActiveSide());
+        numberCard.flip();
+        assertTrue(numberCard.getActiveSide());
     }
 }

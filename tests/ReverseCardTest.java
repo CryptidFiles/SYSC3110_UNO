@@ -33,11 +33,12 @@ public class ReverseCardTest {
      */
     @Test
     public void testConstructorSetsColorsAndTypes() {
-        assertEquals(CardColor.RED, reverseCard.lightColor);
-        assertEquals(CardColor.PINK, reverseCard.darkColor);
-        assertEquals(CardType.LIGHT_REVERSE, reverseCard.lightType);
-        assertEquals(CardType.DARK_REVERSE, reverseCard.darkType);
-        assertTrue(reverseCard.isLightSideActive);
+        assertEquals(CardColor.RED, reverseCard.getColor());
+        assertEquals(CardType.LIGHT_REVERSE, reverseCard.getType());
+
+        reverseCard.flip();
+        assertEquals(CardColor.PINK, reverseCard.getColor());
+        assertEquals(CardType.DARK_REVERSE, reverseCard.getType());
     }
 
     /**
@@ -75,10 +76,10 @@ public class ReverseCardTest {
      */
     @Test
     public void testManualLightDarkSideToggle() {
-        assertTrue(reverseCard.isLightSideActive);
-        reverseCard.isLightSideActive = false;
-        assertFalse(reverseCard.isLightSideActive);
-        reverseCard.isLightSideActive = true;
-        assertTrue(reverseCard.isLightSideActive);
+        assertTrue(reverseCard.getActiveSide());
+        reverseCard.flip();
+        assertFalse(reverseCard.getActiveSide());
+        reverseCard.flip();
+        assertTrue(reverseCard.getActiveSide());
     }
 }
