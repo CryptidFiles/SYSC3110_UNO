@@ -299,7 +299,7 @@ public class UNO_Frame extends JFrame implements UNO_View{
                 showCardPlayed(event.getCard());
                 displayMessage(event.getMessage());
                 setNextPlayerButtonEnabled(true);
-                displayPlayerHand(event.getCurrentPlayer());
+                updateGameState(event);
                 setHandEnabled(false);
                 break;
 
@@ -307,7 +307,7 @@ public class UNO_Frame extends JFrame implements UNO_View{
                 displayMessage(event.getMessage());
                 setNextPlayerButtonEnabled(true);
                 setDrawButtonEnabled(false);
-                displayPlayerHand(event.getCurrentPlayer());
+                updateGameState(event);
                 setHandEnabled(false);
                 break;
 
