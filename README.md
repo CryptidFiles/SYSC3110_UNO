@@ -124,7 +124,6 @@ java UNO_Frame
 **Jonathan**
 - Updated README
 - Updated UML diagram
-- Updated data strucutre explanation
 - Fixed bugs with the ai bots and the UI
 ---
 
