@@ -131,7 +131,7 @@ java UNO_Frame
 ---
 
 **Explanation of AI Player Strategy:**
-Any AI strategy implements the AIStrategy interface for methods for choosing a card and choosing a colour for wild cards, which enables for multiple strategies to be developed in future revisions. Milestone 3 utilizes a basic AI strategy that employs a straightforward decision making of choosing the first valid card (from left to right) from in the player’s hand to play. 
+All AI strategy implements the AIStrategy interface for methods for choosing a card and choosing a colour for wild cards, which enables for multiple strategies to be developed in future revisions. Milestone 3 utilizes a basic AI strategy that employs a straightforward decision making of choosing the first valid card (from left to right) from in the player’s hand to play. 
 
 **I. Card Selection Strategy**
   i. Sequential Hand Scanning
