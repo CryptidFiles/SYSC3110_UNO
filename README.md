@@ -130,6 +130,35 @@ java UNO_Frame
 - Fixed bugs with the ai bots and the UI
 ---
 
+**Explanation of AI Player Strategy:**
+Any AI strategy implements the AIStrategy interface for methods for choosing a card and choosing a colour for wild cards, which enables for multiple strategies to be developed in future revisions. Milestone 3 utilizes a basic AI strategy that employs a straightforward decision making of choosing the first valid card (from left to right) from in the player’s hand to play. 
+
+**I. Card Selection Strategy**
+  i. Sequential Hand Scanning
+  - The AI scans its hand from first to last card (index 0 to hand size-1)
+  - It plays the first legally playable card it encounters that matches the current top card
+  - This creates predictable but consistent gameplay behavior
+    
+  ii. Simple Playability Check
+  - For each card in hand, the AI calls card.playableOnTop(topCard)
+  - This method checks if the card matches the top card by either:
+      Same color
+      Same type/number
+      Or if it's a Wild card (always playable)
+
+  iii. Draw Decision
+  - If no playable cards are found after scanning the entire hand, the AI chooses to draw a card (returns 0)
+  - The drawn card is automatically evaluated for playability in the next turn
+ 
+**II. Wild Card Color Selection**
+  i. Color Frequency Analysis
+  - The AI counts how many cards of each color it holds in its hand
+  - It excludes Wild cards from this count since they don’t contribute to colour strategy\
+  ii. Majority
+  - The AI chooses the color that appears most frequently in its hand
+  - This maximizes the probability of having follow-up plays in subsequent turns
+
+
 ## Issues
 
 - The resoucre folder assets/ is not included in the jar file, making it not load the images. Please run the program by downloading all files and compile using the given commands.
