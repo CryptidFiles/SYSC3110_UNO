@@ -119,7 +119,10 @@ java UNO_Frame
 - Implemented the handling of AI turns to automatically make decisions based on its assigned strategy
   
 **Atik**
-- 
+- Did code quality checks.
+- Added test cases for AI Players to ensure moves are valid.
+- Added test cases for UNO Flip to ensure both sides are implemented.
+- Added javadoc to every method in ./tests to improve readability.
 
 **Jonathan**
 - Updated README
