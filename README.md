@@ -133,22 +133,22 @@ java UNO_Frame
 ### Milestone 5
 
 **Ahmad**
-- Helped brainstorm the most efficent way to implment the card images
+- Helped brainstorm the most efficent way to implement the card images
 - Helped contribute to documentation of the required functions to implment
 - Helped debug CardComponents
 
 **Aryan**
-- Helped brainstorm the most efficent way to implment the card images
+- Helped brainstorm the most efficent way to implement the card images
 - Created CardComponent class which handles the UI representation of the cards
 - Helped debug CardComponents
 
 **Atik**
-- Helped brainstorm the most efficent way to implment the card images
+- Helped brainstorm the most efficent way to implement the card images
 - Helped contribute to the CardComponent class
 - Helped debug CardComponents
 
 **Jonathan**
-- Helped brainstorm the most efficent way to implment the card images
+- Helped brainstorm the most efficent way to implement the card images
 - Created and adjusted the UNO card assests
 - Helped debug CardComponents
 
