@@ -182,6 +182,12 @@ All AI strategy implements the AIStrategy interface for methods for choosing a c
   - The AI chooses the color that appears most frequently in its hand
   - This maximizes the probability of having follow-up plays in subsequent turns
 
+## Bonus Feature
+
+The bonus feature we implemented for milestone 5 was Feature 1 (Images). We decided to add uno card images to represent the cards to improve readabilty and add familiarity to make the game look nicer and play better.
+
+To find the code for this feature look in the CardComponent class, specifically the functions getImagePath() which is designed to locate the assest files and loadCardImage() which assigns the image to card. All the card images are found in the asset folder.
+
 
 ## Issues
 
