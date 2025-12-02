@@ -70,7 +70,7 @@ public class UNO_Controller implements ActionListener {
             System.out.println("Next Player button clicked!");
             model.moveToNextPlayer();
             view.setNextPlayerButtonEnabled(false);
-            System.out.println("Next Player button disabled");
+            //Removed the print statement here that prints "Next Player button disabled"
         }
         // Handle card plays from CardComponents
         else if (source instanceof JButton) {
@@ -157,6 +157,19 @@ public class UNO_Controller implements ActionListener {
             // Model will notify views automatically through observer pattern
         } catch (Exception ex) {
             model.prepareEvent(GameEvent.EventType.MESSAGE, "Error starting new game: " + ex.getMessage());
+            model.notifyViews();
+        }
+    }
+
+    /**
+     * Starts a new game.
+     * This method resets everything except the players.
+     */
+    public void handleNewGame() {
+        try {
+            model.startNewGame();
+        } catch (Exception ex) {
+            model.prepareEvent(GameEvent.EventType.MESSAGE,"Error starting new game: " + ex.getMessage());
             model.notifyViews();
         }
     }

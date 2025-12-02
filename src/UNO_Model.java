@@ -193,6 +193,37 @@ public class UNO_Model {
         }
     }
 
+    /**
+     * Starts a new game by resetting decks, distributing cards,
+     * and resetting scores.
+     * Called by the controller at the start of each round.
+     */
+    public void startNewGame(){
+        // reset all player scores
+        for (Player p : players) {
+            p.resetScore();
+        }
+
+        // reset game state
+        gameOver = false;
+        gameWinningPlayer = null;
+        roundOver = false;
+        roundWinningPlayer = null;
+        currentPlayerIndex = 0;
+        skipCount = 0;
+        direction = Direction.CLOCKWISE;
+        waitingForColorSelection = false;
+        hasActedThisTurn = false;
+        wildColorChoice = CardColor.WILD;
+
+        // let views know scores changed
+        prepareEvent(GameEvent.EventType.SCORES_UPDATED, "New game started!");
+        notifyViews();
+
+        // start the first round of the new game
+        startNewRound();
+    }
+
 
 
     /**

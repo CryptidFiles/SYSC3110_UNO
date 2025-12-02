@@ -323,7 +323,6 @@ public class UNO_Frame extends JFrame implements UNO_View{
             case ROUND_WON:
                 showRoundWinner(event.getCurrentPlayer());
                 updateScores();
-
                 // Use a timer to delay the new round initiation slightly
                 Timer roundTimer = new Timer(1000, e -> {
                     initiateNewRound();
@@ -334,6 +333,7 @@ public class UNO_Frame extends JFrame implements UNO_View{
 
             case GAME_WON:
                 showWinner(event.getWinningPlayer());
+                initiateNewGame();
                 break;
 
             case AI_THINKING:
@@ -370,6 +370,30 @@ public class UNO_Frame extends JFrame implements UNO_View{
                     displayMessage(event.getMessage());
                 }
                 break;
+        }
+    }
+
+    /**
+     * Prompts the user to start a new game after a game is won.
+     * Displays a confirmation dialog asking whether to continue playing.
+     */
+    private void initiateNewGame() {
+        int option = JOptionPane.showConfirmDialog(
+                this,
+                "Start new game?",
+                "Game finished",
+                JOptionPane.YES_NO_OPTION
+        );
+
+        if (option == JOptionPane.YES_OPTION) {
+            drawButton.setEnabled(true);
+            displayMessage("New game started!");
+            messageLabel.setForeground(Color.BLACK);
+
+            // Ask controller to start a new game
+            controller.handleNewGame();
+        } else {
+            System.exit(0);
         }
     }
 
