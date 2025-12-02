@@ -129,6 +129,21 @@ java UNO_Frame
 - Updated UML diagram
 - Fixed bugs with the ai bots and the UI
 - Implemented quality of life improvements to the gameplay loop to be more understandable for the player
+
+### Milestone 5
+
+**Ahmad**
+- 
+
+**Aryan**
+- 
+
+**Atik**
+- 
+
+**Jonathan**
+- 
+
 ---
 
 **Explanation of AI Player Strategy:**
