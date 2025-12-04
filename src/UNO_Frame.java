@@ -295,6 +295,9 @@ public class UNO_Frame extends JFrame implements UNO_View{
         SwingUtilities.invokeLater(() -> processGameEvent(event));
     }
 
+    /**
+     * Builds and add the file menu bar into the GUI
+     */
     private void initializeMenuBar() {
         JMenuBar menuBar = new JMenuBar();
 
@@ -783,6 +786,10 @@ public class UNO_Frame extends JFrame implements UNO_View{
         return nextPlayerButton;
     }
 
+    /**
+     * Refreshes all UI elements based off a given model.
+     * @param model the uno model to base the UI off
+     */
     @Override
     public void refreshGameState(UNO_Model model) {
         // Update current player label
@@ -809,6 +816,11 @@ public class UNO_Frame extends JFrame implements UNO_View{
         mainPanel.repaint();
     }
 
+    /**
+     *Changes what model the UI references
+     *
+     * @param loadedModel the new model we want to reference
+     */
     @Override
     public void setModel(UNO_Model loadedModel) {
         this.model = loadedModel;
