@@ -73,9 +73,7 @@ public class UNO_Controller implements ActionListener {
             System.out.println("Next Player button disabled");
 
         } else if (source == view.getUndoButton()) {
-            //boolean success = model.undo();    WHAT WE SHOULD CALL
-            return;
-
+            model.undo();
         } else if (source == view.getRedoButton()) {
             //boolean success = model.redo();    WHAT WE SHOULD CALL
             return;

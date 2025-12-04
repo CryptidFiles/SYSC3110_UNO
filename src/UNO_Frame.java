@@ -259,6 +259,7 @@ public class UNO_Frame extends JFrame implements UNO_View{
         buttonPanel.setBackground(playAreaPanel.getBackground());
         //buttonPanel.add(drawButton);
         buttonPanel.add(undoButton);
+        buttonPanel.add(redoButton);
         buttonPanel.add(nextPlayerButton);
 
         playAreaPanel.add(buttonPanel, BorderLayout.SOUTH);
