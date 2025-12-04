@@ -49,7 +49,8 @@ public class UNO_Model {
     private Card lastPlayedCard;
 
     // Undo Stack
-
+    private Stack<StateSnapShot> undoStack;
+    private Stack<StateSnapShot> redoStack;
     private static final int MAX_UNDO = 10;
 
 
@@ -91,7 +92,44 @@ public class UNO_Model {
         this.shouldEnableNextPlayer = false;
         this.shouldEnableDrawButton = false;
         this.lastPlayedCard = null;
+
+        //initialize stacks
+        undoStack = new Stack<>();
+        redoStack = new Stack<>();
     }
+
+    public void addUndoSnapShot(StateSnapShot ge){
+        undoStack.push(ge);
+    }
+    public void undo(){
+        Player player = getCurrentPlayer();
+
+        player.drawCardToHand(playPile.pop());
+
+        StateSnapShot snapShot = undoStack.pop();
+        GameEvent temp = snapShot.getPreviousHand();
+        lastEventType = temp.getType();
+        System.out.println(lastEventType);
+        currentPlayerIndex = snapShot.getCurrentPlayerIndex();
+        gameWinningPlayer = temp.getWinningPlayer();
+        lastPlayedCard = temp.getCard();
+        statusMessage = "Undo snap shot!";
+        direction = temp.getDirection();
+        shouldEnableNextPlayer = temp.isEnableNextPlayer();
+        shouldEnableDrawButton = temp.isEnableDrawButton();
+        wildColorChoice = temp.getWildColorChoice();
+
+        Card tempCard = temp.getCard();
+        if (tempCard instanceof WildCard || tempCard instanceof WildDrawCard) {
+            tempCard.lightColor = CardColor.WILD;
+            tempCard.darkColor = CardColor.WILD;
+        }
+        playPile.push(tempCard);
+        System.out.println("Undo snap shot!");
+        notifyViews();
+    }
+
+
 
     /**
      * Registers a {@link UNO_View} observer to receive updates when game state changes.
@@ -101,6 +139,7 @@ public class UNO_Model {
     public void addUnoView(UNO_View view){
         views.add(view);
     }
+
 
     /**
      * Removes a previously registered {@link UNO_View} observer.
@@ -320,7 +359,8 @@ public class UNO_Model {
         //if (!getCurrentPlayer().isPlayerAI()) {
             //saveStateForUndo();
         //}
-
+        StateSnapShot temp = new StateSnapShot(createNewGameEvent(), currentPlayerIndex);
+        this.addUndoSnapShot(temp);
         try {
             Player currentPlayer = getCurrentPlayer();
 
@@ -476,6 +516,9 @@ public class UNO_Model {
         /**if (!getCurrentPlayer().isPlayerAI()) {
             saveStateForUndo();
         }*/
+
+        StateSnapShot temp = new StateSnapShot(createNewGameEvent(), currentPlayerIndex);
+        this.addUndoSnapShot(temp);
 
         try {
             Player currentPlayer = getCurrentPlayer();
@@ -841,7 +884,19 @@ public class UNO_Model {
     public void setWaitingForColorSelection(boolean waiting) {
         this.waitingForColorSelection = waiting;
     }
-
-
+    public GameEvent createNewGameEvent(){
+        GameEvent event = new GameEvent(
+                lastEventType,
+                getCurrentPlayer(),        // currentPlayer
+                gameWinningPlayer,        // winningPlayer (could be null)
+                lastPlayedCard != null ? lastPlayedCard : topCard(), // card
+                statusMessage,             // message
+                direction,                 // direction
+                shouldEnableNextPlayer,    // enableNextPlayer
+                shouldEnableDrawButton,    // enableDrawButton
+                wildColorChoice            // choice of color for wild card (automatic cases like AI)
+        );
+        return event;
+    }
     // For undo Stack
 }
