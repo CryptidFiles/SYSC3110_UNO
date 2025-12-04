@@ -1,3 +1,5 @@
+import java.io.Serial;
+import java.io.Serializable;
 import java.util.*;
 
 /**
@@ -11,7 +13,9 @@ import java.util.*;
  *
  * @version 3.0, November 24, 2025
  */
-public class Player {
+public class Player implements Serializable {
+    @Serial
+    private static final long serialVersionUID = 1L;
     private String name;
     private ArrayList<Card> hand;
     private int score;

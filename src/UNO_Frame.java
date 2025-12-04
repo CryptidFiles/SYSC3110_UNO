@@ -114,6 +114,7 @@ public class UNO_Frame extends JFrame implements UNO_View{
         redoButton.addActionListener(controller);
 
         setupLayout();
+        initializeMenuBar();
         this.setVisible(true);
 
         // Initial scoreboard update
@@ -183,6 +184,7 @@ public class UNO_Frame extends JFrame implements UNO_View{
         topCardLabel.setPreferredSize(new Dimension(120, 160));
         topCardLabel.setOpaque(true);
         topCardLabel.setBackground(new Color(255, 255, 255));
+
 
         drawButton = new JButton("Draw Card");
         drawButton.setFont(new Font("Arial", Font.BOLD, 14));
@@ -292,6 +294,35 @@ public class UNO_Frame extends JFrame implements UNO_View{
         // Use SwingUtilities to ensure thread safety
         SwingUtilities.invokeLater(() -> processGameEvent(event));
     }
+
+    private void initializeMenuBar() {
+        JMenuBar menuBar = new JMenuBar();
+
+        // --- FILE MENU ---
+        JMenu fileMenu = new JMenu("File");
+
+        JMenuItem saveItem = new JMenuItem("Save Game");
+        JMenuItem loadItem = new JMenuItem("Load Game");
+        JMenuItem exitItem = new JMenuItem("Exit");
+
+        // Add items to menu
+        fileMenu.add(saveItem);
+        fileMenu.add(loadItem);
+        fileMenu.addSeparator();
+        fileMenu.add(exitItem);
+
+        // Add menu to bar
+        menuBar.add(fileMenu);
+
+        // Set menu bar to the JFrame
+        setJMenuBar(menuBar);
+
+        // ======= ACTION LISTENERS ======= //
+        saveItem.addActionListener(e -> controller.saveGame());
+        loadItem.addActionListener(e -> controller.loadGame());
+        exitItem.addActionListener(e -> System.exit(0));
+    }
+
 
     /**
      * This method acts as the central event handler and updates the GUI
@@ -749,6 +780,37 @@ public class UNO_Frame extends JFrame implements UNO_View{
      */
     public JButton getNextPlayerButton(){
         return nextPlayerButton;
+    }
+
+    @Override
+    public void refreshGameState(UNO_Model model) {
+        // Update current player label
+        Player currentPlayer = model.getCurrentPlayer();
+        currentPlayerLabel.setText("Current Player: " + currentPlayer.getName());
+
+        // Update direction indicator
+        directionLabel.setText("<html>Direction: <span style='font-size:20px;'>"
+                + model.getDirection().toString() + "</span></html>");
+
+        // Update the top card in play area
+        Card top = model.getPlayPile().getLast();
+
+        // Rebuild the player's hand panel
+        playerHandPanel.removeAll();
+        displayPlayerHand(currentPlayer);
+
+        // Refresh the view visually
+        playerHandPanel.revalidate();
+        playerHandPanel.repaint();
+        playAreaPanel.revalidate();
+        playAreaPanel.repaint();
+        mainPanel.revalidate();
+        mainPanel.repaint();
+    }
+
+    @Override
+    public void setModel(UNO_Model loadedModel) {
+        this.model = loadedModel;
     }
 
 

@@ -24,4 +24,8 @@ public interface UNO_View {
     // Only keep the methods that are truly needed for controller interaction
     JButton getDrawButton();
     JButton getNextPlayerButton();
+
+    void refreshGameState(UNO_Model model);
+
+    void setModel(UNO_Model loadedModel);
 }

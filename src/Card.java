@@ -1,3 +1,6 @@
+import java.io.Serial;
+import java.io.Serializable;
+
 /**
  * The Card class serves as an abstract base class representing a dual-sided UNO card.
  * Each card has a light side and a dark side, each with its own {@link CardColor} and {@link CardType}.
@@ -12,8 +15,11 @@
  *
  * @version 3.0, November 24, 2025
  */
-abstract public class Card {
+abstract public class Card implements Serializable {
     protected boolean isLightSideActive;
+
+    @Serial
+    private static final long serialVersionUID = 1L;
 
     // Attributes shared by ALL cards. Each card object has both a color and a type for each side
     protected CardColor lightColor;
