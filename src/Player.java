@@ -154,4 +154,11 @@ public class Player implements Serializable {
     public void setAiStrategy(AIStrategy strategy) {
         this.aiStrategy = strategy;
     }
+
+    /**
+     * Resets the player's score to 0
+     */
+    public void resetScore(){
+        this.score = 0;
+    }
 }

@@ -170,6 +170,19 @@ public class UNO_Controller implements ActionListener, Serializable {
         }
     }
 
+    /**
+     * Starts a new game.
+     * This method resets everything except the players.
+     */
+    public void handleNewGame() {
+        try {
+            model.startNewGame();
+        } catch (Exception ex) {
+            model.prepareEvent(GameEvent.EventType.MESSAGE,"Error starting new game: " + ex.getMessage());
+            model.notifyViews();
+        }
+    }
+
 
     /**
      * Initiates the save game feature
