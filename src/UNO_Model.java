@@ -114,10 +114,14 @@ public class UNO_Model {
         if(snapShot.getActionType() == GameEvent.EventType.CARD_PLAYED){
             Card returnedCard = playPile.peek();
             player.drawCardToHand(returnedCard);
+            shouldEnableDrawButton = temp.isEnableDrawButton();
+
         } else if(snapShot.getActionType() == GameEvent.EventType.CARD_DRAWN){
             Card drawedCard = player.getCardInHand(player.handSize());
             playDeck.addCard(drawedCard);
+            reshuffleDrawingDeck();
             player.removeCard(player.handSize());
+            shouldEnableDrawButton = true; // Always true as we were in a state where it was enabled
         }
 
 
@@ -128,7 +132,6 @@ public class UNO_Model {
         statusMessage = "Undo snap shot!";
         direction = temp.getDirection();
         shouldEnableNextPlayer = temp.isEnableNextPlayer();
-        shouldEnableDrawButton = temp.isEnableDrawButton();
         wildColorChoice = temp.getWildColorChoice();
 
         Card tempCard = temp.getCard();
@@ -138,6 +141,11 @@ public class UNO_Model {
         }
         playPile.push(tempCard);
         System.out.println("Undo snap shot!");
+
+        // Reverting to a previous game state at the start of the turn
+        // indicates that player hasn't gone yet.
+        hasActedThisTurn = false;
+
         notifyViews();
     }
 
@@ -360,7 +368,7 @@ public class UNO_Model {
         //if (!getCurrentPlayer().isPlayerAI()) {
             //saveStateForUndo();
         //}
-        StateSnapShot temp = new StateSnapShot(createNewGameEvent(), currentPlayerIndex);
+        StateSnapShot temp = new StateSnapShot(createNewGameEvent(), currentPlayerIndex, GameEvent.EventType.CARD_PLAYED);
         this.addUndoSnapShot(temp);
         try {
             Player currentPlayer = getCurrentPlayer();
@@ -518,7 +526,7 @@ public class UNO_Model {
             saveStateForUndo();
         }*/
 
-        StateSnapShot temp = new StateSnapShot(createNewGameEvent(), currentPlayerIndex);
+        StateSnapShot temp = new StateSnapShot(createNewGameEvent(), currentPlayerIndex, GameEvent.EventType.CARD_DRAWN);
         this.addUndoSnapShot(temp);
 
         try {
