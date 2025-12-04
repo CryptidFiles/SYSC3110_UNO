@@ -1,3 +1,5 @@
+import java.io.Serial;
+import java.io.Serializable;
 import java.util.*;
 
 /**
@@ -11,9 +13,12 @@ import java.util.*;
  *
  * @version 3.0, November 24, 2025
  */
-public class Deck {
+public class Deck implements Serializable {
     //Holds every card that’s still in the deck either not dealt, not in hands, or not on the display pile.
     private ArrayList<Card> deck;
+
+    @Serial
+    private static final long serialVersionUID = 1L;
 
     /**
      * Constructs a new deck and initializes it with all UNO Flip cards.

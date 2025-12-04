@@ -1,3 +1,6 @@
+import java.io.Serial;
+import java.io.Serializable;
+
 /**
  * The interface defines the behavior and decision-making logic
  * for AI-controlled players in the UNO Flip! game.
@@ -13,7 +16,7 @@
  *
  * @version 3.0, November 24, 2025
  */
-public interface AIStrategy {
+public interface AIStrategy extends Serializable {
     /**
      * Determines which card to play from the player's hand.
      *
@@ -22,6 +25,8 @@ public interface AIStrategy {
      * @param game The current game state
      * @return The index of the card to play (1-based), or 0 to draw a card
      */
+    @Serial
+    static final long serialVersionUID = 1L;
     int chooseCard(Player player, Card topCard, UNO_Model game);
 
     /**

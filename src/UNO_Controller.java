@@ -1,7 +1,9 @@
 import javax.swing.*;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
+import java.io.File;
 import java.util.*;
+import java.nio.file.Path;
 
 /**
  * The UNO_Controller class serves as the main controller in the MVC pattern
@@ -160,5 +162,57 @@ public class UNO_Controller implements ActionListener {
             model.notifyViews();
         }
     }
+
+
+    public void saveGame() {
+        JFileChooser chooser = new JFileChooser();
+        chooser.setDialogTitle("Save UNO Game");
+
+        int result = chooser.showSaveDialog(null);
+        if (result == JFileChooser.APPROVE_OPTION) {
+            File file = chooser.getSelectedFile();
+
+            try {
+                model.saveGame(file.getAbsolutePath());
+                JOptionPane.showMessageDialog(null, "Game saved successfully.");
+            } catch (Exception e) {
+                JOptionPane.showMessageDialog(null,
+                        "Error saving game: " + e.getMessage(),
+                        "Save Error",
+                        JOptionPane.ERROR_MESSAGE);
+            }
+        }
+    }
+
+
+    public void loadGame() {
+        JFileChooser chooser = new JFileChooser();
+        chooser.setDialogTitle("Load UNO Game");
+
+        int result = chooser.showOpenDialog(null);
+        if (result == JFileChooser.APPROVE_OPTION) {
+            File file = chooser.getSelectedFile();
+
+            try {
+                UNO_Model loadedModel = UNO_Model.loadGame(file.getAbsolutePath());
+                view.setModel(loadedModel);
+
+
+                if (loadedModel != null) {
+                    System.out.println("Model loaded successfully.");
+                    this.model = loadedModel;     // Replace current model
+                    view.refreshGameState(model); // Ask View to update UI
+                    JOptionPane.showMessageDialog(null, "Game loaded successfully.");
+                }
+
+            } catch (Exception e) {
+                JOptionPane.showMessageDialog(null,
+                        "Error loading game: " + e.getMessage(),
+                        "Load Error",
+                        JOptionPane.ERROR_MESSAGE);
+            }
+        }
+    }
+
 
 }

@@ -1,3 +1,4 @@
+import java.io.*;
 import java.util.*;
 import javax.swing.Timer;
 
@@ -17,7 +18,9 @@ import javax.swing.Timer;
  *
  * @version 3.0, November 24, 2025
  */
-public class UNO_Model {
+public class UNO_Model implements Serializable {
+
+    private static final long serialVersionUID = 1L;
     private ArrayList<Player> players; //a list of all players
     private int numPlayers; //how many players there are
 
@@ -779,4 +782,23 @@ public class UNO_Model {
     public boolean hasActedThisTurn() {
         return hasActedThisTurn;
     }
+
+    public void saveGame(String filename) {
+        try (ObjectOutputStream out = new ObjectOutputStream(new FileOutputStream(filename))) {
+            out.writeObject(this);
+            System.out.println("Game saved to " + filename);
+        } catch (IOException e) {
+            System.err.println("ERROR saving game: " + e.getMessage());
+        }
+    }
+
+    public static UNO_Model loadGame(String filename) {
+        try (ObjectInputStream in = new ObjectInputStream(new FileInputStream(filename))) {
+            return (UNO_Model) in.readObject();
+        } catch (IOException | ClassNotFoundException e) {
+            System.err.println("ERROR loading game: " + e.getMessage());
+            return null;
+        }
+    }
+
 }
