@@ -12,8 +12,6 @@ import java.util.Scanner;
  * @version 3.0, November 24, 2025
  */
 public class WildCard extends Card {
-    private Scanner color_input;
-
     /**
      * Constructs a WildCard with default wild colors for both light and dark sides.
      * The player chooses the active color when the card is played.
@@ -24,8 +22,6 @@ public class WildCard extends Card {
         this.darkColor = CardColor.WILD;
         this.lightType = CardType.WILD;
         this.darkType = CardType.DARK_WILD;
-
-        color_input = new Scanner(System.in);
     }
 
     /**

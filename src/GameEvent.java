@@ -1,3 +1,5 @@
+import jdk.jfr.Event;
+
 import java.io.Serial;
 import java.io.Serializable;
 import java.util.HashMap;
@@ -13,7 +15,7 @@ import java.util.Map;
  *
  * @version 3.0, November 24, 2025
  */
-public class GameEvent implements Serializable {
+public class GameEvent extends Event implements Serializable {
     @Serial
     private static final long serialVersionUID = 1L;
     public enum EventType {

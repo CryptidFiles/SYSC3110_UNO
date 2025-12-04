@@ -1,4 +1,6 @@
-public class StateSnapShot {
+import java.io.Serializable;
+
+public class StateSnapShot implements Serializable {
     private GameEvent previousHand;
     private int currentPlayerIndex;
     private GameEvent.EventType actionType;

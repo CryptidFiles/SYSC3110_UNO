@@ -54,8 +54,6 @@ public class UNO_Model implements Serializable {
     // Undo Stack
     private Stack<StateSnapShot> undoStack;
     private Stack<StateSnapShot> redoStack;
-    private static final int MAX_UNDO = 10;
-
 
     // GUI views that will display changes in the model
     private List<UNO_View> views;

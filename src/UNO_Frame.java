@@ -436,6 +436,7 @@ public class UNO_Frame extends JFrame implements UNO_View{
             highlightCurrentPlayer(currentPlayer);
         }
 
+
         Card topCard = event.getCard();
         if (topCard != null) {
             showCardPlayed(topCard);
