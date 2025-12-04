@@ -2,6 +2,7 @@ import javax.swing.*;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
 import java.io.File;
+import java.io.Serializable;
 import java.util.*;
 import java.nio.file.Path;
 
@@ -21,7 +22,7 @@ import java.nio.file.Path;
  *
  * @version 3.0, November 24, 2025
  */
-public class UNO_Controller implements ActionListener {
+public class UNO_Controller implements ActionListener, Serializable {
     private UNO_Model model;
     private UNO_Frame view; // Changed to concrete type for button access
 
@@ -73,9 +74,15 @@ public class UNO_Controller implements ActionListener {
             model.moveToNextPlayer();
             view.setNextPlayerButtonEnabled(false);
             System.out.println("Next Player button disabled");
-        }
-        // Handle card plays from CardComponents
-        else if (source instanceof JButton) {
+
+        } else if (source == view.getUndoButton()) {
+            model.undo();
+        } else if (source == view.getRedoButton()) {
+            //boolean success = model.redo();    WHAT WE SHOULD CALL
+            return;
+
+        } else if (source instanceof JButton) {
+            // Handle card plays from CardComponents
             JButton button = (JButton) source;
 
             if (button.getParent() instanceof CardComponent) {
@@ -197,6 +204,8 @@ public class UNO_Controller implements ActionListener {
                 UNO_Model loadedModel = UNO_Model.loadGame(file.getAbsolutePath());
                 view.setModel(loadedModel);
 
+                // Reassign new model to the controller
+                this.model = loadedModel;
 
                 if (loadedModel != null) {
                     System.out.println("Model loaded successfully.");
@@ -213,6 +222,4 @@ public class UNO_Controller implements ActionListener {
             }
         }
     }
-
-
 }

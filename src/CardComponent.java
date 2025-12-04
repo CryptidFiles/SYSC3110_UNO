@@ -23,7 +23,7 @@ public class CardComponent extends JPanel {
     private int cardIndex;       // Position in player's hand
     private boolean isPlayable;  // Highlight if playable
     private JButton useButton;  //has its own use button
-    private BufferedImage cardImage;
+    private transient BufferedImage cardImage;
 
     /**
      * Constructs a new CardComponent for the specified {@link Card}.

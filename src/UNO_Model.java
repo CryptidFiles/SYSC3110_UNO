@@ -51,6 +51,10 @@ public class UNO_Model implements Serializable {
     private boolean shouldEnableDrawButton;
     private Card lastPlayedCard;
 
+    // Undo Stack
+    private Stack<StateSnapShot> undoStack;
+    private Stack<StateSnapShot> redoStack;
+
     // GUI views that will display changes in the model
     transient List<UNO_View> views;
 
@@ -89,7 +93,64 @@ public class UNO_Model implements Serializable {
         this.shouldEnableNextPlayer = false;
         this.shouldEnableDrawButton = false;
         this.lastPlayedCard = null;
+
+        //initialize stacks
+        undoStack = new Stack<>();
+        redoStack = new Stack<>();
     }
+
+    public void addUndoSnapShot(StateSnapShot ge){
+        undoStack.push(ge);
+    }
+    public void undo(){
+        if (undoStack.isEmpty()){
+            return;
+        }
+        StateSnapShot snapShot = undoStack.pop(); //the snapchot we saved before the move
+        GameEvent temp = snapShot.getPreviousHand();
+
+        currentPlayerIndex = snapShot.getCurrentPlayerIndex();
+        Player player = getCurrentPlayer();
+
+        if(snapShot.getActionType() == GameEvent.EventType.CARD_PLAYED){
+            Card returnedCard = playPile.peek();
+            player.drawCardToHand(returnedCard);
+            shouldEnableDrawButton = temp.isEnableDrawButton();
+
+        } else if(snapShot.getActionType() == GameEvent.EventType.CARD_DRAWN){
+            Card drawedCard = player.getCardInHand(player.handSize());
+            playDeck.addCard(drawedCard);
+            reshuffleDrawingDeck();
+            player.removeCard(player.handSize());
+            shouldEnableDrawButton = true; // Always true as we were in a state where it was enabled
+        }
+
+
+        lastEventType = temp.getType();
+        System.out.println(lastEventType);
+        gameWinningPlayer = temp.getWinningPlayer();
+        lastPlayedCard = temp.getCard();
+        statusMessage = "Undo snap shot!";
+        direction = temp.getDirection();
+        shouldEnableNextPlayer = temp.isEnableNextPlayer();
+        wildColorChoice = temp.getWildColorChoice();
+
+        Card tempCard = temp.getCard();
+        if (tempCard instanceof WildCard || tempCard instanceof WildDrawCard) {
+            tempCard.lightColor = CardColor.WILD;
+            tempCard.darkColor = CardColor.WILD;
+        }
+        playPile.push(tempCard);
+        System.out.println("Undo snap shot!");
+
+        // Reverting to a previous game state at the start of the turn
+        // indicates that player hasn't gone yet.
+        hasActedThisTurn = false;
+
+        notifyViews();
+    }
+
+
 
     /**
      * Registers a {@link UNO_View} observer to receive updates when game state changes.
@@ -99,6 +160,7 @@ public class UNO_Model implements Serializable {
     public void addUnoView(UNO_View view){
         views.add(view);
     }
+
 
     /**
      * Removes a previously registered {@link UNO_View} observer.
@@ -116,18 +178,7 @@ public class UNO_Model implements Serializable {
      * unless the event type is MESSAGE.
      */
     protected void notifyViews() {
-
-        GameEvent event = new GameEvent(
-                lastEventType,
-                getCurrentPlayer(),        // currentPlayer
-                gameWinningPlayer,        // winningPlayer (could be null)
-                lastPlayedCard != null ? lastPlayedCard : topCard(), // card
-                statusMessage,             // message
-                direction,                 // direction
-                shouldEnableNextPlayer,    // enableNextPlayer
-                shouldEnableDrawButton,    // enableDrawButton
-                wildColorChoice            // choice of color for wild card (automatic cases like AI)
-        );
+        GameEvent event = createNewGameEvent();
 
         for (UNO_View view : views) {
             view.handleGameEvent(event);
@@ -173,6 +224,7 @@ public class UNO_Model implements Serializable {
      * Called by the controller at the start of each round.
      */
     public void startNewRound() {
+
         resetDecks();
         distributeCards();
         currentPlayerIndex = 0;
@@ -311,6 +363,12 @@ public class UNO_Model implements Serializable {
      * @return boolean true if the card was successfully played, false otherwise
      */
     public boolean playCard(int cardIndex) {
+        // Save state BEFORE playing
+        //if (!getCurrentPlayer().isPlayerAI()) {
+            //saveStateForUndo();
+        //}
+        StateSnapShot temp = new StateSnapShot(createNewGameEvent(), currentPlayerIndex, GameEvent.EventType.CARD_PLAYED);
+        this.addUndoSnapShot(temp);
         try {
             Player currentPlayer = getCurrentPlayer();
 
@@ -462,6 +520,14 @@ public class UNO_Model implements Serializable {
      * @return {@link Card} The drawn card, or null if deck is empty
      */
     public Card drawCard() {
+        // Save state BEFORE playing
+        /**if (!getCurrentPlayer().isPlayerAI()) {
+            saveStateForUndo();
+        }*/
+
+        StateSnapShot temp = new StateSnapShot(createNewGameEvent(), currentPlayerIndex, GameEvent.EventType.CARD_DRAWN);
+        this.addUndoSnapShot(temp);
+
         try {
             Player currentPlayer = getCurrentPlayer();
 
@@ -566,6 +632,11 @@ public class UNO_Model implements Serializable {
      * Notifies views after updating the current player index.
      */
     public void moveToNextPlayer() {
+        // Save state BEFORE moving (only for human players)
+        /**if (!getCurrentPlayer().isPlayerAI()) {
+            saveStateForUndo();
+        }*/
+
         // Reset next player button state BEFORE moving
         shouldEnableNextPlayer = false;
 
@@ -780,6 +851,62 @@ public class UNO_Model implements Serializable {
     public boolean hasActedThisTurn() {
         return hasActedThisTurn;
     }
+
+
+
+    // ADDED NEW SETTERS AND GETTERS
+    public int getCurrentPlayerIndex() {
+        return this.currentPlayerIndex;
+    }
+
+    public int getSkipCount() {
+        return this.skipCount;
+    }
+
+    public CardColor getWildColorChoice() {
+        return this.wildColorChoice;
+    }
+
+    public void setCurrentPlayerIndex(int index) {
+        if (index >= 0 && index < players.size()) {
+            currentPlayerIndex = index;
+        }
+    }
+
+    public void setSkipCount(int count) {
+        this.skipCount = count;
+    }
+
+    public void setDirection(Direction dir) {
+        this.direction = dir;
+    }
+
+    public void setHasActedThisTurn(boolean acted) {
+        this.hasActedThisTurn = acted;
+    }
+
+    public void setWildColorChoice(CardColor color) {
+        this.wildColorChoice = color;
+    }
+
+    public void setWaitingForColorSelection(boolean waiting) {
+        this.waitingForColorSelection = waiting;
+    }
+    public GameEvent createNewGameEvent(){
+        GameEvent event = new GameEvent(
+                lastEventType,
+                getCurrentPlayer(),        // currentPlayer
+                gameWinningPlayer,        // winningPlayer (could be null)
+                lastPlayedCard != null ? lastPlayedCard : topCard(), // card
+                statusMessage,             // message
+                direction,                 // direction
+                shouldEnableNextPlayer,    // enableNextPlayer
+                shouldEnableDrawButton,    // enableDrawButton
+                wildColorChoice            // choice of color for wild card (automatic cases like AI)
+        );
+        return event;
+    }
+    // For undo Stack
 
     public void saveGame(String filename) {
         try (ObjectOutputStream out = new ObjectOutputStream(new FileOutputStream(filename))) {

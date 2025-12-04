@@ -1,3 +1,5 @@
+import java.util.Scanner;
+
 /**
  * Represents the Wild card in UNO Flip.
  * When played, this card allows the player to choose the next active color for the game.
@@ -10,7 +12,6 @@
  * @version 3.0, November 24, 2025
  */
 public class WildCard extends Card {
-
     /**
      * Constructs a WildCard with default wild colors for both light and dark sides.
      * The player chooses the active color when the card is played.
