@@ -102,21 +102,27 @@ public class UNO_Model {
         undoStack.push(ge);
     }
     public void undo(){
-        StateSnapShot snapShot = undoStack.pop();
+        if (undoStack.isEmpty()){
+            return;
+        }
+        StateSnapShot snapShot = undoStack.pop(); //the snapchot we saved before the move
+        GameEvent temp = snapShot.getPreviousHand();
+
+        currentPlayerIndex = snapShot.getCurrentPlayerIndex();
         Player player = getCurrentPlayer();
 
         if(snapShot.getActionType() == GameEvent.EventType.CARD_PLAYED){
-            player.drawCardToHand(playPile.pop());
+            Card returnedCard = playPile.peek();
+            player.drawCardToHand(returnedCard);
         } else if(snapShot.getActionType() == GameEvent.EventType.CARD_DRAWN){
             Card drawedCard = player.getCardInHand(player.handSize());
             playDeck.addCard(drawedCard);
             player.removeCard(player.handSize());
         }
 
-        GameEvent temp = snapShot.getPreviousHand();
+
         lastEventType = temp.getType();
         System.out.println(lastEventType);
-        currentPlayerIndex = snapShot.getCurrentPlayerIndex();
         gameWinningPlayer = temp.getWinningPlayer();
         lastPlayedCard = temp.getCard();
         statusMessage = "Undo snap shot!";
@@ -350,11 +356,12 @@ public class UNO_Model {
      * @return boolean true if the card was successfully played, false otherwise
      */
     public boolean playCard(int cardIndex) {
-
-        StateSnapShot temp = new StateSnapShot(createNewGameEvent(), currentPlayerIndex, GameEvent.EventType.CARD_PLAYED);
+        // Save state BEFORE playing
+        //if (!getCurrentPlayer().isPlayerAI()) {
+            //saveStateForUndo();
+        //}
+        StateSnapShot temp = new StateSnapShot(createNewGameEvent(), currentPlayerIndex);
         this.addUndoSnapShot(temp);
-
-
         try {
             Player currentPlayer = getCurrentPlayer();
 
@@ -382,11 +389,6 @@ public class UNO_Model {
 
             // Check for round or game win
             checkForWin(currentPlayer);
-
-            // Should have EventType as Draw Card
-            //StateSnapShot temp = new StateSnapShot(createNewGameEvent(), currentPlayerIndex);
-            //this.addUndoSnapShot(temp);
-
 
             notifyViews();
             return true;
@@ -516,7 +518,7 @@ public class UNO_Model {
             saveStateForUndo();
         }*/
 
-        StateSnapShot temp = new StateSnapShot(createNewGameEvent(), currentPlayerIndex, GameEvent.EventType.CARD_DRAWN);
+        StateSnapShot temp = new StateSnapShot(createNewGameEvent(), currentPlayerIndex);
         this.addUndoSnapShot(temp);
 
         try {
