@@ -71,9 +71,17 @@ public class UNO_Controller implements ActionListener {
             model.moveToNextPlayer();
             view.setNextPlayerButtonEnabled(false);
             System.out.println("Next Player button disabled");
-        }
-        // Handle card plays from CardComponents
-        else if (source instanceof JButton) {
+
+        } else if (source == view.getUndoButton()) {
+            //boolean success = model.undo();    WHAT WE SHOULD CALL
+            return;
+
+        } else if (source == view.getRedoButton()) {
+            //boolean success = model.redo();    WHAT WE SHOULD CALL
+            return;
+
+        } else if (source instanceof JButton) {
+            // Handle card plays from CardComponents
             JButton button = (JButton) source;
 
             if (button.getParent() instanceof CardComponent) {

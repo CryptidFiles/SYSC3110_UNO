@@ -48,6 +48,11 @@ public class UNO_Model {
     private boolean shouldEnableDrawButton;
     private Card lastPlayedCard;
 
+    // Undo Stack
+
+    private static final int MAX_UNDO = 10;
+
+
     // GUI views that will display changes in the model
     private List<UNO_View> views;
 
@@ -171,6 +176,7 @@ public class UNO_Model {
      * Called by the controller at the start of each round.
      */
     public void startNewRound() {
+
         resetDecks();
         distributeCards();
         currentPlayerIndex = 0;
@@ -310,6 +316,11 @@ public class UNO_Model {
      * @return boolean true if the card was successfully played, false otherwise
      */
     public boolean playCard(int cardIndex) {
+        // Save state BEFORE playing
+        //if (!getCurrentPlayer().isPlayerAI()) {
+            //saveStateForUndo();
+        //}
+
         try {
             Player currentPlayer = getCurrentPlayer();
 
@@ -461,6 +472,11 @@ public class UNO_Model {
      * @return {@link Card} The drawn card, or null if deck is empty
      */
     public Card drawCard() {
+        // Save state BEFORE playing
+        /**if (!getCurrentPlayer().isPlayerAI()) {
+            saveStateForUndo();
+        }*/
+
         try {
             Player currentPlayer = getCurrentPlayer();
 
@@ -565,6 +581,11 @@ public class UNO_Model {
      * Notifies views after updating the current player index.
      */
     public void moveToNextPlayer() {
+        // Save state BEFORE moving (only for human players)
+        /**if (!getCurrentPlayer().isPlayerAI()) {
+            saveStateForUndo();
+        }*/
+
         // Reset next player button state BEFORE moving
         shouldEnableNextPlayer = false;
 
@@ -779,4 +800,48 @@ public class UNO_Model {
     public boolean hasActedThisTurn() {
         return hasActedThisTurn;
     }
+
+
+
+    // ADDED NEW SETTERS AND GETTERS
+    public int getCurrentPlayerIndex() {
+        return this.currentPlayerIndex;
+    }
+
+    public int getSkipCount() {
+        return this.skipCount;
+    }
+
+    public CardColor getWildColorChoice() {
+        return this.wildColorChoice;
+    }
+
+    public void setCurrentPlayerIndex(int index) {
+        if (index >= 0 && index < players.size()) {
+            currentPlayerIndex = index;
+        }
+    }
+
+    public void setSkipCount(int count) {
+        this.skipCount = count;
+    }
+
+    public void setDirection(Direction dir) {
+        this.direction = dir;
+    }
+
+    public void setHasActedThisTurn(boolean acted) {
+        this.hasActedThisTurn = acted;
+    }
+
+    public void setWildColorChoice(CardColor color) {
+        this.wildColorChoice = color;
+    }
+
+    public void setWaitingForColorSelection(boolean waiting) {
+        this.waitingForColorSelection = waiting;
+    }
+
+
+    // For undo Stack
 }
