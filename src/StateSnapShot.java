@@ -1,10 +1,12 @@
 public class StateSnapShot {
     private GameEvent previousHand;
     private int currentPlayerIndex;
+    private GameEvent.EventType actionType;
 
-    public StateSnapShot(GameEvent hand,  int currentPlayerIndex) {
-        previousHand = hand;
+    public StateSnapShot(GameEvent hand,  int currentPlayerIndex, GameEvent.EventType actionType) {
+        this.previousHand = hand;
         this.currentPlayerIndex = currentPlayerIndex;
+        this.actionType = actionType;
     }
 
     public GameEvent getPreviousHand() {
@@ -13,4 +15,5 @@ public class StateSnapShot {
     public int getCurrentPlayerIndex() {
         return currentPlayerIndex;
     }
+    public GameEvent.EventType getActionType() { return actionType; }
 }

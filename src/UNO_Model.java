@@ -102,11 +102,17 @@ public class UNO_Model {
         undoStack.push(ge);
     }
     public void undo(){
+        StateSnapShot snapShot = undoStack.pop();
         Player player = getCurrentPlayer();
 
-        player.drawCardToHand(playPile.pop());
+        if(snapShot.getActionType() == GameEvent.EventType.CARD_PLAYED){
+            player.drawCardToHand(playPile.pop());
+        } else if(snapShot.getActionType() == GameEvent.EventType.CARD_DRAWN){
+            Card drawedCard = player.getCardInHand(player.handSize());
+            playDeck.addCard(drawedCard);
+            player.removeCard(player.handSize());
+        }
 
-        StateSnapShot snapShot = undoStack.pop();
         GameEvent temp = snapShot.getPreviousHand();
         lastEventType = temp.getType();
         System.out.println(lastEventType);
@@ -157,18 +163,7 @@ public class UNO_Model {
      * unless the event type is MESSAGE.
      */
     protected void notifyViews() {
-
-        GameEvent event = new GameEvent(
-                lastEventType,
-                getCurrentPlayer(),        // currentPlayer
-                gameWinningPlayer,        // winningPlayer (could be null)
-                lastPlayedCard != null ? lastPlayedCard : topCard(), // card
-                statusMessage,             // message
-                direction,                 // direction
-                shouldEnableNextPlayer,    // enableNextPlayer
-                shouldEnableDrawButton,    // enableDrawButton
-                wildColorChoice            // choice of color for wild card (automatic cases like AI)
-        );
+        GameEvent event = createNewGameEvent();
 
         for (UNO_View view : views) {
             view.handleGameEvent(event);
@@ -355,12 +350,11 @@ public class UNO_Model {
      * @return boolean true if the card was successfully played, false otherwise
      */
     public boolean playCard(int cardIndex) {
-        // Save state BEFORE playing
-        //if (!getCurrentPlayer().isPlayerAI()) {
-            //saveStateForUndo();
-        //}
-        StateSnapShot temp = new StateSnapShot(createNewGameEvent(), currentPlayerIndex);
+
+        StateSnapShot temp = new StateSnapShot(createNewGameEvent(), currentPlayerIndex, GameEvent.EventType.CARD_PLAYED);
         this.addUndoSnapShot(temp);
+
+
         try {
             Player currentPlayer = getCurrentPlayer();
 
@@ -388,6 +382,11 @@ public class UNO_Model {
 
             // Check for round or game win
             checkForWin(currentPlayer);
+
+            // Should have EventType as Draw Card
+            //StateSnapShot temp = new StateSnapShot(createNewGameEvent(), currentPlayerIndex);
+            //this.addUndoSnapShot(temp);
+
 
             notifyViews();
             return true;
@@ -517,7 +516,7 @@ public class UNO_Model {
             saveStateForUndo();
         }*/
 
-        StateSnapShot temp = new StateSnapShot(createNewGameEvent(), currentPlayerIndex);
+        StateSnapShot temp = new StateSnapShot(createNewGameEvent(), currentPlayerIndex, GameEvent.EventType.CARD_DRAWN);
         this.addUndoSnapShot(temp);
 
         try {
