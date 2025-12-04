@@ -76,7 +76,6 @@ public class UNO_Controller implements ActionListener {
             model.undo();
         } else if (source == view.getRedoButton()) {
             model.redo();
-
         } else if (source instanceof JButton) {
             // Handle card plays from CardComponents
             JButton button = (JButton) source;

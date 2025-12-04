@@ -98,64 +98,66 @@ public class UNO_Model {
         redoStack = new Stack<>();
     }
 
-
     public void addUndoSnapShot(StateSnapShot ge){
         undoStack.push(ge);
     }
-
-    private StateSnapShot captureState(){
+    private StateSnapShot captureState() {
         GameEvent event = createNewGameEvent();
-        return new StateSnapShot(event,currentPlayerIndex);
+        return new StateSnapShot(createNewGameEvent(), currentPlayerIndex);
     }
 
-
     public void undo() {
-        if (undoStack.isEmpty()) {
-            return;
-        }
+        if (undoStack.isEmpty()) return;
+
         redoStack.push(captureState());
 
         StateSnapShot snap = undoStack.pop();
-        restoreSnapShot(snap);
+        restoreSnapShot(snap, false);
     }
 
     public void redo() {
-        if (redoStack.isEmpty()) {
-            return;
-        }
+        if (redoStack.isEmpty()) return;
+
         undoStack.push(captureState());
 
         StateSnapShot snap = redoStack.pop();
-        restoreSnapShot(snap);
+        restoreSnapShot(snap, true);
     }
-    public void restoreSnapShot(StateSnapShot snapShot){
 
+    public void restoreSnapShot(StateSnapShot snapShot, boolean isRedo) {
         GameEvent temp = snapShot.getPreviousHand();
 
+        // Restore turn
         currentPlayerIndex = snapShot.getCurrentPlayerIndex();
         Player player = getCurrentPlayer();
 
-        if(snapShot.getActionType() == GameEvent.EventType.CARD_PLAYED && !playPile.isEmpty()){
-            Card returnedCard = playPile.peek();
-            player.drawCardToHand(returnedCard);
-            shouldEnableDrawButton = temp.isEnableDrawButton();
-
-        } else if(snapShot.getActionType() == GameEvent.EventType.CARD_DRAWN){
-            Card drawedCard = player.getCardInHand(player.handSize());
-            playDeck.addCard(drawedCard);
-            reshuffleDrawingDeck();
-            player.removeCard(player.handSize());
-            shouldEnableDrawButton = true; // Always true as we were in a state where it was enabled
+        // Undo: return last played card from pile to hand
+        if (!isRedo) {
+            if (!playPile.isEmpty()) {
+                Card returned = playPile.pop();
+                player.drawCardToHand(returned);
+            }
+        }
+        // Redo: remove the card from player's hand again
+        else {
+            Card redoCard = temp.getCard();
+            player.getHand().remove(redoCard);
         }
 
+        // Return last played card to player if needed
+        if (!playPile.isEmpty()) {
+            Card returned = playPile.pop();
+            player.drawCardToHand(returned);
+        }
 
+        // Restore state
         lastEventType = temp.getType();
-        System.out.println(lastEventType);
         gameWinningPlayer = temp.getWinningPlayer();
         lastPlayedCard = temp.getCard();
-        statusMessage = "Undo snap shot!";
+        statusMessage = temp.getMessage();
         direction = temp.getDirection();
         shouldEnableNextPlayer = temp.isEnableNextPlayer();
+        shouldEnableDrawButton = temp.isEnableDrawButton();
         wildColorChoice = temp.getWildColorChoice();
 
         Card tempCard = temp.getCard();
@@ -163,14 +165,10 @@ public class UNO_Model {
             tempCard.lightColor = CardColor.WILD;
             tempCard.darkColor = CardColor.WILD;
         }
-        playPile.push(tempCard);
+
+        this.playPile.push(tempCard);
         System.out.println("Undo snap shot!");
-
-        // Reverting to a previous game state at the start of the turn
-        // indicates that player hasn't gone yet.
-        hasActedThisTurn = false;
-
-        notifyViews();
+        this.notifyViews();
     }
 
 
@@ -201,7 +199,18 @@ public class UNO_Model {
      * unless the event type is MESSAGE.
      */
     protected void notifyViews() {
-        GameEvent event = createNewGameEvent();
+
+        GameEvent event = new GameEvent(
+                lastEventType,
+                getCurrentPlayer(),        // currentPlayer
+                gameWinningPlayer,        // winningPlayer (could be null)
+                lastPlayedCard != null ? lastPlayedCard : topCard(), // card
+                statusMessage,             // message
+                direction,                 // direction
+                shouldEnableNextPlayer,    // enableNextPlayer
+                shouldEnableDrawButton,    // enableDrawButton
+                wildColorChoice            // choice of color for wild card (automatic cases like AI)
+        );
 
         for (UNO_View view : views) {
             view.handleGameEvent(event);
@@ -393,7 +402,7 @@ public class UNO_Model {
             //saveStateForUndo();
         //}
         redoStack.clear();
-        StateSnapShot temp = new StateSnapShot(createNewGameEvent(), currentPlayerIndex, GameEvent.EventType.CARD_PLAYED);
+        StateSnapShot temp = new StateSnapShot(createNewGameEvent(), currentPlayerIndex);
         this.addUndoSnapShot(temp);
         try {
             Player currentPlayer = getCurrentPlayer();
@@ -551,7 +560,7 @@ public class UNO_Model {
             saveStateForUndo();
         }*/
         redoStack.clear();
-        StateSnapShot temp = new StateSnapShot(createNewGameEvent(), currentPlayerIndex, GameEvent.EventType.CARD_DRAWN);
+        StateSnapShot temp = new StateSnapShot(createNewGameEvent(), currentPlayerIndex);
         this.addUndoSnapShot(temp);
 
         try {
@@ -662,6 +671,7 @@ public class UNO_Model {
         /**if (!getCurrentPlayer().isPlayerAI()) {
             saveStateForUndo();
         }*/
+
         redoStack.clear();
         // Reset next player button state BEFORE moving
         shouldEnableNextPlayer = false;
