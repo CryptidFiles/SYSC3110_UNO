@@ -171,6 +171,9 @@ public class UNO_Controller implements ActionListener, Serializable {
     }
 
 
+    /**
+     * Initiates the save game feature
+     */
     public void saveGame() {
         JFileChooser chooser = new JFileChooser();
         chooser.setDialogTitle("Save UNO Game");
@@ -191,7 +194,9 @@ public class UNO_Controller implements ActionListener, Serializable {
         }
     }
 
-
+    /**
+     * Initiates the load game feature
+     */
     public void loadGame() {
         JFileChooser chooser = new JFileChooser();
         chooser.setDialogTitle("Load UNO Game");

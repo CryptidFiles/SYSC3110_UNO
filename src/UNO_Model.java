@@ -56,7 +56,7 @@ public class UNO_Model implements Serializable {
     private Stack<StateSnapShot> redoStack;
 
     // GUI views that will display changes in the model
-    private List<UNO_View> views;
+    transient List<UNO_View> views;
 
 
     /**
@@ -223,7 +223,6 @@ public class UNO_Model implements Serializable {
     }
 
 
-
     /**
      * Starts a new round of gameplay by resetting decks, distributing cards,
      * and resetting round status variables.
@@ -252,7 +251,6 @@ public class UNO_Model implements Serializable {
             executeAITurn();
         }
     }
-
 
 
     /**
@@ -915,6 +913,11 @@ public class UNO_Model implements Serializable {
     }
     // For undo Stack
 
+    /**
+     * Serializes the current model and saves it ot a file
+     *
+     * @param filename the name of the file you want to serialize
+     */
     public void saveGame(String filename) {
         try (ObjectOutputStream out = new ObjectOutputStream(new FileOutputStream(filename))) {
             out.writeObject(this);
@@ -924,6 +927,11 @@ public class UNO_Model implements Serializable {
         }
     }
 
+    /**
+     * deserializes the model from a preivously serialized model
+     * @param filename the name for the file you want to deserialize
+     * @return the new model that was deserialized
+     */
     public static UNO_Model loadGame(String filename) {
         try (ObjectInputStream in = new ObjectInputStream(new FileInputStream(filename))) {
             return (UNO_Model) in.readObject();
