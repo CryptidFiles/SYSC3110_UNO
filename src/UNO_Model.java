@@ -52,7 +52,7 @@ public class UNO_Model implements Serializable {
     private Card lastPlayedCard;
 
     // GUI views that will display changes in the model
-    private List<UNO_View> views;
+    transient List<UNO_View> views;
 
 
     /**
@@ -167,7 +167,6 @@ public class UNO_Model implements Serializable {
     }
 
 
-
     /**
      * Starts a new round of gameplay by resetting decks, distributing cards,
      * and resetting round status variables.
@@ -195,7 +194,6 @@ public class UNO_Model implements Serializable {
             executeAITurn();
         }
     }
-
 
 
     /**
