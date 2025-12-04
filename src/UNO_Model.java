@@ -98,21 +98,47 @@ public class UNO_Model {
         redoStack = new Stack<>();
     }
 
+
     public void addUndoSnapShot(StateSnapShot ge){
         undoStack.push(ge);
     }
-    public void undo(){
-        if (undoStack.isEmpty()){
+
+    private StateSnapShot captureState(){
+        GameEvent event = createNewGameEvent();
+        return new StateSnapShot(event,currentPlayerIndex);
+    }
+
+
+    public void undo() {
+        if (undoStack.isEmpty()) {
             return;
         }
-        StateSnapShot snapShot = undoStack.pop(); //the snapchot we saved before the move
+        redoStack.push(captureState());
+
+        StateSnapShot snap = undoStack.pop();
+        restoreSnapShot(snap);
+    }
+
+    public void redo() {
+        if (redoStack.isEmpty()) {
+            return;
+        }
+        undoStack.push(captureState());
+
+        StateSnapShot snap = redoStack.pop();
+        restoreSnapShot(snap);
+    }
+    public void restoreSnapShot(StateSnapShot snapShot){
+
         GameEvent temp = snapShot.getPreviousHand();
 
         currentPlayerIndex = snapShot.getCurrentPlayerIndex();
         Player player = getCurrentPlayer();
 
-        Card returnedCard = playPile.peek();
-        player.drawCardToHand(returnedCard);
+        if (!playPile.isEmpty()){
+            Card returned = playPile.pop();
+            player.drawCardToHand(returned);
+        }
 
         lastEventType = temp.getType();
         System.out.println(lastEventType);
@@ -364,6 +390,7 @@ public class UNO_Model {
         //if (!getCurrentPlayer().isPlayerAI()) {
             //saveStateForUndo();
         //}
+        redoStack.clear();
         StateSnapShot temp = new StateSnapShot(createNewGameEvent(), currentPlayerIndex);
         this.addUndoSnapShot(temp);
         try {
@@ -521,7 +548,7 @@ public class UNO_Model {
         /**if (!getCurrentPlayer().isPlayerAI()) {
             saveStateForUndo();
         }*/
-
+        redoStack.clear();
         StateSnapShot temp = new StateSnapShot(createNewGameEvent(), currentPlayerIndex);
         this.addUndoSnapShot(temp);
 
@@ -633,7 +660,7 @@ public class UNO_Model {
         /**if (!getCurrentPlayer().isPlayerAI()) {
             saveStateForUndo();
         }*/
-
+        redoStack.clear();
         // Reset next player button state BEFORE moving
         shouldEnableNextPlayer = false;
 
