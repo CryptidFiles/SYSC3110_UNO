@@ -102,15 +102,20 @@ public class UNO_Model {
         undoStack.push(ge);
     }
     public void undo(){
+        if (undoStack.isEmpty()){
+            return;
+        }
+        StateSnapShot snapShot = undoStack.pop(); //the snapchot we saved before the move
+        GameEvent temp = snapShot.getPreviousHand();
+
+        currentPlayerIndex = snapShot.getCurrentPlayerIndex();
         Player player = getCurrentPlayer();
 
-        player.drawCardToHand(playPile.pop());
+        Card returnedCard = playPile.peek();
+        player.drawCardToHand(returnedCard);
 
-        StateSnapShot snapShot = undoStack.pop();
-        GameEvent temp = snapShot.getPreviousHand();
         lastEventType = temp.getType();
         System.out.println(lastEventType);
-        currentPlayerIndex = snapShot.getCurrentPlayerIndex();
         gameWinningPlayer = temp.getWinningPlayer();
         lastPlayedCard = temp.getCard();
         statusMessage = "Undo snap shot!";
