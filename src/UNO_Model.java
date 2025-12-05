@@ -99,77 +99,115 @@ public class UNO_Model implements Serializable {
         redoStack = new Stack<>();
     }
 
-    public void addUndoSnapShot(StateSnapShot ge){
-        undoStack.push(ge);
+    public void addUndoSnapShot() {
+        undoStack.push(captureState());
     }
+
     private StateSnapShot captureState() {
-        GameEvent event = createNewGameEvent();
-        return new StateSnapShot(createNewGameEvent(), currentPlayerIndex);
+        return new StateSnapShot(
+                createNewGameEvent(),
+                currentPlayerIndex,
+                players,
+                playDeck,
+                playPile,
+                direction,
+                skipCount,
+                hasActedThisTurn,
+                wildColorChoice,
+                waitingForColorSelection
+        );
     }
 
     public void undo() {
         if (undoStack.isEmpty()) return;
 
+        // Save current state to redo stack
         redoStack.push(captureState());
 
+        // Restore previous state
         StateSnapShot snap = undoStack.pop();
-        restoreSnapShot(snap, false);
+        restoreState(snap);
     }
 
     public void redo() {
         if (redoStack.isEmpty()) return;
 
+        // Save current state to undo stack
         undoStack.push(captureState());
 
+        // Restore next state
         StateSnapShot snap = redoStack.pop();
-        restoreSnapShot(snap, true);
+        restoreState(snap);
     }
 
-    public void restoreSnapShot(StateSnapShot snapShot, boolean isRedo) {
-        GameEvent temp = snapShot.getPreviousHand();
+    private void restoreState(StateSnapShot snap) {
+        // Restore all game state from snapshot
 
-        // Restore turn
-        currentPlayerIndex = snapShot.getCurrentPlayerIndex();
-        Player player = getCurrentPlayer();
 
-        // Undo: return last played card from pile to hand
-        if (!isRedo) {
-            if (!playPile.isEmpty()) {
-                Card returned = playPile.pop();
-                player.drawCardToHand(returned);
+        // Boolean to set the correct light/dark side of cards
+        boolean shouldBeLightSide = snap.getIsLightSide();
+
+        // Restore players (including hands and scores)
+        this.players = new ArrayList<>();
+        for (Player snapPlayer : snap.getPlayersState()) {
+            Player newPlayer = new Player(snapPlayer.getName(), snapPlayer.isPlayerAI(), snapPlayer.getAIStrategy());
+            newPlayer.addScore(snapPlayer.getScore());
+            for (Card c : snapPlayer.getHand()) {
+                newPlayer.drawCardToHand(c);
+            }
+
+            // Ensure correct side of cards in each player's hand
+            for (Card card : snapPlayer.getHand()) {
+                if (card.getActiveSide() != shouldBeLightSide) {
+                    card.setActiveSide(shouldBeLightSide);
+                }
+            }
+
+            this.players.add(newPlayer);
+        }
+
+        // Restore deck
+        this.playDeck = new Deck();
+        for (Card c : snap.getPlayDeckState().getDeck()) {
+            this.playDeck.addCard(c);
+
+            if (c.getActiveSide() != shouldBeLightSide) {
+                c.setActiveSide(shouldBeLightSide);
             }
         }
-        // Redo: remove the card from player's hand again
-        else {
-            Card redoCard = temp.getCard();
-            player.getHand().remove(redoCard);
+
+        // Restore play pile
+        this.playPile = new Stack<>();
+        for (Card c : snap.getPlayPileState()) {
+            this.playPile.push(c);
+
+            if (c.getActiveSide() != shouldBeLightSide) {
+                c.setActiveSide(shouldBeLightSide);
+            }
         }
 
-        // Return last played card to player if needed
-        if (!playPile.isEmpty()) {
-            Card returned = playPile.pop();
-            player.drawCardToHand(returned);
-        }
+        // Restore other state variables
+        this.currentPlayerIndex = snap.getCurrentPlayerIndex();
+        this.direction = snap.getDirection();
+        this.skipCount = snap.getSkipCount();
+        this.hasActedThisTurn = snap.getHasActedThisTurn();
+        this.wildColorChoice = snap.getWildColorChoice();
+        this.waitingForColorSelection = snap.getWaitingForColorSelection();
 
-        // Restore state
-        lastEventType = temp.getType();
-        gameWinningPlayer = temp.getWinningPlayer();
-        lastPlayedCard = temp.getCard();
-        statusMessage = temp.getMessage();
-        direction = temp.getDirection();
-        shouldEnableNextPlayer = temp.isEnableNextPlayer();
-        shouldEnableDrawButton = temp.isEnableDrawButton();
-        wildColorChoice = temp.getWildColorChoice();
+        // Update event state from the saved event
+        GameEvent savedEvent = snap.getPreviousHand();
+        this.lastEventType = savedEvent.getType();
+        this.lastPlayedCard = savedEvent.getCard();
+        this.statusMessage = "State restored";
+        this.gameWinningPlayer = savedEvent.getWinningPlayer();
+        this.shouldEnableNextPlayer = savedEvent.isEnableNextPlayer();
+        this.shouldEnableDrawButton = savedEvent.isEnableDrawButton();
 
-        Card tempCard = temp.getCard();
-        if (tempCard instanceof WildCard || tempCard instanceof WildDrawCard) {
-            tempCard.lightColor = CardColor.WILD;
-            tempCard.darkColor = CardColor.WILD;
-        }
+        // Reshuffle deck so player who wants to redraw card gets different on
+        reshuffleDrawingDeck();
 
-        this.playPile.push(tempCard);
-        System.out.println("Undo snap shot!");
-        this.notifyViews();
+        // Notify views
+        notifyViews();
     }
 
 
@@ -444,13 +482,11 @@ public class UNO_Model implements Serializable {
      * @return boolean true if the card was successfully played, false otherwise
      */
     public boolean playCard(int cardIndex) {
+
         // Save state BEFORE playing
-        //if (!getCurrentPlayer().isPlayerAI()) {
-            //saveStateForUndo();
-        //}
+        addUndoSnapShot();
         redoStack.clear();
-        StateSnapShot temp = new StateSnapShot(createNewGameEvent(), currentPlayerIndex);
-        this.addUndoSnapShot(temp);
+
         try {
             Player currentPlayer = getCurrentPlayer();
 
@@ -602,13 +638,9 @@ public class UNO_Model implements Serializable {
      * @return {@link Card} The drawn card, or null if deck is empty
      */
     public Card drawCard() {
-        // Save state BEFORE playing
-        /**if (!getCurrentPlayer().isPlayerAI()) {
-            saveStateForUndo();
-        }*/
+        // Save state BEFORE drawing
+        addUndoSnapShot();
         redoStack.clear();
-        StateSnapShot temp = new StateSnapShot(createNewGameEvent(), currentPlayerIndex);
-        this.addUndoSnapShot(temp);
 
         try {
             Player currentPlayer = getCurrentPlayer();
@@ -715,13 +747,8 @@ public class UNO_Model implements Serializable {
      */
     public void moveToNextPlayer() {
         // Save state BEFORE moving (only for human players)
-        /**if (!getCurrentPlayer().isPlayerAI()) {
-            saveStateForUndo();
-        }*/
-
-        redoStack.clear();
-        // Reset next player button state BEFORE moving
-        shouldEnableNextPlayer = false;
+        //addUndoSnapShot();
+        //redoStack.clear();
 
         if (skipCount > 0) {
             processSkip();  // jumps past players

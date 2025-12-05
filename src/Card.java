@@ -94,6 +94,15 @@ abstract public class Card implements Serializable {
 
 
     /**
+     * Sets the intended card to a light or dark side
+     *
+     */
+    public void setActiveSide(boolean activeSide) {
+        this.isLightSideActive = activeSide;
+    }
+
+
+    /**
      * Prints a textual representation of the card to the console.
      * Prints the color and type of the currently activated side
      */
