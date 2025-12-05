@@ -21,7 +21,7 @@ import java.util.ArrayList;
  * @author Aryan Singh 101299776
  * @author Jonathan Gitej 101294584
  *
- * @version 3.0, November 24, 2025
+ * @version 4.0, December 05, 2025
  */
 public class
 UNO_Frame extends JFrame implements UNO_View{
@@ -290,6 +290,12 @@ UNO_Frame extends JFrame implements UNO_View{
     }
 
 
+    /**
+     * Receives game events from the model and delegates them for processing.
+     * Ensures that events are handled on the Swing event dispatch thread.
+     *
+     * @param event the {@link GameEvent} containing updated game state information
+     */
     @Override
     public void handleGameEvent(GameEvent event) {
         // Use SwingUtilities to ensure thread safety
@@ -754,10 +760,22 @@ UNO_Frame extends JFrame implements UNO_View{
         return drawButton;
     }
 
+    /**
+     * Returns the Undo button used to reverse the last action.
+     * The controller retrieves this button to attach the appropriate listener.
+     *
+     * @return {@link JButton} the Undo button component
+     */
     public JButton getUndoButton(){
         return undoButton;
     }
 
+    /**
+     * Returns the Redo button used to reapply an action that was undone.
+     * The controller retrieves this button to attach the appropriate listener.
+     *
+     * @return {@link JButton} the Redo button component
+     */
     public JButton getRedoButton(){
         return redoButton;
     }

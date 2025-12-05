@@ -7,7 +7,7 @@
  * @author Aryan Singh 101299776
  * @author Jonathan Gitej 101294584
  *
- * @version 3.0, November 24, 2025
+ * @version 4.0, December 05, 2025
  */
 public class NumberCard extends Card {
 

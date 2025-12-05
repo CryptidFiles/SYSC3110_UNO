@@ -12,7 +12,7 @@
  * @author Aryan Singh 101299776
  * @author Jonathan Gitej 101294584
  *
- * @version 3.0, November 24, 2025
+ * @version 4.0, December 05, 2025
  */
 public class WildDrawCard extends Card {
     /**
@@ -43,7 +43,16 @@ public class WildDrawCard extends Card {
     }
 
     /**
-     * Executes the draw action after color is chosen
+     * Executes the Wild Draw card’s effect after the player has chosen a color.
+     * On the light side, this card becomes a Wild Draw Two: the next player draws
+     * two cards and their turn is skipped.
+     * On the dark side, this becomes a Wild Draw Color: the next player must
+     * repeatedly draw cards until one matches the chosen color, then their turn is skipped.
+     *
+     * @param chosenColor the {@link CardColor} selected by the player during color selection
+     * @param isLightSide true if the light side of the card is active; false if the dark side is active
+     * @param model the {@link UNO_Model} managing the current game state
+     * @param player the {@link Player} who played this Wild Draw card
      */
     public void executeDrawAction(CardColor chosenColor, boolean isLightSide, UNO_Model model, Player player) {
         if (isLightSide) {

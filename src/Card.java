@@ -13,7 +13,7 @@ import java.io.Serializable;
  * @author Aryan Singh 101299776
  * @author Jonathan Gitej 101294584
  *
- * @version 3.0, November 24, 2025
+ * @version 4.0, December 05, 2025
  */
 abstract public class Card implements Serializable {
     protected boolean isLightSideActive;
@@ -96,6 +96,7 @@ abstract public class Card implements Serializable {
     /**
      * Sets the intended card to a light or dark side
      *
+     * @param activeSide true to activate the light side, false to activate the dark side
      */
     public void setActiveSide(boolean activeSide) {
         this.isLightSideActive = activeSide;
