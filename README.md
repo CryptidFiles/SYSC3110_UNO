@@ -25,7 +25,9 @@ The offical **UNO FLIP!** rules can be found here: https://service.mattel.com/in
 - ✅ Includes **error handling**, and **JUnit-tested game logic**  
 - ✅ Provides **UML diagrams** and **sequence diagrams** for main gameplay scenarios
 - ✅ Implements **AI Bots** that you can play with
-  
+- ✅ Implements **UNDO and REDO** functionality
+- ✅ Implements the ability to **Save** and **Load** game
+- ✅ Implements replayability
 ---
 ## How to Run
 
@@ -129,6 +131,21 @@ java UNO_Frame
 - Updated UML diagram
 - Fixed bugs with the ai bots and the UI
 - Implemented quality of life improvements to the gameplay loop to be more understandable for the player
+
+### Milestone 4
+
+**Ahmad**
+
+
+**Aryan**
+
+
+**Atik**
+
+
+**Jonathan**
+- Updated UML diagram
+- Implemented load and save game functionality
 
 ### Milestone 5
 
