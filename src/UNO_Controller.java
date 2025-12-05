@@ -143,8 +143,8 @@ public class UNO_Controller implements ActionListener, Serializable {
             } else if (topCard instanceof WildDrawCard) {
                 WildDrawCard wildDrawCard = (WildDrawCard) topCard;
                 Player currentPlayer = model.getCurrentPlayer();
-                wildDrawCard.executeDrawAction(chosenColor, model.topCard().isLightSideActive, model, currentPlayer);
                 model.completeColorSelection();
+                wildDrawCard.executeDrawAction(chosenColor, model.topCard().isLightSideActive, model, currentPlayer);
 
             }
         } catch (Exception ex) {
