@@ -34,7 +34,7 @@ public class UNO_Model implements Serializable {
     private boolean roundOver; //is this round finished
     private Player roundWinningPlayer; //who won this round
 
-    final int WINNING_SCORE = 500; //first to 500 wins the whole game
+    final int WINNING_SCORE = 50; //first to 500 wins the whole game
 
     private int currentPlayerIndex; //whose turn it is
     private int skipCount; //how many players to skip next time we move turns
@@ -56,7 +56,7 @@ public class UNO_Model implements Serializable {
     private Stack<StateSnapShot> redoStack;
 
     // GUI views that will display changes in the model
-    transient List<UNO_View> views;
+    private transient List<UNO_View> views;
 
 
     /**
@@ -152,12 +152,20 @@ public class UNO_Model implements Serializable {
 
 
 
+
+    public List<UNO_View> getViews() {
+        return views;
+    }
+
     /**
      * Registers a {@link UNO_View} observer to receive updates when game state changes.
      *
      * @param view the view instance to add
      */
     public void addUnoView(UNO_View view){
+        if (views == null) {
+            views = new ArrayList<>();
+        }
         views.add(view);
     }
 
@@ -168,11 +176,15 @@ public class UNO_Model implements Serializable {
      * @param view the view instance to remove
      */
     public void removeUnoView(UNO_View view){
-        views.remove(view);
+        if (views != null) {
+            views.remove(view);
+        }
     }
 
     public void clearUnoViews(){
-        views.clear();
+        if (views != null) {
+            views.clear();
+        }
     }
 
 

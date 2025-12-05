@@ -23,7 +23,8 @@ import java.util.ArrayList;
  *
  * @version 3.0, November 24, 2025
  */
-public class UNO_Frame extends JFrame implements UNO_View{
+public class
+UNO_Frame extends JFrame implements UNO_View{
     private JPanel mainPanel; //container that holds everything
     private JPanel playerHandPanel; //bottom area showing the players cards
     private JPanel playAreaPanel; //middle area showing draw deck and top card

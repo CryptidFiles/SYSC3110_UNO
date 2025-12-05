@@ -70,10 +70,8 @@ public class UNO_Controller implements ActionListener, Serializable {
             view.setDrawButtonEnabled(false);
         }
         else if (source == view.getNextPlayerButton()) {
-            System.out.println("Next Player button clicked!");
             model.moveToNextPlayer();
             view.setNextPlayerButtonEnabled(false);
-            System.out.println("Next Player button disabled");
 
         } else if (source == view.getUndoButton()) {
             model.undo();
@@ -225,7 +223,7 @@ public class UNO_Controller implements ActionListener, Serializable {
                 // Reassign new model to the controller
                 this.model = loadedModel;
 
-                // Clear the collection of views already saved
+                // Clear the collection of views already saved if full
                 model.clearUnoViews();
 
                 // Then add the current frame(s) into the model
