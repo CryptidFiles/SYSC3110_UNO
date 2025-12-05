@@ -142,7 +142,10 @@ java UNO_Frame
 
 
 **Atik**
-
+- Wrote the user manual
+- Implemented the feature to play additional games once a player has reached 500 points
+- Wrote JUnit tests for undo/ redo functionality
+- Wrote JUnit tests for serialization/ deserialization functionality
 
 **Jonathan**
 - Updated UML diagram
