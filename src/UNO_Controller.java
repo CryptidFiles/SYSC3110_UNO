@@ -212,6 +212,12 @@ public class UNO_Controller implements ActionListener, Serializable {
                 // Reassign new model to the controller
                 this.model = loadedModel;
 
+                // Clear the collection of views already saved
+                model.clearUnoViews();
+
+                // Then add the current frame(s) into the model
+                model.addUnoView(this.view);
+
                 if (loadedModel != null) {
                     System.out.println("Model loaded successfully.");
                     this.model = loadedModel;     // Replace current model

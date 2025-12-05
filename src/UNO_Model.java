@@ -171,6 +171,11 @@ public class UNO_Model implements Serializable {
         views.remove(view);
     }
 
+    public void clearUnoViews(){
+        views.clear();
+    }
+
+
     /**
      * Notifies all registered observers of a game state update.
      * Constructs a {@link GameEvent} containing the latest state information
