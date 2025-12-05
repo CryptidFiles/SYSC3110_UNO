@@ -16,7 +16,7 @@ import javax.swing.Timer;
  * @author Aryan Singh 101299776
  * @author Jonathan Gitej 101294584
  *
- * @version 3.0, November 24, 2025
+ * @version 4.0, December 05, 2025
  */
 public class UNO_Model implements Serializable {
 
@@ -99,10 +99,20 @@ public class UNO_Model implements Serializable {
         redoStack = new Stack<>();
     }
 
+    /**
+     * Captures the current game state and pushes it onto the undo stack.
+     * This snapshot is taken before any irreversible action (play, draw, turn change).
+     */
     public void addUndoSnapShot() {
         undoStack.push(captureState());
     }
 
+    /**
+     * Creates a full snapshot of the current game state, including players,
+     * hands, deck, play pile, active side, turn index, and event flags.
+     *
+     * @return a {@link StateSnapShot} representing the current model state
+     */
     private StateSnapShot captureState() {
         return new StateSnapShot(
                 createNewGameEvent(),
@@ -118,6 +128,11 @@ public class UNO_Model implements Serializable {
         );
     }
 
+    /**
+     * Restores the previous game state from the undo stack.
+     * The current state is pushed onto the redo stack before restoring.
+     * If no snapshot exists, the method does nothing.
+     */
     public void undo() {
         if (undoStack.isEmpty()) return;
 
@@ -129,6 +144,11 @@ public class UNO_Model implements Serializable {
         restoreState(snap);
     }
 
+    /**
+     * Reapplies a previously undone action by restoring a state from the redo stack.
+     * The current state is saved to the undo stack.
+     * If no redo snapshot exists, the method does nothing.
+     */
     public void redo() {
         if (redoStack.isEmpty()) return;
 
@@ -140,6 +160,13 @@ public class UNO_Model implements Serializable {
         restoreState(snap);
     }
 
+    /**
+     * Restores the model to a previously saved snapshot.
+     * Reconstructs players, decks, piles, active side, direction,
+     * turn index, and event control flags.
+     *
+     * @param snap the snapshot to restore
+     */
     private void restoreState(StateSnapShot snap) {
         // Restore all game state from snapshot
 
@@ -253,8 +280,11 @@ public class UNO_Model implements Serializable {
     }
 
 
-
-
+    /**
+     * Returns the list of registered {@link UNO_View} observers.
+     *
+     * @return a list of all attached views
+     */
     public List<UNO_View> getViews() {
         return views;
     }
@@ -283,6 +313,10 @@ public class UNO_Model implements Serializable {
         }
     }
 
+    /**
+     * Removes all registered {@link UNO_View} observers.
+     * Typically used when loading a new saved model to prevent duplicate listeners.
+     */
     public void clearUnoViews(){
         if (views != null) {
             views.clear();
@@ -841,7 +875,9 @@ public class UNO_Model implements Serializable {
     }
 
     /**
-     * Applies pending skips by advancing the current turn index, then clears the skip count.
+     * Processes all pending skips by advancing the current player index
+     * according to the active direction and the accumulated skip count.
+     * After applying, the skip counter is cleared and views are notified.
      */
     public void processSkip() {
         if (skipCount > 0) {
@@ -1044,6 +1080,13 @@ public class UNO_Model implements Serializable {
     public void setWaitingForColorSelection(boolean waiting) {
         this.waitingForColorSelection = waiting;
     }
+
+    /**
+     * Constructs a {@link GameEvent} containing the current state information
+     * such as current player, last played card, direction, and button states.
+     *
+     * @return a new {@link GameEvent} representing the current game state
+     */
     public GameEvent createNewGameEvent(){
         GameEvent event = new GameEvent(
                 lastEventType,

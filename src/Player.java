@@ -11,7 +11,7 @@ import java.util.*;
  * @author Aryan Singh 101299776
  * @author Jonathan Gitej 101294584
  *
- * @version 3.0, November 24, 2025
+ * @version 4.0, December 05, 2025
  */
 public class Player implements Serializable {
     @Serial
@@ -26,6 +26,7 @@ public class Player implements Serializable {
      * Constructs a new player with the specified name and an empty hand.
      *
      * @param name The name of the player.
+     * @param isAI true if the player is computer-controlled; false otherwise
      */
     public Player(String name, boolean isAI) {
         this.name = name;
@@ -35,6 +36,14 @@ public class Player implements Serializable {
     }
 
 
+    /**
+     * Constructs a new player with the specified name, AI status, and AI strategy.
+     * This constructor is used when creating an AI-controlled player.
+     *
+     * @param name the name of the player
+     * @param isAI true if the player is computer-controlled; false otherwise
+     * @param strategy the AI strategy that determines the player's automated behavior
+     */
     public Player(String name, boolean isAI, AIStrategy strategy) {
         this.name = name;
         this.hand = new ArrayList<>();
@@ -139,18 +148,38 @@ public class Player implements Serializable {
     }
 
 
+    /**
+     * Determines whether this player is controlled by the AI.
+     *
+     * @return true if the player is an AI; false otherwise
+     */
     public boolean isPlayerAI() {
         return isAI;
     }
 
+    /**
+     * Returns the AI strategy associated with this player.
+     *
+     * @return the {@link AIStrategy} assigned to this player, or null if the player is human
+     */
     public AIStrategy getAIStrategy() {
         return aiStrategy;
     }
 
+    /**
+     * Sets whether this player should be treated as AI-controlled.
+     *
+     * @param isAI true to designate the player as AI-controlled; false for human-controlled
+     */
     public void setAI(boolean isAI){
         this.isAI = isAI;
     }
 
+    /**
+     * Assigns an AI strategy to this player.
+     *
+     * @param strategy the {@link AIStrategy} that determines this player's automated decisions
+     */
     public void setAiStrategy(AIStrategy strategy) {
         this.aiStrategy = strategy;
     }
