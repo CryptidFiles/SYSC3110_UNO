@@ -76,9 +76,7 @@ public class UNO_Controller implements ActionListener, Serializable {
         } else if (source == view.getUndoButton()) {
             model.undo();
         } else if (source == view.getRedoButton()) {
-            //boolean success = model.redo();    WHAT WE SHOULD CALL
-            return;
-
+            model.redo();
         } else if (source instanceof JButton) {
             // Handle card plays from CardComponents
             JButton button = (JButton) source;

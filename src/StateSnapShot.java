@@ -5,10 +5,10 @@ public class StateSnapShot implements Serializable {
     private int currentPlayerIndex;
     private GameEvent.EventType actionType;
 
-    public StateSnapShot(GameEvent hand,  int currentPlayerIndex, GameEvent.EventType actionType) {
+    public StateSnapShot(GameEvent hand,  int currentPlayerIndex) {
         this.previousHand = hand;
         this.currentPlayerIndex = currentPlayerIndex;
-        this.actionType = actionType;
+        //this.actionType = actionType;
     }
 
     public GameEvent getPreviousHand() {
