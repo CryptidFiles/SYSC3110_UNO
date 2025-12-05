@@ -161,6 +161,29 @@ public class UNO_Model implements Serializable {
                 if (card.getActiveSide() != shouldBeLightSide) {
                     card.setActiveSide(shouldBeLightSide);
                 }
+
+                // Reset Wild cards in hand to original WILD color
+                if ((card instanceof WildCard || card instanceof WildDrawCard) &&
+                        card.getColor() != CardColor.WILD) {
+                    // Reset to original WILD color for cards in hand
+                    if (shouldBeLightSide) {
+                        if (card instanceof WildCard) {
+                            card.lightColor = CardColor.WILD;
+                            card.darkColor = CardColor.WILD;
+                        } else if (card instanceof WildDrawCard) {
+                            card.lightColor = CardColor.WILD;
+                            card.darkColor = CardColor.WILD;
+                        }
+                    } else {
+                        if (card instanceof WildCard) {
+                            card.darkColor = CardColor.WILD;
+                            card.lightColor = CardColor.WILD;
+                        } else if (card instanceof WildDrawCard) {
+                            card.darkColor = CardColor.WILD;
+                            card.lightColor = CardColor.WILD;
+                        }
+                    }
+                }
             }
 
             this.players.add(newPlayer);
@@ -179,6 +202,25 @@ public class UNO_Model implements Serializable {
         // Restore play pile
         this.playPile = new Stack<>();
         for (Card c : snap.getPlayPileState()) {
+            // Apply the wild color choice from the snapshot to wild cards in the play pile
+            CardColor savedWildColor = snap.getWildColorChoice();
+            if ((c instanceof WildCard || c instanceof WildDrawCard) && savedWildColor != null && savedWildColor != CardColor.WILD) {
+                // Apply the chosen color to wild cards
+                if (c instanceof WildCard) {
+                    ((WildCard) c).applyChosenColor(savedWildColor, shouldBeLightSide);
+                } else if (c instanceof WildDrawCard) {
+                    WildDrawCard wildDraw = (WildDrawCard) c;
+                    // Apply the color based on which side is active
+                    if (shouldBeLightSide) {
+                        wildDraw.lightColor = savedWildColor;
+                        wildDraw.darkColor = savedWildColor.getDarkCounterpart();
+                    } else {
+                        wildDraw.darkColor = savedWildColor;
+                        wildDraw.lightColor = savedWildColor.getLightCounterpart();
+                    }
+                }
+            }
+
             this.playPile.push(c);
 
             if (c.getActiveSide() != shouldBeLightSide) {
