@@ -65,6 +65,10 @@ public class StateSnapShot implements Serializable {
 
         // Deep copy of deck
         this.playDeckState = new Deck();
+
+        //Clears the initialised deck
+        this.playDeckState.getDeck().clear();
+
         for (Card c : deck.getDeck()) {
             this.playDeckState.addCard(c);
         }

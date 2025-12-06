@@ -232,6 +232,10 @@ public class UNO_Model implements Serializable {
 
         // Restore deck
         this.playDeck = new Deck();
+
+        // Clears the initialised deck
+        this.playDeck.getDeck().clear();
+
         for (Card c : snap.getPlayDeckState().getDeck()) {
             this.playDeck.addCard(c);
 

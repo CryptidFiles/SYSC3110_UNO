@@ -4,6 +4,8 @@ import org.junit.Test;
 import javax.swing.*;
 
 import static org.junit.Assert.*;
+
+import java.io.File;
 import java.util.*;
 
 public class UNO_ModelTest {
@@ -225,6 +227,114 @@ public class UNO_ModelTest {
         player2.drawCardToHand(new TestCard(CardColor.BLUE, CardType.SKIP));
         game.tallyScores(player1);
         assertTrue(player1.getScore() >= 490);
+    }
+
+    /**
+     * Tests that saving and loading the game through serialization keeps core state.
+     */
+    @Test
+    public void testSaveAndLoadGamePreservesCoreState() throws Exception {
+        game.startNewRound();
+
+        game.setCurrentPlayerIndex(1);
+        game.setDirection(Direction.COUNTERCLOCKWISE);
+        game.setSkipCount(2);
+        player1.addScore(10);
+        player2.addScore(20);
+
+        File temp = File.createTempFile("uno_save_test", ".dat");
+        temp.deleteOnExit();
+
+        game.saveGame(temp.getAbsolutePath());
+
+        UNO_Model loaded = UNO_Model.loadGame(temp.getAbsolutePath());
+        assertNotNull(loaded);
+
+        assertEquals(2, loaded.getPlayers().size());
+        assertEquals(Direction.COUNTERCLOCKWISE, loaded.getDirection());
+        assertEquals(1, loaded.getCurrentPlayerIndex());
+        assertEquals(2, loaded.getSkipCount());
+
+        assertEquals(player1.getScore(), loaded.getPlayers().get(0).getScore());
+        assertEquals(player2.getScore(), loaded.getPlayers().get(1).getScore());
+
+        assertEquals(game.getPlayPileSize(), loaded.getPlayPileSize());
+        assertEquals(game.getPlayDeck().getDeck().size(), loaded.getPlayDeck().getDeck().size());
+
+        Card originalTop = game.topCard();
+        Card loadedTop = loaded.topCard();
+        assertEquals(originalTop.getColor(), loadedTop.getColor());
+        assertEquals(originalTop.getType(), loadedTop.getType());
+
+        assertTrue(loaded.getViews() == null || loaded.getViews().isEmpty());
+    }
+
+    /**
+     * Tests that undo restores the previous state of a simple play.
+     */
+    @Test
+    public void testUndoRestoresPreviousStateAfterPlay() {
+        game.startNewRound();
+
+        Card baseTop = new TestCard(CardColor.RED, CardType.THREE);
+        game.getPlayPile().clear();
+        game.getPlayPile().push(baseTop);
+
+        Player p1 = game.getPlayers().get(0);
+        p1.getHand().clear();
+        Card toPlay = new TestCard(CardColor.RED, CardType.FIVE);
+        p1.drawCardToHand(toPlay);
+
+        assertEquals(1, p1.handSize());
+        boolean played = game.playCard(1);
+        assertTrue(played);
+
+        Player p1AfterPlay = game.getPlayers().get(0);
+        assertEquals(0, p1AfterPlay.handSize());
+        assertEquals(toPlay, game.topCard());
+
+        game.undo();
+
+        Player p1AfterUndo = game.getPlayers().get(0);
+        assertEquals(1, p1AfterUndo.handSize());
+        assertEquals(baseTop, game.topCard());
+    }
+
+    /**
+     * Tests full undo and redo cycle for a simple play.
+     */
+    @Test
+    public void testUndoRedoCycleForPlayCard() {
+        game.startNewRound();
+
+        Card baseTop = new TestCard(CardColor.RED, CardType.THREE);
+        game.getPlayPile().clear();
+        game.getPlayPile().push(baseTop);
+
+        Player p1 = game.getPlayers().get(0);
+        p1.getHand().clear();
+        Card playedCard = new TestCard(CardColor.RED, CardType.FIVE);
+        p1.drawCardToHand(playedCard);
+
+        boolean played = game.playCard(1);
+        assertTrue(played);
+        assertEquals(0, game.getPlayers().get(0).handSize());
+        assertEquals(playedCard, game.topCard());
+
+        // Prepare flag so redo stack will be populated during undo
+        game.setHasActedThisTurn(false);
+
+        game.undo();
+
+        Player p1AfterUndo = game.getPlayers().get(0);
+        assertEquals(1, p1AfterUndo.handSize());
+        assertEquals(baseTop, game.topCard());
+
+        game.redo();
+
+        Player p1AfterRedo = game.getPlayers().get(0);
+        assertEquals(0, p1AfterRedo.handSize());
+        assertEquals(playedCard, game.topCard());
     }
 
     /**
