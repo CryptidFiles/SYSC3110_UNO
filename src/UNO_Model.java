@@ -148,7 +148,6 @@ public class UNO_Model implements Serializable {
         // Restore previous state
         StateSnapShot snap = undoStack.pop();
         restoreState(snap);
-        lastEventType = GameEvent.EventType.GAME_STATE_CHANGED;
         restoringState = false;
 
         notifyViews();
@@ -170,7 +169,6 @@ public class UNO_Model implements Serializable {
         // Restore next state
         StateSnapShot snap = redoStack.pop();
         restoreState(snap);
-        lastEventType = GameEvent.EventType.GAME_STATE_CHANGED;
         restoringState = false;
 
         notifyViews();
@@ -351,6 +349,14 @@ public class UNO_Model implements Serializable {
 
         // Reshuffle deck so player who wants to redraw card gets different on
         reshuffleDrawingDeck();
+
+        // If the restored state is after the player acted, mirror the post-play UI state
+        if (hasActedThisTurn && !waitingForColorSelection) {
+            lastEventType = GameEvent.EventType.CARD_PLAYED;
+            shouldEnableNextPlayer = true;
+            shouldEnableDrawButton = false;
+            lastPlayedCard = topCard();
+        }
 
         // If current player is AI during restore, prevent manual draw and allow stepping forward
         Player current = getCurrentPlayer();

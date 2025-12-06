@@ -482,6 +482,15 @@ UNO_Frame extends JFrame implements UNO_View{
         boolean canDraw = !hasPlayable && !model.hasActedThisTurn();
         drawButton.setEnabled(canDraw);
 
+        // If the player has already acted (e.g., after redo), disable further plays/draws
+        if (model.hasActedThisTurn()) {
+            setHandEnabled(false);
+            drawButton.setEnabled(false);
+            if (!model.isWaitingForColorSelection()) {
+                nextPlayerButton.setEnabled(true);
+            }
+        }
+
         // Handle additional data
         if (event.isEnableNextPlayer()) {
             setNextPlayerButtonEnabled(true);
