@@ -185,7 +185,7 @@ public class UNO_Model implements Serializable {
         // Boolean to set the correct light/dark side of cards
         boolean shouldBeLightSide = snap.getIsLightSide();
 
-        // Restore players (including hands and scores)
+        // Restore players (including hads and scores)
         this.players = new ArrayList<>();
         for (Player snapPlayer : snap.getPlayersState()) {
             Player newPlayer = new Player(snapPlayer.getName(), snapPlayer.isPlayerAI(), snapPlayer.getAIStrategy());
@@ -198,6 +198,29 @@ public class UNO_Model implements Serializable {
             for (Card card : snapPlayer.getHand()) {
                 if (card.getActiveSide() != shouldBeLightSide) {
                     card.setActiveSide(shouldBeLightSide);
+                }
+
+                // Reset Wild cards in hand to original WILD color
+                if ((card instanceof WildCard || card instanceof WildDrawCard) &&
+                        card.getColor() != CardColor.WILD) {
+                    // Reset to original WILD color for cards in hand
+                    if (shouldBeLightSide) {
+                        if (card instanceof WildCard) {
+                            card.lightColor = CardColor.WILD;
+                            card.darkColor = CardColor.WILD;
+                        } else if (card instanceof WildDrawCard) {
+                            card.lightColor = CardColor.WILD;
+                            card.darkColor = CardColor.WILD;
+                        }
+                    } else {
+                        if (card instanceof WildCard) {
+                            card.darkColor = CardColor.WILD;
+                            card.lightColor = CardColor.WILD;
+                        } else if (card instanceof WildDrawCard) {
+                            card.darkColor = CardColor.WILD;
+                            card.lightColor = CardColor.WILD;
+                        }
+                    }
                 }
             }
 
@@ -215,14 +238,82 @@ public class UNO_Model implements Serializable {
         }
 
         // Restore play pile
-        this.playPile = new Stack<>();
+        /**this.playPile = new Stack<>();
         for (Card c : snap.getPlayPileState()) {
+            // Apply the wild color choice from the snapshot to wild cards in the play pile
+            CardColor savedWildColor = snap.getWildColorChoice();
+            if ((c instanceof WildCard || c instanceof WildDrawCard) && savedWildColor != null && savedWildColor != CardColor.WILD) {
+                // Apply the chosen color to wild cards
+                if (c instanceof WildCard) {
+                    ((WildCard) c).applyChosenColor(savedWildColor, shouldBeLightSide);
+                } else if (c instanceof WildDrawCard) {
+                    WildDrawCard wildDraw = (WildDrawCard) c;
+                    // Apply the color based on which side is active
+                    if (shouldBeLightSide) {
+                        wildDraw.lightColor = savedWildColor;
+                        wildDraw.darkColor = savedWildColor.getDarkCounterpart();
+                    } else {
+                        wildDraw.darkColor = savedWildColor;
+                        wildDraw.lightColor = savedWildColor.getLightCounterpart();
+                    }
+                }
+            }
+
+            this.playPile.push(c);
+
+            if (c.getActiveSide() != shouldBeLightSide) {
+                c.setActiveSide(shouldBeLightSide);
+            }
+        }*/
+
+
+        // Restore play pile
+        this.playPile = new Stack<>();
+        Card topCardInPlayPile = null;
+        if (!snap.getPlayPileState().isEmpty()) {
+            topCardInPlayPile = snap.getPlayPileState().peek();
+        }
+
+        for (Card c : snap.getPlayPileState()) {
+            // Apply the wild color choice from the snapshot to wild cards in the play pile
+            CardColor savedWildColor = snap.getWildColorChoice();
+            boolean isTopCard = (c == topCardInPlayPile);
+
+            if ((c instanceof WildCard || c instanceof WildDrawCard) && savedWildColor != null) {
+                // Apply the chosen color to wild cards (only if they have a chosen color)
+                if (savedWildColor != CardColor.WILD) {
+                    if (c instanceof WildCard) {
+                        ((WildCard) c).applyChosenColor(savedWildColor, shouldBeLightSide);
+                    } else if (c instanceof WildDrawCard) {
+                        WildDrawCard wildDraw = (WildDrawCard) c;
+                        // Apply the color based on which side is active
+                        if (shouldBeLightSide) {
+                            wildDraw.lightColor = savedWildColor;
+                            wildDraw.darkColor = savedWildColor.getDarkCounterpart();
+                        } else {
+                            wildDraw.darkColor = savedWildColor;
+                            wildDraw.lightColor = savedWildColor.getLightCounterpart();
+                        }
+                    }
+                } else if (isTopCard) {
+                    // If it's the top card and color is WILD, ensure it's properly reset
+                    if (shouldBeLightSide) {
+                        c.lightColor = CardColor.WILD;
+                        c.darkColor = CardColor.WILD;
+                    } else {
+                        c.darkColor = CardColor.WILD;
+                        c.lightColor = CardColor.WILD;
+                    }
+                }
+            }
+
             this.playPile.push(c);
 
             if (c.getActiveSide() != shouldBeLightSide) {
                 c.setActiveSide(shouldBeLightSide);
             }
         }
+
 
         // Restore other state variables
         this.currentPlayerIndex = snap.getCurrentPlayerIndex();
@@ -240,6 +331,43 @@ public class UNO_Model implements Serializable {
         this.gameWinningPlayer = savedEvent.getWinningPlayer();
         this.shouldEnableNextPlayer = savedEvent.isEnableNextPlayer();
         this.shouldEnableDrawButton = savedEvent.isEnableDrawButton();
+
+        // CRITICAL FIX: Handle color selection state correctly
+        if (this.waitingForColorSelection) {
+            // If we're waiting for color selection, disable buttons
+            this.shouldEnableNextPlayer = false;
+            this.shouldEnableDrawButton = false;
+
+            // Set event type to trigger color selection dialog
+            this.lastEventType = GameEvent.EventType.COLOR_SELECTION_NEEDED;
+            this.statusMessage = "Select a color for the wild card";
+        } else if (this.wildColorChoice != null && this.wildColorChoice != CardColor.WILD) {
+            // If a color was already chosen, update the top card's color WITHOUT prompting
+            Card topCard = topCard();
+            if (topCard instanceof WildCard || topCard instanceof WildDrawCard) {
+                // Apply the color to the top card
+                if (topCard instanceof WildCard) {
+                    ((WildCard) topCard).applyChosenColor(this.wildColorChoice, topCard.isLightSideActive);
+                } else if (topCard instanceof WildDrawCard) {
+                    WildDrawCard wildDraw = (WildDrawCard) topCard;
+                    if (topCard.isLightSideActive) {
+                        wildDraw.lightColor = this.wildColorChoice;
+                        wildDraw.darkColor = this.wildColorChoice.getDarkCounterpart();
+                    } else {
+                        wildDraw.darkColor = this.wildColorChoice;
+                        wildDraw.lightColor = this.wildColorChoice.getLightCounterpart();
+                    }
+                }
+            }
+
+            // Set appropriate event type (not COLOR_SELECTION_NEEDED since color already chosen)
+            if (this.lastEventType == GameEvent.EventType.COLOR_SELECTION_NEEDED) {
+                // Change to a different event type to avoid color selection prompt
+                this.lastEventType = GameEvent.EventType.GAME_STATE_CHANGED;
+                this.statusMessage = "Wild card color restored: " + this.wildColorChoice;
+            }
+        }
+
 
         // Reshuffle deck so player who wants to redraw card gets different on
         reshuffleDrawingDeck();
@@ -651,6 +779,8 @@ public class UNO_Model implements Serializable {
         this.waitingForColorSelection = false;
         this.hasActedThisTurn = true; // Important: mark that the player has acted
 
+        // ADD THIS: Save state AFTER color selection
+        addUndoSnapShot();
 
         prepareEvent(GameEvent.EventType.COLOR_SELECTION_COMPLETE, "Color selected!");
         shouldEnableNextPlayer = true; // Enable next player button
