@@ -143,9 +143,7 @@ public class UNO_Model implements Serializable {
         cancelPendingAITurn();
 
         // Save current state to redo stack
-        if(!hasActedThisTurn) {
-            redoStack.push(captureState());
-        }
+        redoStack.push(captureState());
 
         // Restore previous state
         StateSnapShot snap = undoStack.pop();
@@ -354,10 +352,19 @@ public class UNO_Model implements Serializable {
         // Reshuffle deck so player who wants to redraw card gets different on
         reshuffleDrawingDeck();
 
+        // If current player is AI during restore, prevent manual draw and allow stepping forward
+        Player current = getCurrentPlayer();
+        if (current.isPlayerAI()) {
+            shouldEnableDrawButton = false;
+            if (!waitingForColorSelection) {
+                shouldEnableNextPlayer = true;
+            }
+        }
+
         // Notify views
         notifyViews();
 
-        if (getCurrentPlayer().isPlayerAI() && !isGameOver() && !isRoundOver()) {
+        if (!restoringState && getCurrentPlayer().isPlayerAI() && !isGameOver() && !isRoundOver()) {
             executeAITurn();
         }
     }
@@ -473,6 +480,10 @@ public class UNO_Model implements Serializable {
     public void startNewRound() {
         cancelPendingAITurn();
 
+        // Reset undo/redo history for the new round
+        undoStack.clear();
+        redoStack.clear();
+
         resetDecks();
         distributeCards();
         currentPlayerIndex = 0;
@@ -486,6 +497,8 @@ public class UNO_Model implements Serializable {
         // Update the game state
         prepareEvent(GameEvent.EventType.GAME_STATE_CHANGED, "New round started!");
         shouldEnableDrawButton = !hasPlayableHand(getCurrentPlayer());
+        // Capture the initial state so undo can return to round start
+        addUndoSnapShot();
         notifyViews();
 
         // Start AI turn if first player is AI
@@ -518,6 +531,8 @@ public class UNO_Model implements Serializable {
         waitingForColorSelection = false;
         hasActedThisTurn = false;
         wildColorChoice = CardColor.WILD;
+        undoStack.clear();
+        redoStack.clear();
 
         // let views know scores changed
         prepareEvent(GameEvent.EventType.SCORES_UPDATED, "New game started!");
