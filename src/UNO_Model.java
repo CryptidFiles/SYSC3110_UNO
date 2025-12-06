@@ -56,6 +56,8 @@ public class UNO_Model implements Serializable {
     private Stack<StateSnapShot> redoStack;
 
     private boolean restoringState = false;
+    // Track any pending AI timer so it can be cancelled during undo/redo
+    private transient Timer aiTimer;
     // GUI views that will display changes in the model
     private transient List<UNO_View> views;
 
@@ -138,6 +140,7 @@ public class UNO_Model implements Serializable {
         if (undoStack.isEmpty()) return;
 
         restoringState = true;
+        cancelPendingAITurn();
 
         // Save current state to redo stack
         if(!hasActedThisTurn) {
@@ -162,6 +165,7 @@ public class UNO_Model implements Serializable {
         if (redoStack.isEmpty()) return;
 
         restoringState = true;
+        cancelPendingAITurn();
         // Save current state to undo stack
         undoStack.push(captureState());
 
@@ -183,6 +187,7 @@ public class UNO_Model implements Serializable {
      */
     private void restoreState(StateSnapShot snap) {
         // Restore all game state from snapshot
+        cancelPendingAITurn();
 
 
         // Boolean to set the correct light/dark side of cards
@@ -466,6 +471,7 @@ public class UNO_Model implements Serializable {
      * Called by the controller at the start of each round.
      */
     public void startNewRound() {
+        cancelPendingAITurn();
 
         resetDecks();
         distributeCards();
@@ -495,6 +501,7 @@ public class UNO_Model implements Serializable {
      * Called by the controller at the start of each round.
      */
     public void startNewGame(){
+        cancelPendingAITurn();
         // reset all player scores
         for (Player p : players) {
             p.resetScore();
@@ -1004,7 +1011,8 @@ public class UNO_Model implements Serializable {
 
 
             // Execute AI decision with a delay
-            Timer timer = new Timer(strategy.getDelayMilliseconds(), e -> {
+            cancelPendingAITurn();
+            aiTimer = new Timer(strategy.getDelayMilliseconds(), e -> {
                 Card topCard = topCard();
                 int cardChoiceIndex = strategy.chooseCard(currentPlayer, topCard, this);
 
@@ -1029,11 +1037,21 @@ public class UNO_Model implements Serializable {
 
 
             });
-            timer.setRepeats(false);
-            timer.start();
+            aiTimer.setRepeats(false);
+            aiTimer.start();
 
             addUndoSnapShot();
         }
+    }
+
+    /**
+     * Stops any scheduled AI turn to avoid executing actions from an outdated state.
+     */
+    private void cancelPendingAITurn() {
+        if (aiTimer != null && aiTimer.isRunning()) {
+            aiTimer.stop();
+        }
+        aiTimer = null;
     }
 
     /**
