@@ -141,7 +141,7 @@ java UNO_Frame
 **Aryan**
 - Implemented redo/undo with partner Ahmad
 - Helped some debugging in serialization
-- Did the sequence diagrams
+- Did the sequence diagrams using Mermaid.js (FreeTrial)
 
 **Atik**
 - Wrote the user manual
