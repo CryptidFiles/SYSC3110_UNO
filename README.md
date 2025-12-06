@@ -139,7 +139,9 @@ java UNO_Frame
 - updated Javadocs
 
 **Aryan**
-
+- Implemented redo/undo with partner Ahmad
+- Helped some debugging in serialization
+- Did the sequence diagrams
 
 **Atik**
 - Wrote the user manual
