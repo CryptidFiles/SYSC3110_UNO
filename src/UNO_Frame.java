@@ -406,6 +406,7 @@ UNO_Frame extends JFrame implements UNO_View{
                 // Disable hand immediately when color selection is needed
                 setHandEnabled(false);
                 setDrawButtonEnabled(false);
+                setNextPlayerButtonEnabled(false);  //may need to REMOVE
                 showWildColorSelection(event);
                 break;
 
