@@ -58,7 +58,7 @@ public class StateSnapShot implements Serializable {
             Player copy = new Player(p.getName(), p.isPlayerAI(), p.getAIStrategy());
             copy.addScore(p.getScore());
             for (Card c : p.getHand()) {
-                copy.drawCardToHand(c);
+                copy.drawCardToHand(c.deepCopy());
             }
             this.playersState.add(copy);
         }
@@ -66,13 +66,13 @@ public class StateSnapShot implements Serializable {
         // Deep copy of deck
         this.playDeckState = new Deck();
         for (Card c : deck.getDeck()) {
-            this.playDeckState.addCard(c);
+            this.playDeckState.addCard(c.deepCopy());
         }
 
         // Deep copy of play pile
         this.playPileState = new Stack<>();
         for (Card c : pile) {
-            this.playPileState.push(c);
+            this.playPileState.push(c.deepCopy());
         }
 
         this.direction = dir;

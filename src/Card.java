@@ -114,4 +114,20 @@ abstract public class Card implements Serializable {
             System.out.println(this.darkColor + "  " + this.darkType);
         }
     }
+
+
+    public Card deepCopy() {
+        try {
+            Card copy = this.getClass().getDeclaredConstructor().newInstance();
+            copy.isLightSideActive = this.isLightSideActive;
+            copy.lightColor = this.lightColor;
+            copy.darkColor = this.darkColor;
+            copy.lightType = this.lightType;
+            copy.darkType = this.darkType;
+            return copy;
+        } catch (Exception e) {
+            throw new RuntimeException("Card clone failed", e);
+        }
+    }
+
 }
