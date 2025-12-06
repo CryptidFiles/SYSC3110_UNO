@@ -138,8 +138,11 @@ public class UNO_Model implements Serializable {
         if (undoStack.isEmpty()) return;
 
         restoringState = true;
+
         // Save current state to redo stack
-        redoStack.push(captureState());
+        if(!hasActedThisTurn) {
+            redoStack.push(captureState());
+        }
 
         // Restore previous state
         StateSnapShot snap = undoStack.pop();
@@ -236,36 +239,6 @@ public class UNO_Model implements Serializable {
                 c.setActiveSide(shouldBeLightSide);
             }
         }
-
-        // Restore play pile
-        /**this.playPile = new Stack<>();
-        for (Card c : snap.getPlayPileState()) {
-            // Apply the wild color choice from the snapshot to wild cards in the play pile
-            CardColor savedWildColor = snap.getWildColorChoice();
-            if ((c instanceof WildCard || c instanceof WildDrawCard) && savedWildColor != null && savedWildColor != CardColor.WILD) {
-                // Apply the chosen color to wild cards
-                if (c instanceof WildCard) {
-                    ((WildCard) c).applyChosenColor(savedWildColor, shouldBeLightSide);
-                } else if (c instanceof WildDrawCard) {
-                    WildDrawCard wildDraw = (WildDrawCard) c;
-                    // Apply the color based on which side is active
-                    if (shouldBeLightSide) {
-                        wildDraw.lightColor = savedWildColor;
-                        wildDraw.darkColor = savedWildColor.getDarkCounterpart();
-                    } else {
-                        wildDraw.darkColor = savedWildColor;
-                        wildDraw.lightColor = savedWildColor.getLightCounterpart();
-                    }
-                }
-            }
-
-            this.playPile.push(c);
-
-            if (c.getActiveSide() != shouldBeLightSide) {
-                c.setActiveSide(shouldBeLightSide);
-            }
-        }*/
-
 
         // Restore play pile
         this.playPile = new Stack<>();
@@ -660,10 +633,11 @@ public class UNO_Model implements Serializable {
      */
     public boolean playCard(int cardIndex) {
 
-        // Save state BEFORE playing
-        addUndoSnapShot();
+
         Player currentPlayer = getCurrentPlayer();
         if (!currentPlayer.isPlayerAI()) {
+            // Save state BEFORE playing
+            addUndoSnapShot();
             redoStack.clear();
         }
 
@@ -821,12 +795,13 @@ public class UNO_Model implements Serializable {
      */
     public Card drawCard() {
         // Save state BEFORE drawing
-        addUndoSnapShot();
         Player currentPlayer = getCurrentPlayer();
-        /**if (!currentPlayer.isPlayerAI()) {
+
+        if (!currentPlayer.isPlayerAI()) {
+            // Save state BEFORE playing
+            addUndoSnapShot();
             redoStack.clear();
-        }*/
-        redoStack.clear();
+        }
 
         try {
             //Player currentPlayer = getCurrentPlayer();
@@ -1052,6 +1027,8 @@ public class UNO_Model implements Serializable {
             });
             timer.setRepeats(false);
             timer.start();
+
+            addUndoSnapShot();
         }
     }
 
