@@ -85,7 +85,7 @@ public class UNO_Model implements Serializable {
         // Initialize players from provided data
         this.numPlayers = numPlayers;
         for (int i = 0; i < numPlayers; i++) {
-            players.add(new Player(playerNames.get(i), playerIsAI.get(i), new BasicAIStrategy(1500)));
+            players.add(new Player(playerNames.get(i), playerIsAI.get(i), new BasicAIStrategy(750)));
         }
 
         // Initialize new event tracking fields
@@ -1032,6 +1032,7 @@ public class UNO_Model implements Serializable {
                 // No playable cards so AI draw
                 if (cardChoiceIndex == 0) {
                     drawCard();
+                    reshuffleDrawingDeck();
                 }
 
                 if(cardChoiceIndex > 0){
