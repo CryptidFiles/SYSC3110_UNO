@@ -55,6 +55,7 @@ public class UNO_Model implements Serializable {
     private Stack<StateSnapShot> undoStack;
     private Stack<StateSnapShot> redoStack;
 
+    private boolean restoringState = false;
     // GUI views that will display changes in the model
     private transient List<UNO_View> views;
 
@@ -136,12 +137,17 @@ public class UNO_Model implements Serializable {
     public void undo() {
         if (undoStack.isEmpty()) return;
 
+        restoringState = true;
         // Save current state to redo stack
         redoStack.push(captureState());
 
         // Restore previous state
         StateSnapShot snap = undoStack.pop();
         restoreState(snap);
+        lastEventType = GameEvent.EventType.GAME_STATE_CHANGED;
+        restoringState = false;
+
+        notifyViews();
     }
 
     /**
@@ -152,12 +158,17 @@ public class UNO_Model implements Serializable {
     public void redo() {
         if (redoStack.isEmpty()) return;
 
+        restoringState = true;
         // Save current state to undo stack
         undoStack.push(captureState());
 
         // Restore next state
         StateSnapShot snap = redoStack.pop();
         restoreState(snap);
+        lastEventType = GameEvent.EventType.GAME_STATE_CHANGED;
+        restoringState = false;
+
+        notifyViews();
     }
 
     /**
@@ -235,6 +246,10 @@ public class UNO_Model implements Serializable {
 
         // Notify views
         notifyViews();
+
+        if (getCurrentPlayer().isPlayerAI() && !isGameOver() && !isRoundOver()) {
+            executeAITurn();
+        }
     }
 
 
@@ -306,7 +321,7 @@ public class UNO_Model implements Serializable {
             view.handleGameEvent(event);
         }
 
-        if(lastEventType != GameEvent.EventType.MESSAGE){
+        if(!restoringState && lastEventType != GameEvent.EventType.MESSAGE){
             // Reset temporary state if not a message notification
             resetEventState();
         }
@@ -519,10 +534,13 @@ public class UNO_Model implements Serializable {
 
         // Save state BEFORE playing
         addUndoSnapShot();
-        redoStack.clear();
+        Player currentPlayer = getCurrentPlayer();
+        if (!currentPlayer.isPlayerAI()) {
+            redoStack.clear();
+        }
 
         try {
-            Player currentPlayer = getCurrentPlayer();
+            //currentPlayer = getCurrentPlayer();
 
             if (!validMove(currentPlayer, cardIndex)) {
                 return false;
@@ -674,10 +692,14 @@ public class UNO_Model implements Serializable {
     public Card drawCard() {
         // Save state BEFORE drawing
         addUndoSnapShot();
+        Player currentPlayer = getCurrentPlayer();
+        /**if (!currentPlayer.isPlayerAI()) {
+            redoStack.clear();
+        }*/
         redoStack.clear();
 
         try {
-            Player currentPlayer = getCurrentPlayer();
+            //Player currentPlayer = getCurrentPlayer();
 
             // If draw deck is empty, try to rebuild and reshuffle it from the play pile
             if (playDeck.getDeck().isEmpty()) {

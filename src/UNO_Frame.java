@@ -343,7 +343,7 @@ UNO_Frame extends JFrame implements UNO_View{
      * @param event the game event containing updated state information
      */
     private void processGameEvent(GameEvent event) {
-        if (event.getCurrentPlayer().isPlayerAI()){
+        if (event.getCurrentPlayer().isPlayerAI() && !model.hasActedThisTurn()){
             drawButton.setEnabled(false);
             nextPlayerButton.setEnabled(false);
 
