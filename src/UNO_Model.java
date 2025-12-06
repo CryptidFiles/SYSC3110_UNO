@@ -646,11 +646,7 @@ public class UNO_Model implements Serializable {
 
 
         Player currentPlayer = getCurrentPlayer();
-        if (!currentPlayer.isPlayerAI()) {
-            // Save state BEFORE playing
-            addUndoSnapShot();
-            redoStack.clear();
-        }
+        pushUndoSnapshotIfAllowed();
 
         try {
             //currentPlayer = getCurrentPlayer();
@@ -807,12 +803,7 @@ public class UNO_Model implements Serializable {
     public Card drawCard() {
         // Save state BEFORE drawing
         Player currentPlayer = getCurrentPlayer();
-
-        if (!currentPlayer.isPlayerAI()) {
-            // Save state BEFORE playing
-            addUndoSnapShot();
-            redoStack.clear();
-        }
+        pushUndoSnapshotIfAllowed();
 
         try {
             //Player currentPlayer = getCurrentPlayer();
@@ -921,6 +912,7 @@ public class UNO_Model implements Serializable {
         // Save state BEFORE moving (only for human players)
         //addUndoSnapShot();
         //redoStack.clear();
+        pushUndoSnapshotIfAllowed();
 
         if (skipCount > 0) {
             processSkip();  // jumps past players
@@ -1039,8 +1031,6 @@ public class UNO_Model implements Serializable {
             });
             aiTimer.setRepeats(false);
             aiTimer.start();
-
-            addUndoSnapShot();
         }
     }
 
@@ -1052,6 +1042,17 @@ public class UNO_Model implements Serializable {
             aiTimer.stop();
         }
         aiTimer = null;
+    }
+
+    /**
+     * Pushes a snapshot to the undo stack unless we are in the middle of restoring a state.
+     * Clears the redo stack to maintain a linear history.
+     */
+    private void pushUndoSnapshotIfAllowed() {
+        if (!restoringState) {
+            addUndoSnapShot();
+            redoStack.clear();
+        }
     }
 
     /**
